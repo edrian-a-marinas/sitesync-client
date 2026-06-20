@@ -1,6 +1,7 @@
 // --- Client-side route paths for Next.js navigation ---
 export const ROUTES = {
   LOGIN: "/login",
+  LOGIN_ADMIN: "/login/admin",
   REGISTER: "/register",
   HOME: "/home",
   DASHBOARD: "/dashboard",

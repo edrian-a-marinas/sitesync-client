@@ -26,7 +26,8 @@ export default function Router() {
   return (
     <Routes>
       <Route path="/" element={root} />
-      <Route path={ROUTES.LOGIN} element={!isAuthenticated ? <LoginPage /> : <Navigate to={ROUTES.HOME} />} />
+      <Route path={ROUTES.LOGIN} element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" />} />
+      <Route path={ROUTES.LOGIN_ADMIN} element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" />} />
       <Route path={ROUTES.HOME} element={isAuthenticated ? <HomePage /> : <Navigate to={ROUTES.LOGIN} />} />
       <Route path="*" element={<div>404</div>} />
     </Routes>
