@@ -24,7 +24,7 @@
 
 ### Authentication & User Layer
 
-Users register and authenticate via JWT-based auth built into FastAPI. All resources — projects, site assignments, daily logs, attendance records, material entries, reports, and AI query history — are scoped per authenticated user and role. Three roles exist: Owner (full access, cross-project visibility, AI queries, and reporting), Project Manager (assigned projects only with full log management capabilities), and Site Worker (attendance submission and site-level reporting for assigned locations only). AWS IAM manages backend cloud credentials for S3 and RDS access, enforcing least-privilege permissions at the infrastructure layer.
+Authentication uses JWT via FastAPI. Account creation is role-restricted — Owners can create PM and Worker accounts, PMs can only create Worker accounts, no one can create an Owner account via API. All resources — projects, site assignments, daily logs, attendance records, material entries, reports, and AI query history — are scoped per authenticated user and role. Three roles exist: Owner (full access, cross-project visibility, AI queries, and reporting), Project Manager (assigned projects only with full log management capabilities), and Site Worker (attendance submission and site-level reporting for assigned locations only). AWS IAM manages backend cloud credentials for S3 and RDS access, enforcing least-privilege permissions at the infrastructure layer.
 
 ### Project & Site Management
 
@@ -88,6 +88,7 @@ Owner and Project Manager share the same UI shell and sidebar. The backend enfor
 | **Projects** | Project and phase management. Managers get view-only on assigned projects. | ✅ | ✅ |
 | **Daily Logs** | Submit and manage daily site logs. | ✅ | ✅ |
 | **Reports** | Weekly PDF reports. Scoped per role. | ✅ | ✅ |
+| **Manage Users** | Register and manage PM and Worker accounts. | ✅ | ✅ |
 | **Analytics** | ML predictions — budget overrun, delay risk, material forecast. | ✅ | ❌ |
 | **AI Assistant** | Natural language query interface for cross-project insights. | ✅ | ❌ |
 
