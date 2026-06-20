@@ -1,4 +1,4 @@
-import { ROLES } from "@/app/constants";
+import { ROLES } from "@/constants";
 
 export const getRoleLabel = (role_id: number): string => {
   switch (role_id) {

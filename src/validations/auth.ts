@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const PasswordStr = z.string().min(8).max(72);
-const NameStr = z.string().min(1).max(50).regex(/^[A-Za-z\s\-]+$/);
+const NameStr = z.string().min(1).max(50).regex(/^[A-Za-z\s-]+$/);
 const PhoneStr = z.string().min(7).max(20);
 
 export const LoginSchema = z.object({
