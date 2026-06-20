@@ -5,7 +5,8 @@ import { LoginSchema } from '@/validations/auth'
 import type { LoginInput } from '@/validations/auth'
 
 export default function LoginPage() {
-  const { mutate: login, isPending, isError } = useLogin()
+  const { mutate: login, isPending, isError, error } = useLogin()
+  const isAccessDenied = (error as Error)?.message === 'ACCESS_DENIED'
   const { register, handleSubmit, formState: { errors } } = useForm<LoginInput>({
     resolver: zodResolver(LoginSchema),
   })
@@ -35,7 +36,8 @@ export default function LoginPage() {
             />
             {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
           </div>
-          {isError && <p className="text-xs text-red-500">Invalid email or password.</p>}
+          {isError && !isAccessDenied && <p className="text-xs text-red-500">Invalid email or password.</p>}
+          {isAccessDenied && <p className="text-xs text-red-500">Wrong credentials</p>} {/* hides owner/pm from worker-only /login route, wrong creds because its meant to be secret*/}
           <button
             type="submit"
             disabled={isPending}
