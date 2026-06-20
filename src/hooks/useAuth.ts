@@ -1,11 +1,11 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { loginUser, getMe } from '@/services/auth'
+import { loginUser, getMe, registerUser } from '@/services/auth'
 import { useAuthStore } from '@/store/auth'
 import { useAuthContext } from '@/lib/AuthContext'
 import { saveToken } from '@/lib/token'
 import { ROLES, ROUTES } from '@/constants'
-import type { LoginInput } from '@/validations/auth'
+import type { LoginInput, RegisterInput } from '@/validations/auth'
 
 export const useLogin = () => {
   const { setAuth } = useAuthStore()
@@ -40,4 +40,10 @@ export const useLogout = () => {
     logout()
     navigate(ROUTES.LOGIN)
   }
+}
+
+export const useRegister = () => {
+  return useMutation({
+    mutationFn: (data: RegisterInput) => registerUser(data),
+  })
 }
