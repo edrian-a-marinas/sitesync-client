@@ -14,7 +14,11 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) clearToken();
+    if (error.response?.status === 401) {
+      clearToken()
+      alert('Session expired. Please log in again.')
+      window.location.href = '/login'
+    }
     return Promise.reject(error);
   }
 );
