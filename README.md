@@ -68,7 +68,7 @@ FastAPI, the Celery worker, the Celery Beat scheduler, and Redis are each contai
 
 ### Frontend
 
-Vite + React + Bun (pkg manager) + TypeScript handles routing, page rendering, and application layouts. TailwindCSS builds the responsive user interface. Zod validates all client-side inputs including project creation forms, attendance records, daily site logs, material consumption entries, equipment usage records, and user assignments before requests reach the backend. React Query manages asynchronous data fetching, caching, and server-state synchronization with the FastAPI backend.
+Vite + React + Bun (pkg manager) + Tanstack + TypeScript handles routing, page rendering, and application layouts. TailwindCSS builds the responsive user interface. Zod validates all client-side inputs including project creation forms, attendance records, daily site logs, material consumption entries, equipment usage records, and user assignments before requests reach the backend. React Query manages asynchronous data fetching, caching, and server-state synchronization with the FastAPI backend.
 
 UI/UX for roles
 All three roles share the same UI shell — same sidebar, same navigation structure, same dashboard layout — but what each role sees inside it is gated by their role. The Owner sees all projects, the AI query panel, and the ML Analytics dashboard, the Project Manager sees only their assigned projects, and the The Site Worker sees only their assigned project, their own attendance history, and the daily log for their current shift — same interface, different world inside it. — same interface, different world inside it.
