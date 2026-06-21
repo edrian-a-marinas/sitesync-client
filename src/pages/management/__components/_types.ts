@@ -1,0 +1,1 @@
+export type Role = "Owner" | "Project Manager";
