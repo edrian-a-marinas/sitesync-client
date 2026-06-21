@@ -6,7 +6,7 @@ import {
   getWorkerDashboard,
 } from "@/services/dashboard";
 
-export const useOwnerDashboard = () => {
+export const useOwnerDashboard = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ["dashboard", "owner"],
     queryFn: async () => {
@@ -14,6 +14,7 @@ export const useOwnerDashboard = () => {
       console.log("[useOwnerDashboard] fetched:", data);
       return data;
     },
+    enabled,
   });
 };
 
@@ -29,7 +30,7 @@ export const useManagerDashboard = (projectId: number | null) => {
   });
 };
 
-export const useManagerAggregateDashboard = () => {
+export const useManagerAggregateDashboard = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ["dashboard", "manager", "aggregate"],
     queryFn: async () => {
@@ -37,6 +38,7 @@ export const useManagerAggregateDashboard = () => {
       console.log("[useManagerAggregateDashboard] fetched:", data);
       return data;
     },
+    enabled,
   });
 };
 

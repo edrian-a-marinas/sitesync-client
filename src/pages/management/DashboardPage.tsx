@@ -5,24 +5,16 @@ import { useOwnerDashboard, useManagerDashboard, useManagerAggregateDashboard } 
 import { OwnerKPICards, ManagerKPICards, ManagerAggregateKPICards } from './__components/charts/KPICards'
 import { BudgetVsActualChart, MaterialConsumptionChart } from './__components/charts/Charts'
 import { ProjectHealthTable } from './__components/charts/ProjectHealthTable'
-import { ProjectScopeToggle } from './__components/ProjectScopeToggle'
-
-type PMScope = "single" | "aggregate";
-
+import { ProjectScopeToggle, type ScopeSelection } from './__components/ProjectScopeToggle'
 export default function DashboardPage() {
   const { user } = useAuthStore()
   const isOwner = user?.role_id === ROLES.OWNER
-
-  // PM state — placeholder project_id until ProjectScopeToggle is wired with real data
-  const [pmScope, setPmScope] = useState<PMScope>("single")
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
-
-  const { data: ownerData, isLoading: ownerLoading, isError: ownerError } = useOwnerDashboard()
+  const [scopeSelection, setScopeSelection] = useState<ScopeSelection>("aggregate")
+  const { data: ownerData, isLoading: ownerLoading, isError: ownerError } = useOwnerDashboard(isOwner)
   const { data: managerData, isLoading: managerLoading, isError: managerError } = useManagerDashboard(
-    !isOwner && pmScope === "single" ? selectedProjectId : null
+    !isOwner && typeof scopeSelection === "number" ? scopeSelection : null
   )
-  const { data: aggregateData, isLoading: aggregateLoading, isError: aggregateError } = useManagerAggregateDashboard()
-
+  const { data: aggregateData, isLoading: aggregateLoading, isError: aggregateError } = useManagerAggregateDashboard(!isOwner && scopeSelection === "aggregate")
   if (!user) return null
 
   const renderOwnerKPIs = () => {
@@ -32,12 +24,11 @@ export default function DashboardPage() {
   }
 
   const renderManagerKPIs = () => {
-    if (pmScope === "aggregate") {
+    if (scopeSelection === "aggregate") {
       if (aggregateLoading) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading dashboard...</p>
       if (aggregateError || !aggregateData) return <p className="text-sm text-red-600">Failed to load dashboard data.</p>
       return <ManagerAggregateKPICards data={aggregateData} />
     }
-    if (!selectedProjectId) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Select a project to view KPIs.</p>
     if (managerLoading) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading dashboard...</p>
     if (managerError || !managerData) return <p className="text-sm text-red-600">Failed to load dashboard data.</p>
     return <ManagerKPICards data={managerData} />
@@ -58,10 +49,8 @@ export default function DashboardPage() {
         </div>
         {!isOwner && (
           <ProjectScopeToggle
-            //pmScope={pmScope}
-            //selectedProjectId={selectedProjectId}
-            //onScopeChange={setPmScope}
-            //onProjectChange={setSelectedProjectId}
+            selection={scopeSelection}
+            onSelectionChange={setScopeSelection}
           />
         )}
       </div>
