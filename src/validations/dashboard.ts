@@ -39,6 +39,7 @@ export const ProjectManagerDashboardSchema = z.object({
   attendance_rate: z.number(),
   total_material_cost: z.number(),
   total_incidents: z.number(),
+  incidents_this_week: z.number(),
   open_incidents: z.number(),
   phases: z.array(PhaseBudgetSummarySchema),
   logs_submitted_delta: z.number().nullable().optional(),

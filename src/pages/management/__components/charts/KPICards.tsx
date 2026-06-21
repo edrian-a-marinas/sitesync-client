@@ -99,14 +99,12 @@ export function OwnerKPICards({ data }: { data: OwnerDashboard }) {
       deltaInvertedColor: true,
     },
   ];
-
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {kpis.map((kpi) => <KPICard key={kpi.label} kpi={kpi} />)}
     </div>
   );
 }
-
 export function ManagerKPICards({ data }: { data: ProjectManagerDashboard }) {
   const budgetPercent = data.phases.reduce((sum, p) => sum + p.allocated_budget, 0) > 0
     ? Math.round((data.total_material_cost / data.phases.reduce((sum, p) => sum + p.allocated_budget, 0)) * 100)
@@ -139,21 +137,19 @@ export function ManagerKPICards({ data }: { data: ProjectManagerDashboard }) {
     },
     {
       label: "Incidents This Week",
-      value: String(data.total_incidents),
+      value: String(data.incidents_this_week),
       icon: AlertTriangle,
       delta: data.incidents_this_week_delta,
       deltaLabel: "vs last week",
       deltaInvertedColor: true,
     },
   ];
-
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {kpis.map((kpi) => <KPICard key={kpi.label} kpi={kpi} />)}
     </div>
   );
 }
-
 export function ManagerAggregateKPICards({ data }: { data: ProjectManagerAggregateDashboard }) {
   const budgetPercent = data.total_budget > 0
     ? Math.round((data.total_spending / data.total_budget) * 100)
