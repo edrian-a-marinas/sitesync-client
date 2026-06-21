@@ -15,6 +15,7 @@
     "@tanstack/react-router": "^1.170.16",
     "axios": "^1.18.0",
     "js-cookie": "^3.0.8",
+    "lucide-react": "^1.21.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-hook-form": "^7.79.0",
