@@ -7,3 +7,10 @@ export interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
 }
+
+export interface AuthStore {
+  user: UserResponse | null
+  isAuthenticated: boolean
+  setAuth: (user: UserResponse) => void
+  clearAuth: () => void
+}

@@ -1,12 +1,5 @@
 import { create } from 'zustand'
-import type { UserResponse } from '@/validations/auth'
-
-interface AuthStore {
-  user: UserResponse | null
-  isAuthenticated: boolean
-  setAuth: (user: UserResponse) => void
-  clearAuth: () => void
-}
+import type { AuthStore } from '@/types/auth'
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
