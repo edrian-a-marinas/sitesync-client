@@ -11,6 +11,8 @@ export interface AuthState {
 export interface AuthStore {
   user: UserResponse | null
   isAuthenticated: boolean
+  sidebarCollapsed: boolean
   setAuth: (user: UserResponse) => void
   clearAuth: () => void
+  toggleSidebar: () => void
 }
