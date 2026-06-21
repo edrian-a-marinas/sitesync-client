@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import { useNavigate, useLocation } from 'react-router-dom'
+import { useNavigate, useLocation } from '@tanstack/react-router'
 import { loginUser, registerUser, logoutUser } from '@/services/auth'
 import { useAuthStore } from '@/store/auth'
 import { useAuthContext } from '@/lib/AuthContext'
@@ -20,7 +20,7 @@ export const useLogin = () => {
         throw new Error('ACCESS_DENIED')
       }
       setAuth(user)
-      navigate('/')
+      navigate({ to: '/' })
     },
   })
 }
@@ -31,7 +31,7 @@ export const useLogout = () => {
 
   return () => {
     logout()
-    navigate(ROUTES.LOGIN)
+    navigate({ to: ROUTES.LOGIN })
   }
 }
 
