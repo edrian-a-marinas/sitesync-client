@@ -9,6 +9,11 @@ export const ROUTES = {
   WORKERS: "/workers",
   AI: "/ai",
   SETTINGS: "/settings",
+  DAILY_LOGS: "/daily-logs",
+  REPORTS: "/reports",
+  MANAGE_USERS: "/manage-users",
+  ANALYTICS: "/analytics",
+  ATTENDANCE: "/attendance",
 } as const;
 
 
