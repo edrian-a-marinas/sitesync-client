@@ -6,7 +6,7 @@ import DashboardPage from '@/pages/management/DashboardPage'
 import WorkerPage from '@/pages/worker/WorkerPage'
 
 export default function HomePage() {
-  const { user } = useAuthStore()
+  const { user, sidebarCollapsed } = useAuthStore()
 
   if (!user) return null
 
@@ -21,11 +21,11 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-zinc-50">
+    <div className="flex min-h-screen bg-background">
       <Sidebar />
-      <div className="flex flex-1 flex-col pl-64">
+      <div className={`flex flex-1 flex-col transition-all duration-200 ${sidebarCollapsed ? 'pl-[68px]' : 'pl-64'}`}>
         <TopNav />
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8" style={{ background: 'hsl(var(--page-bg))', minHeight: '100vh', transition: 'background 0.2s ease' }}>
           {content()}
         </main>
       </div>
