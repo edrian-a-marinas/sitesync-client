@@ -1,6 +1,6 @@
 import { Briefcase, Wallet, Users, AlertTriangle, ClipboardList, Clock, TrendingUp, TrendingDown, Minus, type LucideIcon } from "lucide-react";
 import type { OwnerDashboard, ProjectManagerDashboard, ProjectManagerAggregateDashboard } from "@/validations/dashboard";
-
+import { formatPHP, getMoneyTooltip } from "@/utils/formatPHP";
 type KPI = {
   label: string;
   value: string;
@@ -9,13 +9,8 @@ type KPI = {
   delta?: number | null;
   deltaLabel?: string;
   deltaInvertedColor?: boolean;
+  rawAmount?: number;
 };
-
-function formatPHP(amount: number): string {
-  if (amount >= 1_000_000) return `₱${(amount / 1_000_000).toFixed(1)}M`;
-  if (amount >= 1_000) return `₱${(amount / 1_000).toFixed(1)}K`;
-  return `₱${amount.toFixed(0)}`;
-}
 
 function Delta({ value, label, inverted }: { value: number; label?: string; inverted?: boolean }) {
   const isZero = value === 0;
@@ -38,6 +33,7 @@ function Delta({ value, label, inverted }: { value: number; label?: string; inve
 
 function KPICard({ kpi }: { kpi: KPI }) {
   const Icon = kpi.icon;
+  const tooltip = kpi.rawAmount ? getMoneyTooltip(kpi.rawAmount) : undefined;
   return (
     <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
       <div className="flex items-start justify-between">
@@ -48,7 +44,7 @@ function KPICard({ kpi }: { kpi: KPI }) {
           <Icon className="h-4 w-4" />
         </div>
       </div>
-      <p className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+      <p className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100" title={tooltip}>
         {kpi.value}
       </p>
       {kpi.hint && (
@@ -76,12 +72,13 @@ export function OwnerKPICards({ data }: { data: OwnerDashboard }) {
     },
     {
       label: "Budget vs Actual Spend",
-      value: formatPHP(data.total_spending),
-      hint: `${budgetPercent}% of ${formatPHP(data.total_budget)}`,
+      value: formatPHP(data.total_spending, 'short'),
+      hint: `${budgetPercent}% of ${formatPHP(data.total_budget, 'short')}`,
       icon: Wallet,
       delta: data.total_spending_delta_percent,
       deltaLabel: "% burn rate vs last week",
       deltaInvertedColor: true,
+      rawAmount: data.total_spending,
     },
     {
       label: "Total Workers Active",
@@ -121,12 +118,13 @@ export function ManagerKPICards({ data }: { data: ProjectManagerDashboard }) {
     },
     {
       label: "Budget vs Actual Spend",
-      value: formatPHP(data.total_material_cost),
-      hint: `${budgetPercent}% of ${formatPHP(totalBudget)}`,
+      value: formatPHP(data.total_material_cost, 'short'),
+      hint: `${budgetPercent}% of ${formatPHP(totalBudget, 'short')}`,
       icon: Wallet,
       delta: data.total_spending_delta_percent,
       deltaLabel: "% burn rate vs last week",
       deltaInvertedColor: true,
+      rawAmount: data.total_material_cost,
     },
     {
       label: "Attendance Rate",
@@ -165,12 +163,13 @@ export function ManagerAggregateKPICards({ data }: { data: ProjectManagerAggrega
     },
     {
       label: "Budget vs Actual Spend",
-      value: formatPHP(data.total_spending),
-      hint: `${budgetPercent}% of ${formatPHP(data.total_budget)}`,
+      value: formatPHP(data.total_spending, 'short'),
+      hint: `${budgetPercent}% of ${formatPHP(data.total_budget, 'short')}`,
       icon: Wallet,
       delta: data.total_spending_delta_percent,
       deltaLabel: "% burn rate vs last week",
       deltaInvertedColor: true,
+      rawAmount: data.total_spending,
     },
     {
       label: "Avg Attendance Rate",
