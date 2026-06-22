@@ -99,7 +99,7 @@ export function MaterialConsumptionChart({ data }: { data: MaterialWeeklyTrend[]
   console.log("[MaterialConsumptionChart] chart data (wide format):", chartData);
 
   return (
-    <ChartCard title="Material Consumption Trends" subtitle="Last 8 weeks, units consumed">
+    <ChartCard title="Material Consumption Trends" subtitle="Last 8 weeks, costs by material">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
@@ -108,10 +108,16 @@ export function MaterialConsumptionChart({ data }: { data: MaterialWeeklyTrend[]
             tick={axisTick} 
             axisLine={false} 
             tickLine={false} 
+            tickFormatter={(value: number) => `₱${value}M`}
           />
           <Tooltip
             contentStyle={tooltipStyle}
-            formatter={(value) => `${Number(value).toFixed(2)} units`}
+            formatter={(value) => {
+              const numValue = Number(value);
+              return numValue >= 1_000_000 
+                ? formatPHP(numValue, 'short') 
+                : formatPHP(numValue * 1_000_000, 'short');
+            }}
           />
           <Legend
             iconType="circle"
