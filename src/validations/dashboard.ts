@@ -8,12 +8,18 @@ export const ProjectBudgetSummarySchema = z.object({
   actual_spending: z.number(),
   is_over_budget: z.boolean(),
 });
-
+export const MaterialWeeklyTrendSchema = z.object({
+  week: z.string(),
+  material_name: z.string(),
+  total_quantity: z.number(),
+});
 export const OwnerDashboardSchema = z.object({
   total_active_projects: z.number(),
   total_budget: z.number(),
   total_spending: z.number(),
   over_budget_projects: z.array(ProjectBudgetSummarySchema),
+  all_projects_budget: z.array(ProjectBudgetSummarySchema),
+  material_trends: z.array(MaterialWeeklyTrendSchema),
   total_workers_active: z.number(),
   total_material_cost: z.number(),
   incidents_this_week: z.number(),
@@ -22,7 +28,6 @@ export const OwnerDashboardSchema = z.object({
   total_workers_active_delta: z.number().nullable().optional(),
   incidents_this_week_delta: z.number().nullable().optional(),
 });
-
 // --- Project Manager ---
 export const PhaseBudgetSummarySchema = z.object({
   phase_id: z.number(),
@@ -31,7 +36,6 @@ export const PhaseBudgetSummarySchema = z.object({
   actual_spending: z.number(),
   is_over_budget: z.boolean(),
 });
-
 export const ProjectManagerDashboardSchema = z.object({
   project_id: z.number(),
   project_name: z.string(),
@@ -55,6 +59,8 @@ export const ProjectManagerAggregateDashboardSchema = z.object({
   average_attendance_rate: z.number(),
   incidents_this_week: z.number(),
   over_budget_projects: z.array(ProjectBudgetSummarySchema),
+  all_projects_budget: z.array(ProjectBudgetSummarySchema),
+  material_trends: z.array(MaterialWeeklyTrendSchema),
   total_logs_submitted_delta: z.number().nullable().optional(),
   total_spending_delta_percent: z.number().nullable().optional(),
   average_attendance_rate_delta: z.number().nullable().optional(),
@@ -80,6 +86,7 @@ export const WorkerDashboardSchema = z.object({
 
 // --- Inferred types ---
 export type ProjectBudgetSummary = z.infer<typeof ProjectBudgetSummarySchema>;
+export type MaterialWeeklyTrend = z.infer<typeof MaterialWeeklyTrendSchema>;
 export type OwnerDashboard = z.infer<typeof OwnerDashboardSchema>;
 export type PhaseBudgetSummary = z.infer<typeof PhaseBudgetSummarySchema>;
 export type ProjectManagerDashboard = z.infer<typeof ProjectManagerDashboardSchema>;

@@ -56,11 +56,16 @@ export default function DashboardPage() {
       </div>
 
       {isOwner ? renderOwnerKPIs() : renderManagerKPIs()}
-
-      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-        <BudgetVsActualChart />
-        <MaterialConsumptionChart />
-      </div>
+      {(isOwner ? ownerData : scopeSelection === "aggregate" ? aggregateData : null) && (
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          <BudgetVsActualChart
+            data={(isOwner ? ownerData : aggregateData)!.all_projects_budget}
+          />
+          <MaterialConsumptionChart
+            data={(isOwner ? ownerData : aggregateData)!.material_trends}
+          />
+        </div>
+      )}
       <ProjectHealthTable />
     </div>
   )
