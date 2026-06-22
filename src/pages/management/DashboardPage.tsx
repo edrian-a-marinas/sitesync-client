@@ -56,13 +56,25 @@ export default function DashboardPage() {
       </div>
 
       {isOwner ? renderOwnerKPIs() : renderManagerKPIs()}
-      {(isOwner ? ownerData : scopeSelection === "aggregate" ? aggregateData : null) && (
+      {(isOwner
+        ? ownerData
+        : scopeSelection === "aggregate"
+          ? aggregateData
+          : managerData) && (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           <BudgetVsActualChart
-            data={(isOwner ? ownerData : aggregateData)!.all_projects_budget}
+            data={(isOwner ? ownerData : aggregateData)?.all_projects_budget ?? []}
           />
           <MaterialConsumptionChart
-            data={(isOwner ? ownerData : aggregateData)!.material_trends}
+            data={
+              isOwner
+                ? ownerData!.material_trends
+                : scopeSelection === "aggregate"
+                  ? aggregateData!.material_trends
+                  : managerData!.material_trends
+            }
+            scopeSelection={scopeSelection}
+            projectName={!isOwner && scopeSelection !== "aggregate" ? managerData?.project_name : undefined}
           />
         </div>
       )}

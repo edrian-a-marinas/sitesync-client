@@ -9,7 +9,7 @@ export const ProjectBudgetSummarySchema = z.object({
   is_over_budget: z.boolean(),
 });
 export const MaterialWeeklyTrendSchema = z.object({
-  week: z.string(),
+  week: z.string().nullable(),
   material_name: z.string(),
   total_cost: z.number(),
 });
@@ -46,6 +46,7 @@ export const ProjectManagerDashboardSchema = z.object({
   incidents_this_week: z.number(),
   open_incidents: z.number(),
   phases: z.array(PhaseBudgetSummarySchema),
+  material_trends: z.array(MaterialWeeklyTrendSchema),
   logs_submitted_delta: z.number().nullable().optional(),
   attendance_rate_delta: z.number().nullable().optional(),
   total_spending_delta_percent: z.number().nullable().optional(),

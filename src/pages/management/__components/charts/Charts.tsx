@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import type { ProjectBudgetSummary, MaterialWeeklyTrend } from "@/validations/dashboard";
 import { formatPHP } from "@/utils/formatPHP";
+import type { ScopeSelection } from "@/pages/management/__components/ProjectScopeToggle";
 
 const axisTick = { fill: "#71717a", fontSize: 11 };
 const tooltipStyle = {
@@ -82,13 +83,57 @@ export function BudgetVsActualChart({ data }: { data: ProjectBudgetSummary[] }) 
 
 const LINE_COLORS = ["#f59e0b", "#18181b", "#a1a1aa", "#3b82f6", "#10b981", "#ef4444", "#8b5cf6"];
 
-export function MaterialConsumptionChart({ data }: { data: MaterialWeeklyTrend[] }) {
+export function MaterialConsumptionChart({
+  data,
+  scopeSelection,
+  projectName,
+}: {
+  data: MaterialWeeklyTrend[];
+  scopeSelection: ScopeSelection;
+  projectName?: string;
+}) {
   console.log("[MaterialConsumptionChart] raw data:", data);
-  const materialNames = Array.from(new Set(data.map((d) => d.material_name)));
-  const weeks = Array.from(new Set(data.map((d) => d.week))).sort();
+  const isSingleProject = typeof scopeSelection === "number";
 
+  const totalCostByMaterial = new Map<string, number>();
+  data.forEach((d) => {
+    totalCostByMaterial.set(d.material_name, (totalCostByMaterial.get(d.material_name) ?? 0) + d.total_cost);
+  });
+  const materialNames = Array.from(totalCostByMaterial.keys()).sort(
+    (a, b) => (totalCostByMaterial.get(b) ?? 0) - (totalCostByMaterial.get(a) ?? 0)
+  );
+
+  if (isSingleProject) {
+    const totalsData = materialNames.map((name) => ({
+      material: name,
+      total: totalCostByMaterial.get(name) ?? 0,
+    }));
+    const grandTotal = totalsData.reduce((sum, d) => sum + d.total, 0);
+    const grandTotalLiteral = `₱${grandTotal.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    return (
+      <ChartCard
+        title={`Material Consumption of ${projectName ?? "Project"}`}
+        subtitle={`Total costs by material, all-time — ${grandTotalLiteral}`}
+      >
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={totalsData} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 0 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" horizontal={false} />
+            <XAxis type="number" tick={axisTick} axisLine={false} tickLine={false} tickFormatter={(value: number) => formatPHP(value, 'short')} />
+            <YAxis type="category" dataKey="material" tick={axisTick} axisLine={false} tickLine={false} width={90} />
+            <Tooltip
+              contentStyle={tooltipStyle}
+              formatter={(value) => formatPHP(Number(value), 'short')}
+            />
+            <Bar dataKey="total" fill="#f59e0b" radius={[0, 3, 3, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    );
+  }
+
+  const weeks = Array.from(new Set(data.map((d) => d.week))).sort();
   const chartData = weeks.map((week) => {
-    const row: Record<string, string | number> = { week };
+    const row: Record<string, string | number> = { week: week ?? "" };
     materialNames.forEach((name) => {
       const entry = data.find((d) => d.week === week && d.material_name === name);
       row[name] = entry ? entry.total_cost : 0;
@@ -96,7 +141,6 @@ export function MaterialConsumptionChart({ data }: { data: MaterialWeeklyTrend[]
     return row;
   });
   console.log("[MaterialConsumptionChart] chart data (wide format):", chartData);
-
   return (
     <ChartCard title="Material Consumption Trends" subtitle="Last 8 weeks, costs by material">
       <ResponsiveContainer width="100%" height="100%">
