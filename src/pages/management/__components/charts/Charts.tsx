@@ -84,7 +84,6 @@ const LINE_COLORS = ["#f59e0b", "#18181b", "#a1a1aa", "#3b82f6", "#10b981", "#ef
 
 export function MaterialConsumptionChart({ data }: { data: MaterialWeeklyTrend[] }) {
   console.log("[MaterialConsumptionChart] raw data:", data);
-
   const materialNames = Array.from(new Set(data.map((d) => d.material_name)));
   const weeks = Array.from(new Set(data.map((d) => d.week))).sort();
 
@@ -92,7 +91,7 @@ export function MaterialConsumptionChart({ data }: { data: MaterialWeeklyTrend[]
     const row: Record<string, string | number> = { week };
     materialNames.forEach((name) => {
       const entry = data.find((d) => d.week === week && d.material_name === name);
-      row[name] = entry ? entry.total_quantity : 0;
+      row[name] = entry ? entry.total_cost : 0;
     });
     return row;
   });
@@ -108,15 +107,25 @@ export function MaterialConsumptionChart({ data }: { data: MaterialWeeklyTrend[]
             tick={axisTick} 
             axisLine={false} 
             tickLine={false} 
-            tickFormatter={(value: number) => `₱${value}M`}
+            tickFormatter={(value: number) => formatPHP(value, 'short')}
           />
           <Tooltip
             contentStyle={tooltipStyle}
-            formatter={(value) => {
-              const numValue = Number(value);
-              return numValue >= 1_000_000 
-                ? formatPHP(numValue, 'short') 
-                : formatPHP(numValue * 1_000_000, 'short');
+            content={({ active, payload, label }) => {
+              if (!active || !payload) return null;
+              const sorted = [...payload].sort((a, b) => Number(b.value) - Number(a.value));
+              return (
+                <div style={tooltipStyle} className="px-3 py-2.5">
+                  <p className="mb-2 font-medium">{label}</p>
+                  <div className="space-y-1">
+                    {sorted.map((entry, i) => (
+                      <p key={`${entry.name ?? i}`} style={{ color: entry.color }} className="text-xs leading-relaxed">
+                        {entry.name}: {formatPHP(Number(entry.value), 'short')}
+                      </p>
+                    ))}
+                  </div>
+                </div>
+              );
             }}
           />
           <Legend

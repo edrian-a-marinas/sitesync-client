@@ -11,7 +11,7 @@ export const ProjectBudgetSummarySchema = z.object({
 export const MaterialWeeklyTrendSchema = z.object({
   week: z.string(),
   material_name: z.string(),
-  total_quantity: z.number(),
+  total_cost: z.number(),
 });
 export const OwnerDashboardSchema = z.object({
   total_active_projects: z.number(),
