@@ -10,26 +10,8 @@ import {
   YAxis,
   Legend,
 } from "recharts";
-
-const budgetData = [
-  { project: "Bonifacio Tower", budget: 18, actual: 16.4 },
-  { project: "Cebu Bridge", budget: 22, actual: 23.1 },
-  { project: "Davao Road", budget: 9, actual: 7.8 },
-  { project: "Iloilo Plaza", budget: 14, actual: 12.5 },
-  { project: "QC Residences", budget: 12, actual: 11.9 },
-  { project: "Subic Pier", budget: 16, actual: 12.5 },
-];
-
-const materialData = [
-  { week: "W1", cement: 420, steel: 280, aggregate: 510 },
-  { week: "W2", cement: 480, steel: 310, aggregate: 540 },
-  { week: "W3", cement: 460, steel: 295, aggregate: 600 },
-  { week: "W4", cement: 540, steel: 360, aggregate: 580 },
-  { week: "W5", cement: 510, steel: 340, aggregate: 620 },
-  { week: "W6", cement: 600, steel: 390, aggregate: 660 },
-  { week: "W7", cement: 580, steel: 410, aggregate: 690 },
-  { week: "W8", cement: 640, steel: 430, aggregate: 720 },
-];
+import type { ProjectBudgetSummary, MaterialWeeklyTrend } from "@/validations/dashboard";
+import { formatPHP } from "@/utils/formatPHP";
 
 const axisTick = { fill: "#71717a", fontSize: 11 };
 const tooltipStyle = {
@@ -60,15 +42,31 @@ function ChartCard({
   );
 }
 
-export function BudgetVsActualChart() {
+export function BudgetVsActualChart({ data }: { data: ProjectBudgetSummary[] }) {
+  console.log("[BudgetVsActualChart] raw data:", data);
+  const chartData = data.map((p) => ({
+    project: p.project_name,
+    budget: Number((p.total_budget / 1_000_000).toFixed(2)),
+    actual: Number((p.actual_spending / 1_000_000).toFixed(2)),
+  }));
+  console.log("[BudgetVsActualChart] chart data (in millions):", chartData);
   return (
     <ChartCard title="Budget vs Actual" subtitle="Per project, in ₱ millions">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={budgetData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+        <BarChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
           <XAxis dataKey="project" tick={axisTick} axisLine={false} tickLine={false} />
-          <YAxis tick={axisTick} axisLine={false} tickLine={false} />
-          <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "#fafafa" }} />
+          <YAxis 
+            tick={axisTick} 
+            axisLine={false} 
+            tickLine={false} 
+            tickFormatter={(value: number) => `₱${value}M`}
+          />
+          <Tooltip
+            contentStyle={tooltipStyle}
+            cursor={{ fill: "#fafafa" }}
+            formatter={(value) => formatPHP(Number(value) * 1_000_000, 'short')}
+          />
           <Legend
             iconType="circle"
             iconSize={8}
@@ -82,44 +80,55 @@ export function BudgetVsActualChart() {
   );
 }
 
-export function MaterialConsumptionChart() {
+const LINE_COLORS = ["#f59e0b", "#18181b", "#a1a1aa", "#3b82f6", "#10b981", "#ef4444", "#8b5cf6"];
+
+export function MaterialConsumptionChart({ data }: { data: MaterialWeeklyTrend[] }) {
+  console.log("[MaterialConsumptionChart] raw data:", data);
+
+  const materialNames = Array.from(new Set(data.map((d) => d.material_name)));
+  const weeks = Array.from(new Set(data.map((d) => d.week))).sort();
+
+  const chartData = weeks.map((week) => {
+    const row: Record<string, string | number> = { week };
+    materialNames.forEach((name) => {
+      const entry = data.find((d) => d.week === week && d.material_name === name);
+      row[name] = entry ? entry.total_quantity : 0;
+    });
+    return row;
+  });
+  console.log("[MaterialConsumptionChart] chart data (wide format):", chartData);
+
   return (
     <ChartCard title="Material Consumption Trends" subtitle="Last 8 weeks, units consumed">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={materialData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+        <LineChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#f4f4f5" vertical={false} />
           <XAxis dataKey="week" tick={axisTick} axisLine={false} tickLine={false} />
-          <YAxis tick={axisTick} axisLine={false} tickLine={false} />
-          <Tooltip contentStyle={tooltipStyle} />
+          <YAxis 
+            tick={axisTick} 
+            axisLine={false} 
+            tickLine={false} 
+          />
+          <Tooltip
+            contentStyle={tooltipStyle}
+            formatter={(value) => `${Number(value).toFixed(2)} units`}
+          />
           <Legend
             iconType="circle"
             iconSize={8}
             wrapperStyle={{ fontSize: 11, color: "#52525b", paddingTop: 8 }}
           />
-          <Line
-            type="monotone"
-            dataKey="cement"
-            stroke="#f59e0b"
-            strokeWidth={2}
-            dot={false}
-            name="Cement"
-          />
-          <Line
-            type="monotone"
-            dataKey="steel"
-            stroke="#18181b"
-            strokeWidth={2}
-            dot={false}
-            name="Steel"
-          />
-          <Line
-            type="monotone"
-            dataKey="aggregate"
-            stroke="#a1a1aa"
-            strokeWidth={2}
-            dot={false}
-            name="Aggregate"
-          />
+          {materialNames.map((name, i) => (
+            <Line
+              key={name}
+              type="monotone"
+              dataKey={name}
+              stroke={LINE_COLORS[i % LINE_COLORS.length]}
+              strokeWidth={2}
+              dot={false}
+              name={name}
+            />
+          ))}
         </LineChart>
       </ResponsiveContainer>
     </ChartCard>
