@@ -1,0 +1,186 @@
+import { useProjects } from "@/hooks/useProject";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/pages/_components/ui/select";
+import type { ProjectBudgetSummary, MaterialWeeklyTrend } from "@/validations/dashboard";
+
+// ─── Owner filter types & helpers ────────────────────────────────────────────
+
+export type DashboardFilters = {
+  year: number | "all";
+  projectId: number | "all";
+};
+
+export const DEFAULT_FILTERS: DashboardFilters = {
+  year: new Date().getFullYear(),
+  projectId: "all",
+};
+
+function extractYear(week: string | null): number | null {
+  if (!week) return null;
+  const y = parseInt(week.split("-")[0], 10);
+  return isNaN(y) ? null : y;
+}
+
+function deriveYears(trends: MaterialWeeklyTrend[]): number[] {
+  const set = new Set<number>();
+  for (const t of trends) {
+    const y = extractYear(t.week);
+    if (y !== null) set.add(y);
+  }
+  return Array.from(set).sort((a, b) => b - a);
+}
+
+export function filterProjects(
+  projects: ProjectBudgetSummary[],
+  filters: DashboardFilters,
+): ProjectBudgetSummary[] {
+  if (filters.projectId === "all") return projects;
+  return projects.filter((p) => p.project_id === filters.projectId);
+}
+
+export function filterMaterialTrends(
+  trends: MaterialWeeklyTrend[],
+  filters: DashboardFilters,
+): MaterialWeeklyTrend[] {
+  if (filters.year === "all") return trends;
+  return trends.filter((t) => extractYear(t.week) === filters.year);
+}
+
+// ─── Owner: year + project (Active / Completed groups) ───────────────────────
+
+interface OwnerFilterBarProps {
+  filters: DashboardFilters;
+  onFiltersChange: (filters: DashboardFilters) => void;
+  materialTrends: MaterialWeeklyTrend[];
+}
+
+export function OwnerFilterBar({ filters, onFiltersChange, materialTrends }: OwnerFilterBarProps) {
+  const { data: projects, isLoading, isError } = useProjects();
+  const years = deriveYears(materialTrends);
+
+  const activeProjects = projects?.filter((p) => p.status === "Active") ?? [];
+  const completedProjects = projects?.filter((p) => p.status === "Completed") ?? [];
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {/* Year */}
+      <Select
+        value={String(filters.year)}
+        onValueChange={(v) =>
+          onFiltersChange({ ...filters, year: v === "all" ? "all" : parseInt(v, 10) })
+        }
+      >
+        <SelectTrigger className="h-8 w-[130px] text-xs">
+          <SelectValue placeholder="Year" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Years</SelectItem>
+          {years.length > 0 && (
+            <SelectGroup>
+              <SelectLabel>Year</SelectLabel>
+              {years.map((y) => (
+                <SelectItem key={y} value={String(y)}>
+                  {y}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          )}
+        </SelectContent>
+      </Select>
+
+      {/* Project */}
+      <Select
+        value={String(filters.projectId)}
+        onValueChange={(v) =>
+          onFiltersChange({ ...filters, projectId: v === "all" ? "all" : parseInt(v, 10) })
+        }
+        disabled={isLoading || isError}
+      >
+        <SelectTrigger className="h-8 w-[200px] text-xs">
+          <SelectValue placeholder={isLoading ? "Loading..." : isError ? "Failed" : "All Projects"} />
+        </SelectTrigger>
+        <SelectContent className="max-h-[280px]">
+          <SelectItem value="all">All Projects</SelectItem>
+          {activeProjects.length > 0 && (
+            <SelectGroup>
+              <SelectLabel>Active</SelectLabel>
+              {activeProjects.map((p) => (
+                <SelectItem key={p.id} value={String(p.id)}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          )}
+          {completedProjects.length > 0 && (
+            <SelectGroup>
+              <SelectLabel>Completed</SelectLabel>
+              {completedProjects.map((p) => (
+                <SelectItem key={p.id} value={String(p.id)}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          )}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+// ─── PM: scope toggle (aggregate or single project) ──────────────────────────
+
+export type ScopeSelection = "aggregate" | number;
+
+interface ProjectScopeToggleProps {
+  selection: ScopeSelection;
+  onSelectionChange: (selection: ScopeSelection) => void;
+}
+
+export function ProjectScopeToggle({ selection, onSelectionChange }: ProjectScopeToggleProps) {
+  const { data: projects, isLoading, isError } = useProjects();
+
+  const activeProjects = projects?.filter((p) => p.status === "Active") ?? [];
+  const completedProjects = projects?.filter((p) => p.status === "Completed") ?? [];
+
+  return (
+    <Select
+      value={String(selection)}
+      onValueChange={(v) => onSelectionChange(v === "aggregate" ? "aggregate" : Number(v))}
+      disabled={isLoading || isError}
+    >
+      <SelectTrigger className="h-8 w-[220px] text-xs">
+        <SelectValue placeholder={isLoading ? "Loading..." : isError ? "Failed to load" : "Select scope"} />
+      </SelectTrigger>
+      <SelectContent className="max-h-[280px]">
+        <SelectItem value="aggregate">All Active Projects</SelectItem>
+        {activeProjects.length > 0 && (
+          <SelectGroup>
+            <SelectLabel>Active</SelectLabel>
+            {activeProjects.map((p) => (
+              <SelectItem key={p.id} value={String(p.id)}>
+                {p.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        )}
+        {completedProjects.length > 0 && (
+          <SelectGroup>
+            <SelectLabel>Completed</SelectLabel>
+            {completedProjects.map((p) => (
+              <SelectItem key={p.id} value={String(p.id)}>
+                {p.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        )}
+      </SelectContent>
+    </Select>
+  );
+}
