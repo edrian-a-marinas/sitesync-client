@@ -1,4 +1,5 @@
 import { useProjects } from "@/hooks/useProject";
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -68,16 +69,30 @@ export function OwnerFilterBar({ filters, onFiltersChange, materialTrends }: Own
   const activeProjects = projects?.filter((p) => p.status === "Active") ?? [];
   const completedProjects = projects?.filter((p) => p.status === "Completed") ?? [];
 
+  const isYearActive = filters.projectId === "all";
+  const isProjectActive = true;
+
+  const handleYearChange = (v: string) => {
+    const year = v === "all" ? "all" : parseInt(v, 10);
+    onFiltersChange({ year, projectId: year !== "all" ? "all" : filters.projectId });
+  };
+
+  const handleProjectChange = (v: string) => {
+    const projectId = v === "all" ? "all" : parseInt(v, 10);
+    onFiltersChange({ projectId, year: projectId !== "all" ? "all" : filters.year });
+  };
+
   return (
     <div className="flex flex-wrap items-center gap-2">
       {/* Year */}
       <Select
         value={String(filters.year)}
-        onValueChange={(v) =>
-          onFiltersChange({ ...filters, year: v === "all" ? "all" : parseInt(v, 10) })
-        }
+        onValueChange={handleYearChange}
       >
-        <SelectTrigger className="h-8 w-[130px] text-xs">
+        <SelectTrigger className={cn(
+          "h-8 w-[130px] text-xs transition-colors",
+          isYearActive && "border-emerald-500 text-emerald-700 dark:border-emerald-400 dark:text-emerald-300"
+        )}>
           <SelectValue placeholder="Year" />
         </SelectTrigger>
         <SelectContent>
@@ -98,12 +113,13 @@ export function OwnerFilterBar({ filters, onFiltersChange, materialTrends }: Own
       {/* Project */}
       <Select
         value={String(filters.projectId)}
-        onValueChange={(v) =>
-          onFiltersChange({ ...filters, projectId: v === "all" ? "all" : parseInt(v, 10) })
-        }
         disabled={isLoading || isError}
+        onValueChange={handleProjectChange}
       >
-        <SelectTrigger className="h-8 w-[200px] text-xs">
+        <SelectTrigger className={cn(
+          "h-8 w-[200px] text-xs transition-colors",
+          isProjectActive && "border-emerald-500 text-emerald-700 dark:border-emerald-400 dark:text-emerald-300"
+        )}>
           <SelectValue placeholder={isLoading ? "Loading..." : isError ? "Failed" : "All Projects"} />
         </SelectTrigger>
         <SelectContent className="max-h-[280px]">

@@ -33,6 +33,9 @@ export default function DashboardPage() {
 
   if (!user) return null
 
+  const CURRENT_YEAR = new Date().getFullYear()
+  const isOwnerCurrentYear = ownerFilters.year === CURRENT_YEAR
+
   // --- Derived filtered data for owner ---
   const ownerChartData = ownerData
     ? {
@@ -40,6 +43,29 @@ export default function DashboardPage() {
         trends: filterMaterialTrends(ownerData.material_trends, ownerFilters),
       }
     : null
+
+  // Current year → line chart, last 8 weeks only
+  // Past year or "all" → bar chart (aggregate totals per material)
+  const ownerTrends = (() => {
+    if (!ownerChartData) return []
+    if (isOwnerCurrentYear) {
+      const last8Weeks = [...new Set(
+        ownerChartData.trends
+          .map(t => t.week)
+          .filter((w): w is string => w !== null)
+      )].sort().slice(-8)
+      const weekSet = new Set(last8Weeks)
+      return ownerChartData.trends.filter(t => weekSet.has(t.week ?? ""))
+    }
+    return ownerChartData.trends
+  })()
+
+  const ownerMaterialScope: ScopeSelection = isOwnerCurrentYear ? "aggregate" : 1
+  const ownerMaterialLabel = isOwnerCurrentYear
+    ? undefined
+    : ownerFilters.year === "all"
+      ? "All Time"
+      : String(ownerFilters.year)
 
   const renderOwnerKPIs = () => {
     if (ownerLoading) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading dashboard...</p>
@@ -118,8 +144,9 @@ export default function DashboardPage() {
                   <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <BudgetVsActualChart data={ownerChartData.projects} />
                     <MaterialConsumptionChart
-                      data={ownerChartData.trends}
-                      scopeSelection="aggregate"
+                      data={ownerTrends}
+                      scopeSelection={ownerMaterialScope}
+                      projectName={ownerMaterialLabel}
                     />
                   </div>
                   <div className="mt-4">
