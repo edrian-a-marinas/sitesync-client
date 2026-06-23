@@ -65,6 +65,14 @@ export function OwnerKPICards({ data, filteredProjects }: { data: OwnerDashboard
     ? Math.round((totalSpending / totalBudget) * 100)
     : 0;
 
+  const isSingleProject = projects.length === 1;
+  const totalWorkers = isSingleProject
+    ? projects[0].total_workers
+    : data.total_workers_active;
+  const totalIncidents = isSingleProject
+    ? projects[0].total_incidents
+    : data.incidents_this_week;
+
   const kpis: KPI[] = [
     {
       label: "Total Active Projects",
@@ -84,18 +92,17 @@ export function OwnerKPICards({ data, filteredProjects }: { data: OwnerDashboard
       rawAmount: totalSpending,
     },
     {
-      label: "Total Workers Active",
-      value: String(data.total_workers_active),
+      label: isSingleProject ? "Workers on Project" : "Total Workers Active",
+      value: String(totalWorkers),
       icon: Users,
-      delta: data.total_workers_active_delta,
+      delta: isSingleProject ? null : data.total_workers_active_delta,
       deltaLabel: "vs last week",
     },
     {
-      label: "Incidents This Week",
-      value: String(data.incidents_this_week),
+      label: isSingleProject ? `Total Incidents` : "Incidents This Week",
+      value: String(totalIncidents),
       icon: AlertTriangle,
-      delta: data.incidents_this_week_delta,
-      deltaLabel: "vs last week",
+      delta: isSingleProject ? null : data.incidents_this_week_delta,
       deltaInvertedColor: true,
     },
   ];
