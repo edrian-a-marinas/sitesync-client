@@ -6,6 +6,7 @@ import { OwnerKPICards, ManagerKPICards, ManagerAggregateKPICards } from './__co
 import { BudgetVsActualChart, MaterialConsumptionChart } from './__components/charts/Charts'
 import { ProjectHealthTable } from './__components/charts/ProjectHealthTable'
 import { ProjectScopeToggle, type ScopeSelection } from './__components/ProjectScopeToggle'
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/pages/_components/ui/accordion'
 export default function DashboardPage() {
   const { user } = useAuthStore()
   const isOwner = user?.role_id === ROLES.OWNER
@@ -56,29 +57,50 @@ export default function DashboardPage() {
       </div>
 
       {isOwner ? renderOwnerKPIs() : renderManagerKPIs()}
-      {(isOwner
-        ? ownerData
-        : scopeSelection === "aggregate"
-          ? aggregateData
-          : managerData) && (
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-          <BudgetVsActualChart
-            data={(isOwner ? ownerData : aggregateData)?.all_projects_budget ?? []}
-          />
-          <MaterialConsumptionChart
-            data={
-              isOwner
-                ? ownerData!.material_trends
-                : scopeSelection === "aggregate"
-                  ? aggregateData!.material_trends
-                  : managerData!.material_trends
-            }
-            scopeSelection={scopeSelection}
-            projectName={!isOwner && scopeSelection !== "aggregate" ? managerData?.project_name : undefined}
-          />
-        </div>
-      )}
-      <ProjectHealthTable />
+      <Accordion type="single" collapsible defaultValue="charts" className="rounded-lg border border-zinc-200 bg-white px-5 dark:border-zinc-800 dark:bg-zinc-900">
+        <AccordionItem value="charts" className="border-0">
+          <AccordionTrigger className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 hover:no-underline">
+            Charts & Trends
+          </AccordionTrigger>
+          <AccordionContent className="pb-0">
+            {(isOwner
+              ? ownerData
+              : scopeSelection === "aggregate"
+                ? aggregateData
+                : managerData) && (
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                <BudgetVsActualChart
+                  data={(isOwner ? ownerData : aggregateData)?.all_projects_budget ?? []}
+                />
+                <MaterialConsumptionChart
+                  data={
+                    isOwner
+                      ? ownerData!.material_trends
+                      : scopeSelection === "aggregate"
+                        ? aggregateData!.material_trends
+                        : managerData!.material_trends
+                  }
+                  scopeSelection={scopeSelection}
+                  projectName={!isOwner && scopeSelection !== "aggregate" ? managerData?.project_name : undefined}
+                />
+              </div>
+            )}
+            <div className="mt-4">
+              <ProjectHealthTable
+                data={
+                  isOwner
+                    ? ownerData?.all_projects_budget ?? []
+                    : scopeSelection === "aggregate"
+                      ? aggregateData?.all_projects_budget ?? []
+                      : managerData
+                        ? [{ project_id: managerData.project_id, project_name: managerData.project_name, total_budget: managerData.phases.reduce((s, p) => s + p.allocated_budget, 0), actual_spending: managerData.total_material_cost, is_over_budget: managerData.total_material_cost > managerData.phases.reduce((s, p) => s + p.allocated_budget, 0) }]
+                        : []
+                }
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   )
 }
