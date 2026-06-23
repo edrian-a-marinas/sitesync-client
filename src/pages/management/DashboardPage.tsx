@@ -23,7 +23,8 @@ export default function DashboardPage() {
   const [scopeSelection, setScopeSelection] = useState<ScopeSelection>("aggregate")
   const [ownerFilters, setOwnerFilters] = useState<DashboardFilters>(DEFAULT_FILTERS)
 
-  const { data: ownerData, isLoading: ownerLoading, isError: ownerError } = useOwnerDashboard(isOwner)
+  const ownerYear = isOwner && ownerFilters.year !== "all" ? ownerFilters.year : undefined
+  const { data: ownerData, isLoading: ownerLoading, isError: ownerError } = useOwnerDashboard(isOwner, ownerYear)
   const { data: managerData, isLoading: managerLoading, isError: managerError } = useManagerDashboard(
     !isOwner && typeof scopeSelection === "number" ? scopeSelection : null
   )

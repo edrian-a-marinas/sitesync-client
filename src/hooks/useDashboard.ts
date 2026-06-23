@@ -6,11 +6,11 @@ import {
   getWorkerDashboard,
 } from "@/services/dashboard";
 
-export const useOwnerDashboard = (enabled: boolean = true) => {
+export const useOwnerDashboard = (enabled: boolean = true, year?: number) => {
   return useQuery({
-    queryKey: ["dashboard", "owner"],
+    queryKey: ["dashboard", "owner", year ?? "all"],
     queryFn: async () => {
-      const data = await getOwnerDashboard();
+      const data = await getOwnerDashboard(year);
       console.log("[useOwnerDashboard] fetched:", data);
       return data;
     },

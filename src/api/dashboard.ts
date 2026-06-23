@@ -1,7 +1,7 @@
 import api from "@/lib/axios";
 
-export const getOwnerDashboardRequest = () =>
-  api.get("/dashboard/owner");
+export const getOwnerDashboardRequest = (year?: number) =>
+  api.get("/dashboard/owner", { params: year ? { year } : undefined });
 
 export const getManagerDashboardRequest = (projectId: number) =>
   api.get(`/dashboard/manager/${projectId}`);

@@ -11,8 +11,8 @@ import type {
   WorkerDashboard,
 } from "@/validations/dashboard";
 
-export const getOwnerDashboard = async (): Promise<OwnerDashboard> => {
-  const response = await getOwnerDashboardRequest();
+export const getOwnerDashboard = async (year?: number): Promise<OwnerDashboard> => {
+  const response = await getOwnerDashboardRequest(year);
   return response.data;
 };
 
