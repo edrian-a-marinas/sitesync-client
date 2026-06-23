@@ -2,6 +2,7 @@ import { createRootRoute, createRoute, createRouter, Outlet, Navigate } from '@t
 import { useAuthStore } from '@/store/auth'
 import LoginPage from '@/pages/LoginPage'
 import HomePage from '@/pages/HomePage'
+//import ProjectsPage from '@/pages/management/ProjectsPage'
 import { ROUTES } from '@/constants'
 
 // Root route
@@ -65,6 +66,11 @@ const homeRoute = createRoute({
   path: ROUTES.HOME,
   component: HomePage,
 })
+const projectsRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: ROUTES.PROJECTS,
+  //component: ProjectsPage,
+})
 
 const indexRoute = createRoute({
   getParentRoute: () => protectedRoute,
@@ -75,7 +81,7 @@ const indexRoute = createRoute({
 // Route tree
 const routeTree = rootRoute.addChildren([
   publicRoute.addChildren([loginRoute, loginAdminRoute]),
-  protectedRoute.addChildren([homeRoute, indexRoute]),
+  protectedRoute.addChildren([homeRoute, indexRoute, projectsRoute]),
 ])
 
 function NotFound() {
