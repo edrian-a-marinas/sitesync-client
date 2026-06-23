@@ -57,7 +57,7 @@ function KPICard({ kpi }: { kpi: KPI }) {
   );
 }
 
-export function OwnerKPICards({ data, filteredProjects }: { data: OwnerDashboard; filteredProjects?: ProjectBudgetSummary[] }) {
+export function OwnerKPICards({ data, filteredProjects, year }: { data: OwnerDashboard; filteredProjects?: ProjectBudgetSummary[]; year?: number | "all" }) {
   const projects = filteredProjects ?? data.all_projects_budget;
   const totalBudget = projects.reduce((sum, p) => sum + p.total_budget, 0);
   const totalSpending = projects.reduce((sum, p) => sum + p.actual_spending, 0);
@@ -66,19 +66,19 @@ export function OwnerKPICards({ data, filteredProjects }: { data: OwnerDashboard
     : 0;
 
   const isSingleProject = projects.length === 1;
-  const totalWorkers = isSingleProject
-    ? projects[0].total_workers
-    : data.total_workers_active;
-  const totalIncidents = isSingleProject
-    ? projects[0].total_incidents
-    : data.incidents_this_week;
+  const isYearFiltered = typeof year === "number";
+  const showDeltas = !isYearFiltered || year === new Date().getFullYear();
+
+  const totalWorkers = isSingleProject ? projects[0].total_workers : data.total_workers_active;
+  const totalIncidents = isSingleProject ? projects[0].total_incidents : data.incidents_this_week;
+  const totalActiveProjects = isSingleProject ? 1 : data.total_active_projects;
 
   const kpis: KPI[] = [
     {
       label: "Total Active Projects",
-      value: String(projects.length),
+      value: String(totalActiveProjects),
       icon: Briefcase,
-      delta: data.total_active_projects_delta,
+      delta: showDeltas && !isSingleProject ? data.total_active_projects_delta : null,
       deltaLabel: "vs last month",
     },
     {
@@ -86,7 +86,7 @@ export function OwnerKPICards({ data, filteredProjects }: { data: OwnerDashboard
       value: formatPHP(totalSpending, 'short'),
       hint: `${budgetPercent}% of ${formatPHP(totalBudget, 'short')}`,
       icon: Wallet,
-      delta: data.total_spending_delta_percent,
+      delta: showDeltas ? data.total_spending_delta_percent : null,
       deltaLabel: "% burn rate vs last week",
       deltaInvertedColor: true,
       rawAmount: totalSpending,
@@ -95,14 +95,14 @@ export function OwnerKPICards({ data, filteredProjects }: { data: OwnerDashboard
       label: isSingleProject ? "Workers on Project" : "Total Workers Active",
       value: String(totalWorkers),
       icon: Users,
-      delta: isSingleProject ? null : data.total_workers_active_delta,
+      delta: showDeltas && !isSingleProject ? data.total_workers_active_delta : null,
       deltaLabel: "vs last week",
     },
     {
-      label: isSingleProject ? `Total Incidents` : "Incidents This Week",
+      label: isSingleProject || isYearFiltered ? "Total Incidents" : "Incidents This Week",
       value: String(totalIncidents),
       icon: AlertTriangle,
-      delta: isSingleProject ? null : data.incidents_this_week_delta,
+      delta: showDeltas && !isSingleProject ? data.incidents_this_week_delta : null,
       deltaInvertedColor: true,
     },
   ];

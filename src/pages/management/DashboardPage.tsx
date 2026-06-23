@@ -91,7 +91,7 @@ export default function DashboardPage() {
       </div>
     )
     if (ownerError || !ownerData) return <p className="text-sm text-red-600">Failed to load dashboard data.</p>
-    return <OwnerKPICards data={ownerData} filteredProjects={ownerChartData?.projects} />
+    return <OwnerKPICards data={ownerData} filteredProjects={ownerChartData?.projects} year={ownerFilters.year} />
   }
 
   const renderManagerKPIs = () => {
