@@ -11,7 +11,6 @@ export const useOwnerDashboard = (enabled: boolean = true, year?: number) => {
     queryKey: ["dashboard", "owner", year ?? "all"],
     queryFn: async () => {
       const data = await getOwnerDashboard(year);
-      console.log("[useOwnerDashboard] fetched:", data);
       return data;
     },
     enabled,
@@ -23,7 +22,6 @@ export const useManagerDashboard = (projectId: number | null) => {
     queryKey: ["dashboard", "manager", projectId],
     queryFn: async () => {
       const data = await getManagerDashboard(projectId as number);
-      console.log("[useManagerDashboard] fetched:", data);
       return data;
     },
     enabled: projectId !== null,
@@ -35,7 +33,6 @@ export const useManagerAggregateDashboard = (enabled: boolean = true) => {
     queryKey: ["dashboard", "manager", "aggregate"],
     queryFn: async () => {
       const data = await getManagerAggregateDashboard();
-      console.log("[useManagerAggregateDashboard] fetched:", data);
       return data;
     },
     enabled,
@@ -47,7 +44,6 @@ export const useWorkerDashboard = () => {
     queryKey: ["dashboard", "worker"],
     queryFn: async () => {
       const data = await getWorkerDashboard();
-      console.log("[useWorkerDashboard] fetched:", data);
       return data;
     },
   });

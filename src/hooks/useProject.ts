@@ -6,7 +6,6 @@ export const useProjects = (status?: string) => {
     queryKey: ["projects", status ?? "all"],
     queryFn: async () => {
       const data = await getProjects(status);
-      console.log("[useProjects] fetched:", data);
       return data;
     },
   });

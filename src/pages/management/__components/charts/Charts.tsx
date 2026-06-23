@@ -44,13 +44,11 @@ function ChartCard({
 }
 
 export function BudgetVsActualChart({ data }: { data: ProjectBudgetSummary[] }) {
-  console.log("[BudgetVsActualChart] raw data:", data);
   const chartData = data.map((p) => ({
     project: p.project_name,
     budget: Number((p.total_budget / 1_000_000).toFixed(2)),
     actual: Number((p.actual_spending / 1_000_000).toFixed(2)),
   }));
-  console.log("[BudgetVsActualChart] chart data (in millions):", chartData);
   return (
     <ChartCard title="Budget vs Actual (Active)" subtitle="Per project, in ₱ millions">
       <ResponsiveContainer width="100%" height="100%">
@@ -94,7 +92,6 @@ export function MaterialConsumptionChart({
   projectName?: string;
   chartSubtitle?: string;
 }) {
-  console.log("[MaterialConsumptionChart] raw data:", data);
   const isSingleProject = typeof scopeSelection === "number";
 
   const totalCostByMaterial = new Map<string, number>();
@@ -142,7 +139,6 @@ export function MaterialConsumptionChart({
     });
     return row;
   });
-  console.log("[MaterialConsumptionChart] chart data (wide format):", chartData);
   return (
     <ChartCard title="Material Consumption Trends" subtitle="Last 8 weeks, costs by material">
       <ResponsiveContainer width="100%" height="100%">
