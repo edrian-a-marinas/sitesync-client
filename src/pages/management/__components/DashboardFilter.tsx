@@ -50,8 +50,14 @@ export function filterMaterialTrends(
   trends: MaterialWeeklyTrend[],
   filters: DashboardFilters,
 ): MaterialWeeklyTrend[] {
-  if (filters.year === "all") return trends;
-  return trends.filter((t) => extractYear(t.week) === filters.year);
+  let result = trends;
+  if (filters.year !== "all") {
+    result = result.filter((t) => extractYear(t.week) === filters.year);
+  }
+  if (filters.projectId !== "all") {
+    result = result.filter((t) => t.project_id === filters.projectId);
+  }
+  return result;
 }
 
 // ─── Owner: year + project (Active / Completed groups) ───────────────────────

@@ -67,6 +67,12 @@ export default function DashboardPage() {
       ? "All Time"
       : String(ownerFilters.year)
 
+  const ownerChartSubtitle = isOwnerCurrentYear
+    ? undefined
+    : ownerFilters.year === "all"
+      ? "All-time totals, by material"
+      : `Full year — ${ownerFilters.year}, by material`
+
   const renderOwnerKPIs = () => {
     if (ownerLoading) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading dashboard...</p>
     if (ownerError || !ownerData) return <p className="text-sm text-red-600">Failed to load dashboard data.</p>
@@ -147,6 +153,7 @@ export default function DashboardPage() {
                       data={ownerTrends}
                       scopeSelection={ownerMaterialScope}
                       projectName={ownerMaterialLabel}
+                      chartSubtitle={ownerChartSubtitle}
                     />
                   </div>
                   <div className="mt-4">
@@ -188,6 +195,8 @@ export default function DashboardPage() {
                                 total_budget: managerData.phases.reduce((s, p) => s + p.allocated_budget, 0),
                                 actual_spending: managerData.total_material_cost,
                                 is_over_budget: managerData.total_material_cost > managerData.phases.reduce((s, p) => s + p.allocated_budget, 0),
+                                total_incidents: managerData.total_incidents,
+                                total_workers: 0,
                               }]
                             : []
                       }

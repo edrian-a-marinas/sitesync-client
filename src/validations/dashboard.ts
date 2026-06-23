@@ -7,11 +7,14 @@ export const ProjectBudgetSummarySchema = z.object({
   total_budget: z.number(),
   actual_spending: z.number(),
   is_over_budget: z.boolean(),
+  total_incidents: z.number().default(0),
+  total_workers: z.number().default(0),
 });
 export const MaterialWeeklyTrendSchema = z.object({
   week: z.string().nullable(),
   material_name: z.string(),
   total_cost: z.number(),
+  project_id: z.number().nullable().optional(),
 });
 export const OwnerDashboardSchema = z.object({
   total_active_projects: z.number(),
