@@ -38,9 +38,10 @@ const NAV: NavItem[] = [
   { label: "My Attendance", icon: CalendarCheck, path: ROUTES.ATTENDANCE, workerOnly: true },
 ]
 
-export function Sidebar() {
+export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; onMobileClose: () => void }) {
   const { user } = useAuthStore()
   const { sidebarCollapsed: collapsed, toggleSidebar } = useAuthStore()
+  const logout = useLogout()
   if (!user) return null
   const isWorker = user.role_id === ROLES.SITE_WORKER
   const isOwner = user.role_id === ROLES.OWNER
@@ -50,12 +51,17 @@ export function Sidebar() {
     if (!item.workerOnly && isWorker) return false
     return true
   })
-
-  const logout = useLogout()
   const initials = `${user.first_name[0]}${user.last_name[0]}`.toUpperCase()
 
   return (
-    <aside className={`fixed inset-y-0 left-0 z-30 flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-200 ${collapsed ? 'w-[68px]' : 'w-64'}`}>
+    <>
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-black/50 md:hidden"
+          onClick={onMobileClose}
+        />
+      )}
+      <aside className={`fixed inset-y-0 left-0 z-30 flex flex-col bg-sidebar text-sidebar-foreground transition-all duration-200 ${collapsed ? 'md:w-[68px]' : 'md:w-64'} w-64 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
       {/* Logo */}
       <div className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-5">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-sidebar-primary">
@@ -134,5 +140,6 @@ export function Sidebar() {
         {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
       </button>
     </aside>
+    </>
   )
 }

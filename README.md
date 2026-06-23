@@ -73,6 +73,9 @@ Vite + React + Bun (pkg manager) + Tanstack + TypeScript handles routing, page r
 UI/UX for roles
 All three roles share the same UI shell — same sidebar, same navigation structure, same dashboard layout — but what each role sees inside it is gated by their role. The Owner sees all projects, the AI query panel, and the ML Analytics dashboard, the Project Manager sees only their assigned projects, and the The Site Worker sees only their assigned project, their own attendance history, and the daily log for their current shift — same interface, different world inside it. — same interface, different world inside it.
 
+Mobile support
+The sidebar collapses into a slide-out drawer on mobile, with page layouts being progressively audited for full responsiveness.
+
 ### Role Based-Access Control 
 
 Owner — the construction company owner/CEO. The person who runs the business, owns all projects, sees everything, uses the AI assistant to make decisions. Not necessarily technical — just the boss.
