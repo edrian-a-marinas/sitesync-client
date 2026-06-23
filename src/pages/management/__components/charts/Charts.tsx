@@ -87,10 +87,12 @@ export function MaterialConsumptionChart({
   data,
   scopeSelection,
   projectName,
+  chartSubtitle,
 }: {
   data: MaterialWeeklyTrend[];
   scopeSelection: ScopeSelection;
   projectName?: string;
+  chartSubtitle?: string;
 }) {
   console.log("[MaterialConsumptionChart] raw data:", data);
   const isSingleProject = typeof scopeSelection === "number";
@@ -113,7 +115,7 @@ export function MaterialConsumptionChart({
     return (
       <ChartCard
         title={`Material Consumption of ${projectName ?? "Project"}`}
-        subtitle={`Total costs by material, all-time — ${grandTotalLiteral}`}
+        subtitle={`${chartSubtitle ?? "Total costs by material, all-time"} — ${grandTotalLiteral}`}
       >
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={totalsData} layout="vertical" margin={{ top: 8, right: 16, left: 8, bottom: 0 }}>
