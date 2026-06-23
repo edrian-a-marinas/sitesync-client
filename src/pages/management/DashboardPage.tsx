@@ -15,6 +15,7 @@ import {
   type ScopeSelection,
 } from './__components/DashboardFilter'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/pages/_components/ui/accordion'
+import { Skeleton } from '@/pages/_components/ui/skeleton'
 
 export default function DashboardPage() {
   const { user } = useAuthStore()
@@ -75,7 +76,20 @@ export default function DashboardPage() {
       : `Full year — ${ownerFilters.year}, by material`
 
   const renderOwnerKPIs = () => {
-    if (ownerLoading) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading dashboard...</p>
+    if (ownerLoading) return (
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="flex items-start justify-between">
+              <Skeleton className="h-3 w-28" />
+              <Skeleton className="h-8 w-8 rounded-md" />
+            </div>
+            <Skeleton className="mt-4 h-8 w-24" />
+            <Skeleton className="mt-2 h-3 w-20" />
+          </div>
+        ))}
+      </div>
+    )
     if (ownerError || !ownerData) return <p className="text-sm text-red-600">Failed to load dashboard data.</p>
     return <OwnerKPICards data={ownerData} filteredProjects={ownerChartData?.projects} />
   }
@@ -145,8 +159,26 @@ export default function DashboardPage() {
           </AccordionTrigger>
           <AccordionContent className="pb-0">
             {isOwner ? (
-              // Owner: use filtered data
-              ownerChartData && (
+              // Owner: skeleton while loading, charts when ready
+              ownerLoading ? (
+                <>
+                  <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <div key={i} className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+                        <Skeleton className="h-4 w-40 mb-1" />
+                        <Skeleton className="h-3 w-28 mb-4" />
+                        <Skeleton className="h-64 w-full rounded-md" />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+                    <Skeleton className="h-4 w-32 mb-4" />
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton key={i} className="h-8 w-full mb-2" />
+                    ))}
+                  </div>
+                </>
+              ) : ownerChartData ? (
                 <>
                   <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <BudgetVsActualChart data={ownerChartData.projects} />
@@ -161,7 +193,7 @@ export default function DashboardPage() {
                     <ProjectHealthTable data={ownerChartData.projects} />
                   </div>
                 </>
-              )
+              ) : null
             ) : (
               // PM: unchanged
               activeData && (
