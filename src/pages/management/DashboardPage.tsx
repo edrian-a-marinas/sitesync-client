@@ -70,7 +70,7 @@ export default function DashboardPage() {
   const renderOwnerKPIs = () => {
     if (ownerLoading) return <p className="text-sm text-zinc-500 dark:text-zinc-400">Loading dashboard...</p>
     if (ownerError || !ownerData) return <p className="text-sm text-red-600">Failed to load dashboard data.</p>
-    return <OwnerKPICards data={ownerData} />
+    return <OwnerKPICards data={ownerData} filteredProjects={ownerChartData?.projects} />
   }
 
   const renderManagerKPIs = () => {

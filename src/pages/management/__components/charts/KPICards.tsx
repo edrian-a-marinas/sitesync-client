@@ -1,5 +1,5 @@
 import { Briefcase, Wallet, Users, AlertTriangle, ClipboardList, Clock, TrendingUp, TrendingDown, Minus, type LucideIcon } from "lucide-react";
-import type { OwnerDashboard, ProjectManagerDashboard, ProjectManagerAggregateDashboard } from "@/validations/dashboard";
+import type { OwnerDashboard, ProjectManagerDashboard, ProjectManagerAggregateDashboard, ProjectBudgetSummary } from "@/validations/dashboard";
 import { formatPHP, getMoneyTooltip } from "@/utils/formatPHP";
 type KPI = {
   label: string;
@@ -57,28 +57,31 @@ function KPICard({ kpi }: { kpi: KPI }) {
   );
 }
 
-export function OwnerKPICards({ data }: { data: OwnerDashboard }) {
-  const budgetPercent = data.total_budget > 0
-    ? Math.round((data.total_spending / data.total_budget) * 100)
+export function OwnerKPICards({ data, filteredProjects }: { data: OwnerDashboard; filteredProjects?: ProjectBudgetSummary[] }) {
+  const projects = filteredProjects ?? data.all_projects_budget;
+  const totalBudget = projects.reduce((sum, p) => sum + p.total_budget, 0);
+  const totalSpending = projects.reduce((sum, p) => sum + p.actual_spending, 0);
+  const budgetPercent = totalBudget > 0
+    ? Math.round((totalSpending / totalBudget) * 100)
     : 0;
 
   const kpis: KPI[] = [
     {
       label: "Total Active Projects",
-      value: String(data.total_active_projects),
+      value: String(projects.length),
       icon: Briefcase,
       delta: data.total_active_projects_delta,
       deltaLabel: "vs last month",
     },
     {
       label: "Budget vs Actual Spend",
-      value: formatPHP(data.total_spending, 'short'),
-      hint: `${budgetPercent}% of ${formatPHP(data.total_budget, 'short')}`,
+      value: formatPHP(totalSpending, 'short'),
+      hint: `${budgetPercent}% of ${formatPHP(totalBudget, 'short')}`,
       icon: Wallet,
       delta: data.total_spending_delta_percent,
       deltaLabel: "% burn rate vs last week",
       deltaInvertedColor: true,
-      rawAmount: data.total_spending,
+      rawAmount: totalSpending,
     },
     {
       label: "Total Workers Active",
