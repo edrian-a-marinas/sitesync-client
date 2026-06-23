@@ -66,11 +66,17 @@ export function OwnerKPICards({ data, filteredProjects, year }: { data: OwnerDas
     : 0;
 
   const isSingleProject = projects.length === 1;
+  const currentYear = new Date().getFullYear();
   const isYearFiltered = typeof year === "number";
-  const showDeltas = !isYearFiltered || year === new Date().getFullYear();
+  const isPastYearFiltered = isYearFiltered && year !== currentYear;
+  const showDeltas = !isYearFiltered || year === currentYear;
 
   const totalWorkers = isSingleProject ? projects[0].total_workers : data.total_workers_active;
-  const totalIncidents = isSingleProject ? projects[0].total_incidents : data.incidents_this_week;
+  const totalIncidents = isSingleProject
+    ? projects[0].total_incidents
+    : isPastYearFiltered
+      ? data.total_incidents
+      : data.incidents_this_week;
   const totalActiveProjects = isSingleProject ? 1 : data.total_active_projects;
 
   const kpis: KPI[] = [
@@ -99,7 +105,7 @@ export function OwnerKPICards({ data, filteredProjects, year }: { data: OwnerDas
       deltaLabel: "vs last week",
     },
     {
-      label: isSingleProject || isYearFiltered ? "Total Incidents" : "Incidents This Week",
+      label: isSingleProject || isPastYearFiltered ? "Total Incidents" : "Incidents This Week",
       value: String(totalIncidents),
       icon: AlertTriangle,
       delta: showDeltas && !isSingleProject ? data.incidents_this_week_delta : null,
