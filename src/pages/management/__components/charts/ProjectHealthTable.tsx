@@ -20,6 +20,7 @@ import {
 } from "@/pages/_components/ui/table";
 import type { ProjectBudgetSummary } from "@/validations/dashboard";
 import { formatPHP } from "@/utils/formatPHP";
+import { Badge } from "@/pages/_components/ui/badge";
 
 const columnHelper = createColumnHelper<ProjectBudgetSummary>();
 
@@ -43,15 +44,9 @@ const columns = [
     cell: (info) => {
       const over = info.getValue();
       return (
-        <span
-          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium ${
-            over
-              ? "border-red-200 bg-red-50 text-red-700"
-              : "border-emerald-200 bg-emerald-50 text-emerald-700"
-          }`}
-        >
+        <Badge variant={over ? "destructive" : "secondary"} className="rounded-full">
           {over ? "Over Budget" : "On Track"}
-        </span>
+        </Badge>
       );
     },
   }),
