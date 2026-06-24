@@ -1,0 +1,264 @@
+import { useState } from 'react'
+import { useAuthStore } from '@/store/auth'
+import { ROLES } from '@/constants'
+import { useProjects } from '@/hooks/useProject'
+import type { ProjectResponse } from '@/validations/project'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/pages/_components/ui/table'
+import { Badge } from '@/pages/_components/ui/badge'
+import { Button } from '@/pages/_components/ui/button'
+import { Skeleton } from '@/pages/_components/ui/skeleton'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/pages/_components/ui/dropdown-menu'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/pages/_components/ui/select'
+import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
+import { MoreHorizontal, Plus, FolderOpen } from 'lucide-react'
+import { formatPHP } from '@/utils/formatPHP'
+import CreateProjectDialog from './__components/projects/CreateProjectDialog'
+import EditProjectDialog from './__components/projects/EditProjectDialog'
+import DeleteConfirmDialog from './__components/projects/DeleteConfirmDialog'
+import ProjectDetailPanel from './__components/projects/ProjectDetailPanel'
+
+type StatusFilter = 'all' | 'Active' | 'Completed' | 'On Hold'
+
+const STATUS_BADGE: Record<string, string> = {
+  Active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  Completed: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  'On Hold': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+}
+
+export default function ProjectsPage() {
+  const { user } = useAuthStore()
+  const isOwner = user?.role_id === ROLES.OWNER
+
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [selectedProject, setSelectedProject] = useState<ProjectResponse | null>(null)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [editProject, setEditProject] = useState<ProjectResponse | null>(null)
+  const [deleteProject, setDeleteProject] = useState<ProjectResponse | null>(null)
+
+  const { data: projects, isLoading, isError } = useProjects(
+    statusFilter === 'all' ? undefined : statusFilter
+  )
+
+  console.log('[ProjectsPage] projects:', projects, 'statusFilter:', statusFilter)
+
+  const handleView = (project: ProjectResponse) => {
+    setSelectedProject(prev => prev?.id === project.id ? null : project)
+  }
+
+  const handleEdit = (project: ProjectResponse) => {
+    setEditProject(project)
+  }
+
+  const handleDelete = (project: ProjectResponse) => {
+    setDeleteProject(project)
+  }
+
+  const renderSkeletonRows = () =>
+    Array.from({ length: 5 }).map((_, i) => (
+      <TableRow key={i}>
+        <TableCell><Skeleton className="h-4 w-36" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+        <TableCell><Skeleton className="h-5 w-16 rounded-full" /></TableCell>
+        <TableCell><Skeleton className="h-8 w-8 rounded-md" /></TableCell>
+      </TableRow>
+    ))
+
+  return (
+    <div className="flex flex-col gap-6 px-6 pb-10">
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
+            Projects{' '}
+            <span className="text-zinc-400 dark:text-zinc-500">
+              — {isOwner ? 'Owner' : 'PM'} View
+            </span>
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            {isOwner
+              ? 'Manage all construction projects, phases, and assignments'
+              : 'Your assigned projects — manage phases and workers'}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+          >
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="Active">Active</SelectItem>
+              <SelectItem value="Completed">Completed</SelectItem>
+              <SelectItem value="On Hold">On Hold</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {isOwner && (
+            <Button onClick={() => setCreateOpen(true)} size="sm">
+              <Plus className="mr-1.5 h-4 w-4" />
+              New Project
+            </Button>
+          )}
+        </div>
+      </div>
+
+      {/* Error */}
+      {isError && (
+        <Alert variant="destructive">
+          <AlertDescription>Failed to load projects. Please try again.</AlertDescription>
+        </Alert>
+      )}
+
+      {/* Table */}
+      <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Project Name</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead>Total Budget</TableHead>
+              <TableHead>Start Date</TableHead>
+              <TableHead>Target End</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-10" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading
+              ? renderSkeletonRows()
+              : !projects || projects.length === 0
+              ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="py-16 text-center">
+                    <div className="flex flex-col items-center gap-2 text-zinc-400 dark:text-zinc-500">
+                      <FolderOpen className="h-8 w-8" />
+                      <p className="text-sm">
+                        {isOwner ? 'No projects yet. Create your first project.' : 'No assigned projects found.'}
+                      </p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )
+              : projects.map((project) => (
+                <TableRow
+                  key={project.id}
+                  className={`cursor-pointer transition-colors ${
+                    selectedProject?.id === project.id
+                      ? 'bg-zinc-50 dark:bg-zinc-800/50'
+                      : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/30'
+                  }`}
+                  onClick={() => handleView(project)}
+                >
+                  <TableCell className="font-medium text-zinc-900 dark:text-zinc-100">
+                    {project.name}
+                  </TableCell>
+                  <TableCell className="text-zinc-500 dark:text-zinc-400">
+                    {project.location}
+                  </TableCell>
+                  <TableCell className="text-zinc-700 dark:text-zinc-300">
+                    {formatPHP(project.total_budget)}
+                  </TableCell>
+                  <TableCell className="text-zinc-500 dark:text-zinc-400">
+                    {project.start_date}
+                  </TableCell>
+                  <TableCell className="text-zinc-500 dark:text-zinc-400">
+                    {project.target_end_date}
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      className={`text-xs font-medium ${STATUS_BADGE[project.status] ?? 'bg-zinc-100 text-zinc-600'}`}
+                      variant="outline"
+                    >
+                      {project.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleView(project)}>
+                          View Details
+                        </DropdownMenuItem>
+                        {isOwner && (
+                          <>
+                            <DropdownMenuItem onClick={() => handleEdit(project)}>
+                              Edit Project
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              className="text-red-600 dark:text-red-400"
+                              onClick={() => handleDelete(project)}
+                            >
+                              Delete Project
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            }
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Detail Panel */}
+      {selectedProject && (
+        <ProjectDetailPanel
+          project={selectedProject}
+          isOwner={isOwner}
+          onClose={() => setSelectedProject(null)}
+        />
+      )}
+
+      {/* Modals */}
+      {isOwner && (
+        <>
+          <CreateProjectDialog
+            open={createOpen}
+            onOpenChange={setCreateOpen}
+          />
+          <EditProjectDialog
+            project={editProject}
+            open={!!editProject}
+            onOpenChange={(open) => { if (!open) setEditProject(null) }}
+          />
+          <DeleteConfirmDialog
+            project={deleteProject}
+            open={!!deleteProject}
+            onOpenChange={(open) => { if (!open) setDeleteProject(null) }}
+          />
+        </>
+      )}
+    </div>
+  )
+}

@@ -1,0 +1,132 @@
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'sonner'
+import { AssignUserRequestSchema, type AssignUserRequest, type ProjectResponse } from '@/validations/project'
+import { useAssignManager, useAssignWorker } from '@/hooks/useProject'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/pages/_components/ui/dialog'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/pages/_components/ui/form'
+import { Input } from '@/pages/_components/ui/input'
+import { Button } from '@/pages/_components/ui/button'
+
+interface Props {
+  project: ProjectResponse
+  type: 'manager' | 'worker'
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export default function AssignUserDialog({ project, type, open, onOpenChange }: Props) {
+  const { mutate: assignManager, isPending: assigningManager } = useAssignManager()
+  const { mutate: assignWorker, isPending: assigningWorker } = useAssignWorker()
+
+  const isPending = assigningManager || assigningWorker
+  const isManager = type === 'manager'
+
+  const form = useForm<AssignUserRequest>({
+    resolver: zodResolver(AssignUserRequestSchema),
+    defaultValues: {
+      user_id: 0,
+    },
+  })
+
+  const onSubmit = (data: AssignUserRequest) => {
+    console.log('[AssignUserDialog] submitting:', data, 'type:', type, 'projectId:', project.id)
+
+    const mutate = isManager ? assignManager : assignWorker
+
+    mutate(
+      { projectId: project.id, data },
+      {
+        onSuccess: () => {
+          toast.success(isManager ? 'Manager assigned successfully' : 'Worker assigned successfully')
+          form.reset()
+          onOpenChange(false)
+        },
+        onError: (err) => {
+          console.error('[AssignUserDialog] error:', err)
+          toast.error(
+            isManager
+              ? 'Failed to assign manager. Make sure the user ID belongs to a Project Manager.'
+              : 'Failed to assign worker. Make sure the user ID belongs to a Site Worker.'
+          )
+        },
+      }
+    )
+  }
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) form.reset()
+    onOpenChange(open)
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader>
+          <DialogTitle>
+            {isManager ? 'Assign Project Manager' : 'Assign Site Worker'}
+          </DialogTitle>
+        </DialogHeader>
+
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          Assigning to{' '}
+          <span className="font-medium text-zinc-900 dark:text-zinc-100">{project.name}</span>.{' '}
+          {isManager
+            ? 'Only users with the Project Manager role can be assigned.'
+            : 'Only users with the Site Worker role can be assigned.'}
+        </p>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+            <FormField
+              control={form.control}
+              name="user_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>User ID</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min={1}
+                      placeholder="Enter user ID"
+                      {...field}
+                      onChange={(e) => field.onChange(Number(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter className="mt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={isPending}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? 'Assigning...' : isManager ? 'Assign Manager' : 'Assign Worker'}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
+  )
+}
