@@ -52,7 +52,6 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
 
   useEffect(() => {
     if (project) {
-      console.log('[EditProjectDialog] prefilling form with:', project)
       form.reset({
         name: project.name,
         location: project.location,
@@ -65,7 +64,6 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
   }, [project, form])
 
   const onSubmit = (data: ProjectUpdate) => {
-    console.log('[EditProjectDialog] onSubmit reached, data:', data, 'project:', project)
     if (!project) return
 
     const hasChanges =
@@ -76,12 +74,10 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
       data.target_end_date !== project.target_end_date ||
       data.status !== project.status
 
-    console.log('[EditProjectDialog] hasChanges:', hasChanges)
     if (!hasChanges) {
       toast.error('• Nothing to update.')
       return
     }
-    console.log('[EditProjectDialog] submitting:', data)
     updateProject(
       { projectId: project.id, data },
       {
@@ -90,7 +86,6 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
           onOpenChange(false)
         },
         onError: (err: any) => {
-          console.error('[EditProjectDialog] error:', err)
           const message = err?.response?.data?.detail ?? 'Failed to update project'
           toast.error(message)
         },

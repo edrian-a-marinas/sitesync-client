@@ -49,7 +49,6 @@ export default function CreateProjectDialog({ open, onOpenChange }: Props) {
   })
 
   const onSubmit = (data: ProjectCreate) => {
-    console.log('[CreateProjectDialog] submitting:', data)
     createProject(data, {
       onSuccess: () => {
         toast.success('Project created successfully')
@@ -57,9 +56,6 @@ export default function CreateProjectDialog({ open, onOpenChange }: Props) {
         onOpenChange(false)
       },
       onError: (err: any) => {
-        console.error('[CreateProjectDialog] error full:', err)
-        console.error('[CreateProjectDialog] error response:', err?.response)
-        console.error('[CreateProjectDialog] error data:', err?.response?.data)
         const message = err?.response?.data?.detail ?? 'Failed to create project'
         toast.error(message)
       },

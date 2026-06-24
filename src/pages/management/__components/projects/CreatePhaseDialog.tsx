@@ -49,7 +49,6 @@ export default function CreatePhaseDialog({ project, open, onOpenChange }: Props
   })
 
   const onSubmit = (data: PhaseCreate) => {
-    console.log('[CreatePhaseDialog] submitting:', data, 'projectId:', project.id)
     createPhase(
       { projectId: project.id, data },
       {
@@ -59,7 +58,6 @@ export default function CreatePhaseDialog({ project, open, onOpenChange }: Props
           onOpenChange(false)
         },
         onError: (err: any) => {
-          console.error('[CreatePhaseDialog] error:', err)
           const message = err?.response?.data?.detail ?? 'Failed to create phase'
           toast.error(message)
         },
