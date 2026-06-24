@@ -17,7 +17,7 @@ import { formatPHP } from '@/utils/formatPHP'
 import CreatePhaseDialog from './CreatePhaseDialog'
 import EditPhaseDialog from './EditPhaseDialog'
 import AssignUserDialog from './AssignUserDialog'
-import type { PhaseResponse } from '@/validations/project'
+import type { PhaseResponse, AssignedUser } from '@/validations/project'
 
 interface Props {
   project: ProjectResponse
@@ -39,8 +39,6 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
   const [editPhase, setEditPhase] = useState<PhaseResponse | null>(null)
   const [assignManagerOpen, setAssignManagerOpen] = useState(false)
   const [assignWorkerOpen, setAssignWorkerOpen] = useState(false)
-
-  console.log('[ProjectDetailPanel] project:', project.id, 'detail:', detail)
 
   const renderPhaseProgress = (phase: PhaseResponse) => {
     // No actual spending per phase from backend yet — show allocated vs project total_budget ratio
@@ -164,30 +162,57 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
 
         {/* Assignments Tab */}
         <TabsContent value="assignments">
-          <div className="flex flex-col gap-4">
-            {/* Assign Manager — Owner only */}
+          <div className="flex flex-col gap-6">
+            {/* Project Managers */}
             {isOwner && (
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-zinc-500 dark:text-zinc-400">Project Manager</p>
-                <Button size="sm" variant="outline" onClick={() => setAssignManagerOpen(true)}>
-                  <Plus className="mr-1.5 h-4 w-4" />
-                  Assign Manager
-                </Button>
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Project Manager</p>
+                  <Button size="sm" variant="outline" onClick={() => setAssignManagerOpen(true)}>
+                    <Plus className="mr-1.5 h-4 w-4" />
+                    Assign Manager
+                  </Button>
+                </div>
+                {isLoading ? (
+                  <Skeleton className="h-4 w-40" />
+                ) : !detail?.managers || detail.managers.length === 0 ? (
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500">No manager assigned.</p>
+                ) : (
+                  <div className="flex flex-col gap-1">
+                    {detail.managers.map((m: AssignedUser) => (
+                      <p key={m.id} className="text-sm text-zinc-700 dark:text-zinc-300">
+                        {m.first_name} {m.last_name}
+                        <span className="ml-2 text-xs text-zinc-400">({m.email})</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
-
-            {/* Assign Worker — Owner and PM */}
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">Site Workers</p>
-              <Button size="sm" variant="outline" onClick={() => setAssignWorkerOpen(true)}>
-                <Plus className="mr-1.5 h-4 w-4" />
-                Assign Worker
-              </Button>
+            {/* Site Workers */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Site Workers</p>
+                <Button size="sm" variant="outline" onClick={() => setAssignWorkerOpen(true)}>
+                  <Plus className="mr-1.5 h-4 w-4" />
+                  Assign Worker
+                </Button>
+              </div>
+              {isLoading ? (
+                <Skeleton className="h-4 w-40" />
+              ) : !detail?.workers || detail.workers.length === 0 ? (
+                <p className="text-xs text-zinc-400 dark:text-zinc-500">No workers assigned.</p>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {detail.workers.map((w: AssignedUser) => (
+                    <p key={w.id} className="text-sm text-zinc-700 dark:text-zinc-300">
+                      {w.first_name} {w.last_name}
+                      <span className="ml-2 text-xs text-zinc-400">({w.email})</span>
+                    </p>
+                  ))}
+                </div>
+              )}
             </div>
-
-            <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              Assignment history will be shown here in a future update.
-            </p>
           </div>
         </TabsContent>
       </Tabs>
