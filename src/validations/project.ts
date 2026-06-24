@@ -45,7 +45,7 @@ export const PhaseCreateSchema = z.object({
 });
 export type PhaseCreate = z.infer<typeof PhaseCreateSchema>;
 
-export const PhaseUpdateSchema = PhaseCreateSchema.partial();
+export const PhaseUpdateSchema = PhaseCreateSchema;
 export type PhaseUpdate = z.infer<typeof PhaseUpdateSchema>;
 
 export const AssignUserRequestSchema = z.object({

@@ -50,7 +50,6 @@ export default function EditPhaseDialog({ project, phase, open, onOpenChange }: 
 
   useEffect(() => {
     if (phase) {
-      console.log('[EditPhaseDialog] prefilling form with:', phase)
       form.reset({
         name: phase.name,
         allocated_budget: phase.allocated_budget,
@@ -61,7 +60,17 @@ export default function EditPhaseDialog({ project, phase, open, onOpenChange }: 
 
   const onSubmit = (data: PhaseUpdate) => {
     if (!phase) return
-    console.log('[EditPhaseDialog] submitting:', data, 'projectId:', project.id, 'phaseId:', phase.id)
+
+    const hasChanges =
+      data.name !== phase.name ||
+      data.allocated_budget !== phase.allocated_budget ||
+      data.status !== phase.status
+
+    if (!hasChanges) {
+      toast.error('• Nothing to update.')
+      return
+    }
+
     updatePhase(
       { projectId: project.id, phaseId: phase.id, data },
       {
@@ -70,7 +79,6 @@ export default function EditPhaseDialog({ project, phase, open, onOpenChange }: 
           onOpenChange(false)
         },
         onError: (err: any) => {
-          console.error('[EditPhaseDialog] error:', err)
           const message = err?.response?.data?.detail ?? 'Failed to update phase'
           toast.error(message)
         },
