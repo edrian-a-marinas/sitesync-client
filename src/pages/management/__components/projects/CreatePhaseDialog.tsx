@@ -1,7 +1,9 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { PhaseCreateSchema, type PhaseCreate, type ProjectResponse } from '@/validations/project'
+import { PhaseCreateSchema} from '@/validations/project'
+import type { ProjectResponse, PhaseCreate } from '@/validations/project'
+
 import { useCreatePhase } from '@/hooks/useProject'
 import {
   Dialog,

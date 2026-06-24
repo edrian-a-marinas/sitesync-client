@@ -40,8 +40,8 @@ export type PhaseResponse = z.infer<typeof PhaseResponseSchema>;
 
 export const PhaseCreateSchema = z.object({
   name: z.string().min(1).max(100),
-  allocated_budget: z.number(),
-  status: z.string().default("Not Started"),
+  allocated_budget: z.number().min(0),
+  status: z.string(),
 });
 export type PhaseCreate = z.infer<typeof PhaseCreateSchema>;
 
