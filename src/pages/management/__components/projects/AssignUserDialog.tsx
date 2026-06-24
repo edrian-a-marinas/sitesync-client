@@ -3,6 +3,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { AssignUserRequestSchema, type AssignUserRequest, type ProjectResponse } from '@/validations/project'
 import { useAssignManager, useAssignWorker } from '@/hooks/useProject'
+import { useUsersByRole } from '@/hooks/useUser'
+import { ROLES } from '@/constants'
 import {
   Dialog,
   DialogContent,
@@ -18,23 +20,31 @@ import {
   FormLabel,
   FormMessage,
 } from '@/pages/_components/ui/form'
-import { Input } from '@/pages/_components/ui/input'
 import { Button } from '@/pages/_components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/pages/_components/ui/select'
 
 interface Props {
   project: ProjectResponse
   type: 'manager' | 'worker'
   open: boolean
   onOpenChange: (open: boolean) => void
+  excludeUserIds?: number[]
 }
 
-export default function AssignUserDialog({ project, type, open, onOpenChange }: Props) {
+export default function AssignUserDialog({ project, type, open, onOpenChange, excludeUserIds = [] }: Props) {
   const { mutate: assignManager, isPending: assigningManager } = useAssignManager()
   const { mutate: assignWorker, isPending: assigningWorker } = useAssignWorker()
-
   const isPending = assigningManager || assigningWorker
   const isManager = type === 'manager'
-
+  const roleId = isManager ? ROLES.PROJECT_MANAGER : ROLES.SITE_WORKER
+  const { data: users, isLoading: loadingUsers } = useUsersByRole(roleId)
+  const filteredUsers = users?.filter((u) => !excludeUserIds.includes(u.id)) ?? []
   const form = useForm<AssignUserRequest>({
     resolver: zodResolver(AssignUserRequestSchema),
     defaultValues: {
@@ -43,7 +53,6 @@ export default function AssignUserDialog({ project, type, open, onOpenChange }: 
   })
 
   const onSubmit = (data: AssignUserRequest) => {
-    console.log('[AssignUserDialog] submitting:', data, 'type:', type, 'projectId:', project.id)
 
     const mutate = isManager ? assignManager : assignWorker
 
@@ -56,7 +65,6 @@ export default function AssignUserDialog({ project, type, open, onOpenChange }: 
           onOpenChange(false)
         },
         onError: (err: any) => {
-          console.error('[AssignUserDialog] error:', err)
           const message = err?.response?.data?.detail ?? (isManager
             ? 'Failed to assign manager'
             : 'Failed to assign worker')
@@ -95,16 +103,25 @@ export default function AssignUserDialog({ project, type, open, onOpenChange }: 
               name="user_id"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>User ID</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      min={1}
-                      placeholder="Enter user ID"
-                      {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
-                    />
-                  </FormControl>
+                  <FormLabel>{isManager ? 'Project Manager' : 'Site Worker'}</FormLabel>
+                  <Select
+                    onValueChange={(v) => field.onChange(Number(v))}
+                    value={field.value ? String(field.value) : ''}
+                    disabled={loadingUsers}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder={loadingUsers ? 'Loading...' : `Select ${isManager ? 'a manager' : 'a worker'}`} />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {filteredUsers.map((u) => (
+                        <SelectItem key={u.id} value={String(u.id)}>
+                          {u.first_name} {u.last_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
