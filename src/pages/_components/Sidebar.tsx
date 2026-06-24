@@ -18,6 +18,7 @@ import { useLogout } from "@/hooks/useAuth"
 import { getRoleLabel } from "@/lib/roles"
 import { ROLES, ROUTES } from "@/constants"
 import { Button } from "@/pages/_components/ui/button"
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/pages/_components/ui/tooltip"
 
 type NavItem = {
   label: string
@@ -85,11 +86,11 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
             Workspace
           </p>
         )}
-        <ul className="space-y-0.5">
-          {items.map((item) => {
-            const Icon = item.icon
-            return (
-              <li key={item.label}>
+        <TooltipProvider delayDuration={200}>
+          <ul className="space-y-0.5">
+            {items.map((item) => {
+              const Icon = item.icon
+              const link = (
                 <Link
                   to={item.path}
                   className="group flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium transition-colors text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-white [&.active]:bg-sidebar-accent [&.active]:text-white"
@@ -97,10 +98,22 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
                   <Icon className="h-4 w-4 shrink-0 text-sidebar-foreground/50 group-hover:text-sidebar-foreground/80 group-[.active]:text-sidebar-primary" />
                   {!collapsed && <span>{item.label}</span>}
                 </Link>
-              </li>
-            )
-          })}
-        </ul>
+              )
+              return (
+                <li key={item.label}>
+                  {collapsed ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>{link}</TooltipTrigger>
+                      <TooltipContent side="right">{item.label}</TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    link
+                  )}
+                </li>
+              )
+            })}
+          </ul>
+        </TooltipProvider>
       </nav>
 
       {/* User info */}
