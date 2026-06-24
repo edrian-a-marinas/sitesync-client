@@ -200,7 +200,22 @@ export default function DashboardPage() {
                 <>
                   <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                     <BudgetVsActualChart
-                      data={(scopeSelection === "aggregate" ? aggregateData : ownerData)?.all_projects_budget ?? []}
+                      data={
+                        scopeSelection === "aggregate"
+                          ? aggregateData?.all_projects_budget ?? []
+                          : managerData
+                            ? [{
+                                project_id: managerData.project_id,
+                                project_name: managerData.project_name,
+                                status: "Active",
+                                total_budget: managerData.phases.reduce((s, p) => s + p.allocated_budget, 0),
+                                actual_spending: managerData.total_material_cost,
+                                is_over_budget: managerData.total_material_cost > managerData.phases.reduce((s, p) => s + p.allocated_budget, 0),
+                                total_incidents: managerData.total_incidents,
+                                total_workers: 0,
+                              }]
+                            : []
+                      }
                     />
                     <MaterialConsumptionChart
                       data={
@@ -225,6 +240,7 @@ export default function DashboardPage() {
                             ? [{
                                 project_id: managerData.project_id,
                                 project_name: managerData.project_name,
+                                status: "Active" as const,
                                 total_budget: managerData.phases.reduce((s, p) => s + p.allocated_budget, 0),
                                 actual_spending: managerData.total_material_cost,
                                 is_over_budget: managerData.total_material_cost > managerData.phases.reduce((s, p) => s + p.allocated_budget, 0),
