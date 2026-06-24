@@ -17,7 +17,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/pages/_components/ui/form'
 import { Input } from '@/pages/_components/ui/input'
 import { CalendarIcon } from 'lucide-react'
@@ -75,9 +74,10 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
           toast.success('Project updated successfully')
           onOpenChange(false)
         },
-        onError: (err) => {
+        onError: (err: any) => {
           console.error('[EditProjectDialog] error:', err)
-          toast.error('Failed to update project')
+          const message = err?.response?.data?.detail ?? 'Failed to update project'
+          toast.error(message)
         },
       }
     )
@@ -88,6 +88,8 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
     onOpenChange(open)
   }
 
+  const errors = form.formState.errors
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -97,16 +99,19 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Project Name</FormLabel>
+                  <FormLabel>
+                    Project Name {errors.name && <span className="text-red-500">*</span>}
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Makati Residential Tower" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  {errors.name && <p className="text-xs text-red-500">Required</p>}
                 </FormItem>
               )}
             />
@@ -116,11 +121,13 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location</FormLabel>
+                  <FormLabel>
+                    Location {errors.location && <span className="text-red-500">*</span>}
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. Makati City, Metro Manila" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  {errors.location && <p className="text-xs text-red-500">Required</p>}
                 </FormItem>
               )}
             />
@@ -130,17 +137,29 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
               name="total_budget"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Total Budget (PHP)</FormLabel>
+                  <FormLabel>
+                    Total Budget (PHP) {errors.total_budget && <span className="text-red-500">*</span>}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="number"
                       min={0}
                       placeholder="0.00"
                       {...field}
-                      onChange={(e) => field.onChange(Number(e.target.value))}
+                      value={field.value === 0 ? '' : field.value}
+                      onChange={(e) => {
+                        const val = e.target.value
+                        const [, decimal] = val.split('.')
+                        if (decimal !== undefined && decimal.length > 2) return
+                        field.onChange(val === '' ? 0 : Number(val))
+                      }}
                     />
                   </FormControl>
-                  <FormMessage />
+                  {errors.total_budget && (
+                    <p className="text-xs text-red-500">
+                      {errors.total_budget.type === 'too_big' ? 'Budget exceeds maximum allowed value' : 'Required'}
+                    </p>
+                  )}
                 </FormItem>
               )}
             />
@@ -151,7 +170,9 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                 name="start_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Start Date</FormLabel>
+                    <FormLabel>
+                      Start Date {errors.start_date && <span className="text-red-500">*</span>}
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -162,7 +183,7 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                         <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    {errors.start_date && <p className="text-xs text-red-500">Required</p>}
                   </FormItem>
                 )}
               />
@@ -172,7 +193,9 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                 name="target_end_date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Target End Date</FormLabel>
+                    <FormLabel>
+                      Target End Date {errors.target_end_date && <span className="text-red-500">*</span>}
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Input
@@ -183,7 +206,7 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                         <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                       </div>
                     </FormControl>
-                    <FormMessage />
+                    {errors.target_end_date && <p className="text-xs text-red-500">Required</p>}
                   </FormItem>
                 )}
               />
@@ -207,7 +230,6 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                       <SelectItem value="On Hold">On Hold</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
                 </FormItem>
               )}
             />

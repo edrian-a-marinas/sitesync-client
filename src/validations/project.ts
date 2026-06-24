@@ -18,11 +18,11 @@ export type ProjectResponse = z.infer<typeof ProjectResponseSchema>;
 // --- Used in ProjectsPage ---
 export const ProjectCreateSchema = z.object({
   name: z.string().min(1).max(100),
-  location: z.string(),
-  total_budget: z.number().min(0),
-  start_date: z.string(),
-  target_end_date: z.string(),
-  status: z.string(),
+  location: z.string().min(1),
+  total_budget: z.number().min(1).max(999_999_999_999_999.99),
+  start_date: z.string().min(1),
+  target_end_date: z.string().min(1),
+  status: z.string().min(1),
 });
 export type ProjectCreate = z.infer<typeof ProjectCreateSchema>;
 
