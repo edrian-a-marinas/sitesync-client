@@ -57,8 +57,6 @@ export default function ProjectsPage() {
     statusFilter === 'all' ? undefined : statusFilter
   )
 
-  console.log('[ProjectsPage] projects:', projects, 'statusFilter:', statusFilter)
-
   const handleView = (project: ProjectResponse) => {
     setSelectedProject(prev => prev?.id === project.id ? null : project)
   }
