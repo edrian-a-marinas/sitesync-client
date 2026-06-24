@@ -65,7 +65,22 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
   }, [project, form])
 
   const onSubmit = (data: ProjectUpdate) => {
+    console.log('[EditProjectDialog] onSubmit reached, data:', data, 'project:', project)
     if (!project) return
+
+    const hasChanges =
+      data.name !== project.name ||
+      data.location !== project.location ||
+      data.total_budget !== project.total_budget ||
+      data.start_date !== project.start_date ||
+      data.target_end_date !== project.target_end_date ||
+      data.status !== project.status
+
+    console.log('[EditProjectDialog] hasChanges:', hasChanges)
+    if (!hasChanges) {
+      toast.error('• Nothing to update.')
+      return
+    }
     console.log('[EditProjectDialog] submitting:', data)
     updateProject(
       { projectId: project.id, data },
@@ -98,8 +113,7 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-
+          <form onSubmit={form.handleSubmit(onSubmit, (errs) => console.log('[EditProjectDialog] zod errors:', errs))} className="flex flex-col gap-4">
             <FormField
               control={form.control}
               name="name"

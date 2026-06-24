@@ -26,7 +26,7 @@ export const ProjectCreateSchema = z.object({
 });
 export type ProjectCreate = z.infer<typeof ProjectCreateSchema>;
 
-export const ProjectUpdateSchema = ProjectCreateSchema.partial();
+export const ProjectUpdateSchema = ProjectCreateSchema;
 export type ProjectUpdate = z.infer<typeof ProjectUpdateSchema>;
 
 export const PhaseResponseSchema = z.object({
