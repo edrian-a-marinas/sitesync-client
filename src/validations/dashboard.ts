@@ -44,6 +44,7 @@ export const PhaseBudgetSummarySchema = z.object({
 export const ProjectManagerDashboardSchema = z.object({
   project_id: z.number(),
   project_name: z.string(),
+  status: z.enum(["Active", "Completed"]),
   logs_submitted: z.number(),
   attendance_rate: z.number(),
   total_material_cost: z.number(),

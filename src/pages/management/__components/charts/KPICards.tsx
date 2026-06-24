@@ -150,10 +150,10 @@ export function ManagerKPICards({ data }: { data: ProjectManagerDashboard }) {
       deltaLabel: "hrs vs last week",
     },
     {
-      label: "Incidents This Week",
-      value: String(data.incidents_this_week),
+      label: data.status === "Completed" ? "Total Incidents" : "Incidents This Week",
+      value: data.status === "Completed" ? String(data.total_incidents) : String(data.incidents_this_week),
       icon: AlertTriangle,
-      delta: data.incidents_this_week_delta,
+      delta: data.status === "Completed" ? null : data.incidents_this_week_delta,
       deltaLabel: "vs last week",
       deltaInvertedColor: true,
     },
