@@ -18,6 +18,9 @@ export const updateProjectRequest = (projectId: number, data: ProjectUpdate) =>
 export const deleteProjectRequest = (projectId: number) =>
   api.delete(`/projects/${projectId}`)
 
+export const unassignUserRequest = (projectId: number, userId: number, type: 'manager' | 'worker') =>
+  api.delete(`/projects/${projectId}/unassign`, { params: { user_id: userId, type } })
+
 export const assignManagerRequest = (projectId: number, data: AssignUserRequest) =>
   api.post(`/projects/${projectId}/assign-manager`, data);
 

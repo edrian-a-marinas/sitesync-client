@@ -4,6 +4,7 @@ import {
   createProjectRequest,
   updateProjectRequest,
   deleteProjectRequest,
+  unassignUserRequest,
   assignManagerRequest,
   assignWorkerRequest,
   createPhaseRequest,
@@ -49,6 +50,10 @@ export const assignManager = async (projectId: number, data: AssignUserRequest):
   const response = await assignManagerRequest(projectId, data);
   return response.data;
 };
+
+export const unassignUser = async (projectId: number, userId: number, type: 'manager' | 'worker'): Promise<void> => {
+  await unassignUserRequest(projectId, userId, type)
+}
 
 export const assignWorker = async (projectId: number, data: AssignUserRequest): Promise<{ message: string }> => {
   const response = await assignWorkerRequest(projectId, data);
