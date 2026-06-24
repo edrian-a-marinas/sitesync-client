@@ -4,6 +4,7 @@ import { z } from "zod";
 export const ProjectBudgetSummarySchema = z.object({
   project_id: z.number(),
   project_name: z.string(),
+  status: z.enum(["Active", "Completed"]),
   total_budget: z.number(),
   actual_spending: z.number(),
   is_over_budget: z.boolean(),

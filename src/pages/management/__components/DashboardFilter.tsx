@@ -42,7 +42,7 @@ export function filterProjects(
   projects: ProjectBudgetSummary[],
   filters: DashboardFilters,
 ): ProjectBudgetSummary[] {
-  if (filters.projectId === "all") return projects;
+  if (filters.projectId === "all") return projects.filter((p) => p.status === "Active");
   return projects.filter((p) => p.project_id === filters.projectId);
 }
 
