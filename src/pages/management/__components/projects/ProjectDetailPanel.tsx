@@ -236,12 +236,14 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
         type="manager"
         open={assignManagerOpen}
         onOpenChange={setAssignManagerOpen}
+        excludeUserIds={detail?.managers?.map((m) => m.id) ?? []}
       />
       <AssignUserDialog
         project={project}
         type="worker"
         open={assignWorkerOpen}
         onOpenChange={setAssignWorkerOpen}
+        excludeUserIds={detail?.workers?.map((w) => w.id) ?? []}
       />
     </div>
   )
