@@ -14,6 +14,7 @@ export function TopNav({ onMenuClick }: { onMenuClick: () => void }) {
       >
         <Menu className="h-5 w-5" />
       </button>
+      <div className="hidden md:block" />
       <div className="flex items-center gap-3">
         <ThemeToggle />
         <button
