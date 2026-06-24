@@ -1,21 +1,27 @@
 import { useState } from 'react'
 import { useAuthStore } from '@/store/auth'
-import { ROLES } from '@/constants'
+import { ROLES, ROUTES } from '@/constants'
 import { Sidebar } from '@/pages/_components/Sidebar'
 import { TopNav } from '@/pages/_components/TopNav'
 import DashboardPage from '@/pages/management/DashboardPage'
+import ProjectsPage from '@/pages/management/ProjectsPage'
 import WorkerPage from '@/pages/worker/WorkerPage'
+import { useLocation } from '@tanstack/react-router'
 export default function HomePage() {
   const { user, sidebarCollapsed } = useAuthStore()
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   if (!user) return null
 
+  const location = useLocation()
+  const path = location.pathname
+
   const content = () => {
-    if (user.role_id === ROLES.OWNER || user.role_id === ROLES.PROJECT_MANAGER) {
-      return <DashboardPage />
-    }
     if (user.role_id === ROLES.SITE_WORKER) {
       return <WorkerPage />
+    }
+    if (user.role_id === ROLES.OWNER || user.role_id === ROLES.PROJECT_MANAGER) {
+      if (path === ROUTES.PROJECTS) return <ProjectsPage />
+      return <DashboardPage />
     }
     return null
   }
