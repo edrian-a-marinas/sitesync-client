@@ -10,7 +10,7 @@ import {
   createPhase,
   updatePhase,
 } from "@/services/project";
-import type { ProjectCreate, ProjectUpdate, PhaseCreate, PhaseUpdate, AssignUserRequest } from "@/validations/project";
+import type { ProjectCreate, ProjectUpdate, ProjectDetailResponse, PhaseCreate, PhaseUpdate, AssignUserRequest } from "@/validations/project";
 
 
 // --- Used in ProjectsPage ---
@@ -26,7 +26,7 @@ export const useProjects = (status?: string) => {
 
 // --- Used in ProjectsPage ---
 export const useProject = (projectId: number | null) => {
-  return useQuery({
+  return useQuery<ProjectDetailResponse>({
     queryKey: ["projects", "detail", projectId],
     queryFn: async () => getProjectById(projectId as number),
     enabled: projectId !== null,

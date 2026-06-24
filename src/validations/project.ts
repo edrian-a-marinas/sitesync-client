@@ -16,6 +16,20 @@ export type ProjectResponse = z.infer<typeof ProjectResponseSchema>;
 
 
 // --- Used in ProjectsPage ---
+export const AssignedUserSchema = z.object({
+  id: z.number(),
+  first_name: z.string(),
+  last_name: z.string(),
+  email: z.string(),
+})
+export type AssignedUser = z.infer<typeof AssignedUserSchema>
+
+export const ProjectDetailResponseSchema = ProjectResponseSchema.extend({
+  managers: z.array(AssignedUserSchema).optional(),
+  workers: z.array(AssignedUserSchema).optional(),
+})
+export type ProjectDetailResponse = z.infer<typeof ProjectDetailResponseSchema>
+
 export const ProjectCreateSchema = z.object({
   name: z.string().min(1).max(100),
   location: z.string().min(1),
