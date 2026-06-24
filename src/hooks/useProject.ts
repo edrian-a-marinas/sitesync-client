@@ -5,6 +5,7 @@ import {
   createProject,
   updateProject,
   deleteProject,
+  unassignUser,
   assignManager,
   assignWorker,
   createPhase,
@@ -59,6 +60,17 @@ export const useDeleteProject = () => {
     mutationFn: (projectId: number) => deleteProject(projectId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
+    },
+  })
+}
+
+export const useUnassignUser = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ projectId, userId, type }: { projectId: number; userId: number; type: 'manager' | 'worker' }) =>
+      unassignUser(projectId, userId, type),
+    onSuccess: (_, { projectId }) => {
+      queryClient.invalidateQueries({ queryKey: ['projects', 'detail', projectId] })
     },
   })
 }
