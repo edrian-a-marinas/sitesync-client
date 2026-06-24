@@ -2,7 +2,7 @@ import { createRootRoute, createRoute, createRouter, Outlet, Navigate } from '@t
 import { useAuthStore } from '@/store/auth'
 import LoginPage from '@/pages/LoginPage'
 import HomePage from '@/pages/HomePage'
-//import ProjectsPage from '@/pages/management/ProjectsPage'
+import ProjectsPage from '@/pages/management/ProjectsPage'
 import { ROUTES } from '@/constants'
 
 // Root route
@@ -69,7 +69,7 @@ const homeRoute = createRoute({
 const projectsRoute = createRoute({
   getParentRoute: () => protectedRoute,
   path: ROUTES.PROJECTS,
-  //component: ProjectsPage,
+  component: ProjectsPage,
 })
 
 const indexRoute = createRoute({
