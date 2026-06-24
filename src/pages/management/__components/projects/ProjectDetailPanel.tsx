@@ -13,11 +13,22 @@ import {
   DropdownMenuTrigger,
 } from '@/pages/_components/ui/dropdown-menu'
 import { MoreHorizontal, Plus, X } from 'lucide-react'
+import { Input } from '@/pages/_components/ui/input'
 import { formatPHP } from '@/utils/formatPHP'
 import CreatePhaseDialog from './CreatePhaseDialog'
 import EditPhaseDialog from './EditPhaseDialog'
 import AssignUserDialog from './AssignUserDialog'
 import type { PhaseResponse, AssignedUser } from '@/validations/project'
+import { useUnassignUser } from '@/hooks/useProject'
+import { toast } from 'sonner'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from '@/pages/_components/ui/alert-dialog'
 
 interface Props {
   project: ProjectResponse
@@ -39,6 +50,27 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
   const [editPhase, setEditPhase] = useState<PhaseResponse | null>(null)
   const [assignManagerOpen, setAssignManagerOpen] = useState(false)
   const [assignWorkerOpen, setAssignWorkerOpen] = useState(false)
+  const { mutate: unassignUser, isPending: unassigning } = useUnassignUser()
+  const [unassignTarget, setUnassignTarget] = useState<{ user: AssignedUser; type: 'manager' | 'worker' } | null>(null)
+  const [unassignInput, setUnassignInput] = useState('')
+
+  const handleUnassignConfirm = () => {
+    if (!unassignTarget) return
+    unassignUser(
+      { projectId: project.id, userId: unassignTarget.user.id, type: unassignTarget.type },
+      {
+        onSuccess: () => {
+          toast.success(`${unassignTarget.user.first_name} ${unassignTarget.user.last_name} unassigned successfully`)
+          setUnassignTarget(null)
+          setUnassignInput('')
+        },
+        onError: (err: any) => {
+          const message = err?.response?.data?.detail ?? 'Failed to unassign'
+          toast.error(message)
+        },
+      }
+    )
+  }
 
   const renderPhaseProgress = (phase: PhaseResponse) => {
     // No actual spending per phase from backend yet — show allocated vs project total_budget ratio
@@ -180,10 +212,21 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
                 ) : (
                   <div className="flex flex-col gap-1">
                     {detail.managers.map((m: AssignedUser) => (
-                      <p key={m.id} className="text-sm text-zinc-700 dark:text-zinc-300">
-                        {m.first_name} {m.last_name}
-                        <span className="ml-2 text-xs text-zinc-400">({m.email})</span>
-                      </p>
+                      <div key={m.id} className="flex items-center justify-between">
+                        <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                          {m.first_name} {m.last_name}
+                          <span className="ml-2 text-xs text-zinc-400">({m.email})</span>
+                        </p>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-500 hover:text-red-600 h-7 px-2 text-xs"
+                          disabled={unassigning}
+                          onClick={() => setUnassignTarget({ user: m, type: 'manager' })}
+                        >
+                          Unassign
+                        </Button>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -204,12 +247,23 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
                 <p className="text-xs text-zinc-400 dark:text-zinc-500">No workers assigned.</p>
               ) : (
                 <div className="flex flex-col gap-1">
-                  {detail.workers.map((w: AssignedUser) => (
-                    <p key={w.id} className="text-sm text-zinc-700 dark:text-zinc-300">
-                      {w.first_name} {w.last_name}
-                      <span className="ml-2 text-xs text-zinc-400">({w.email})</span>
-                    </p>
-                  ))}
+                    {detail.workers.map((w: AssignedUser) => (
+                      <div key={w.id} className="flex items-center justify-between">
+                        <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                          {w.first_name} {w.last_name}
+                          <span className="ml-2 text-xs text-zinc-400">({w.email})</span>
+                        </p>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-500 hover:text-red-600 h-7 px-2 text-xs"
+                          disabled={unassigning}
+                          onClick={() => setUnassignTarget({ user: w, type: 'worker' })}
+                        >
+                          Unassign
+                        </Button>
+                      </div>
+                    ))}
                 </div>
               )}
             </div>
@@ -245,6 +299,44 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
         onOpenChange={setAssignWorkerOpen}
         excludeUserIds={detail?.workers?.map((w) => w.id) ?? []}
       />
+      {/* Unassign Confirm Dialog */}
+      <AlertDialog open={!!unassignTarget} onOpenChange={(open) => { if (!open) { setUnassignTarget(null); setUnassignInput('') } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unassign {unassignTarget?.type === 'manager' ? 'Project Manager' : 'Site Worker'}</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+                <p>You are about to unassign:</p>
+                <div className="rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 p-3 text-zinc-800 dark:text-zinc-200">
+                  <p><span className="font-medium">Name:</span> {unassignTarget?.user.first_name} {unassignTarget?.user.last_name}</p>
+                  <p><span className="font-medium">Email:</span> {unassignTarget?.user.email}</p>
+                  <p><span className="font-medium">Role:</span> {unassignTarget?.type === 'manager' ? 'Project Manager' : 'Site Worker'}</p>
+                </div>
+                <p>This will remove their access to <span className="font-semibold text-zinc-900 dark:text-zinc-100">{project.name}</span>.</p>
+                <p>To confirm, type <span className="font-semibold text-zinc-900 dark:text-zinc-100">unassign</span> below:</p>
+                <Input
+                  placeholder="unassign"
+                  value={unassignInput}
+                  onChange={(e) => setUnassignInput(e.target.value)}
+                  disabled={unassigning}
+                />
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => setUnassignTarget(null)} disabled={unassigning}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+              onClick={handleUnassignConfirm}
+              disabled={unassigning || unassignInput !== 'unassign'}
+            >
+              {unassigning ? 'Unassigning...' : 'Unassign'}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
