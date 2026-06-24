@@ -196,27 +196,29 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
         <TabsContent value="assignments">
           <div className="flex flex-col gap-6">
             {/* Project Managers */}
-            {isOwner && (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Project Manager</p>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Project Manager</p>
+                {isOwner && (
                   <Button size="sm" variant="outline" onClick={() => setAssignManagerOpen(true)}>
                     <Plus className="mr-1.5 h-4 w-4" />
                     Assign Manager
                   </Button>
-                </div>
-                {isLoading ? (
-                  <Skeleton className="h-4 w-40" />
-                ) : !detail?.managers || detail.managers.length === 0 ? (
-                  <p className="text-xs text-zinc-400 dark:text-zinc-500">No manager assigned.</p>
-                ) : (
-                  <div className="flex flex-col gap-1">
-                    {detail.managers.map((m: AssignedUser) => (
-                      <div key={m.id} className="flex items-center justify-between">
-                        <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                          {m.first_name} {m.last_name}
-                          <span className="ml-2 text-xs text-zinc-400">({m.email})</span>
-                        </p>
+                )}
+              </div>
+              {isLoading ? (
+                <Skeleton className="h-4 w-40" />
+              ) : !detail?.managers || detail.managers.length === 0 ? (
+                <p className="text-xs text-zinc-400 dark:text-zinc-500">No manager assigned.</p>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {detail.managers.map((m: AssignedUser) => (
+                    <div key={m.id} className="flex items-center justify-between">
+                      <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                        {m.first_name} {m.last_name}
+                        <span className="ml-2 text-xs text-zinc-400">({m.email})</span>
+                      </p>
+                      {isOwner && (
                         <Button
                           size="sm"
                           variant="ghost"
@@ -226,12 +228,12 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
                         >
                           Unassign
                         </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             {/* Site Workers */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
