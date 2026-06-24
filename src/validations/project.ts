@@ -1,4 +1,6 @@
 import { z } from "zod";
+
+// --- Used in DashboardPage ---
 export const ProjectResponseSchema = z.object({
   id: z.number(),
   owner_id: z.number(),
@@ -8,5 +10,45 @@ export const ProjectResponseSchema = z.object({
   start_date: z.string(),
   target_end_date: z.string(),
   status: z.string(),
+  phases: z.array(z.lazy(() => PhaseResponseSchema)).optional(),
 });
 export type ProjectResponse = z.infer<typeof ProjectResponseSchema>;
+
+
+// --- Used in ProjectsPage ---
+export const ProjectCreateSchema = z.object({
+  name: z.string().min(1).max(100),
+  location: z.string(),
+  total_budget: z.number(),
+  start_date: z.string(),
+  target_end_date: z.string(),
+  status: z.string().default("Active"),
+});
+export type ProjectCreate = z.infer<typeof ProjectCreateSchema>;
+
+export const ProjectUpdateSchema = ProjectCreateSchema.partial();
+export type ProjectUpdate = z.infer<typeof ProjectUpdateSchema>;
+
+export const PhaseResponseSchema = z.object({
+  id: z.number(),
+  project_id: z.number(),
+  name: z.string(),
+  allocated_budget: z.number(),
+  status: z.string(),
+});
+export type PhaseResponse = z.infer<typeof PhaseResponseSchema>;
+
+export const PhaseCreateSchema = z.object({
+  name: z.string().min(1).max(100),
+  allocated_budget: z.number(),
+  status: z.string().default("Not Started"),
+});
+export type PhaseCreate = z.infer<typeof PhaseCreateSchema>;
+
+export const PhaseUpdateSchema = PhaseCreateSchema.partial();
+export type PhaseUpdate = z.infer<typeof PhaseUpdateSchema>;
+
+export const AssignUserRequestSchema = z.object({
+  user_id: z.number(),
+});
+export type AssignUserRequest = z.infer<typeof AssignUserRequestSchema>;
