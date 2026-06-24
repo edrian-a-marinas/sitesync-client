@@ -55,13 +55,12 @@ export default function AssignUserDialog({ project, type, open, onOpenChange }: 
           form.reset()
           onOpenChange(false)
         },
-        onError: (err) => {
+        onError: (err: any) => {
           console.error('[AssignUserDialog] error:', err)
-          toast.error(
-            isManager
-              ? 'Failed to assign manager. Make sure the user ID belongs to a Project Manager.'
-              : 'Failed to assign worker. Make sure the user ID belongs to a Site Worker.'
-          )
+          const message = err?.response?.data?.detail ?? (isManager
+            ? 'Failed to assign manager'
+            : 'Failed to assign worker')
+          toast.error(message)
         },
       }
     )

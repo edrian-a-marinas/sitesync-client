@@ -69,9 +69,10 @@ export default function EditPhaseDialog({ project, phase, open, onOpenChange }: 
           toast.success('Phase updated successfully')
           onOpenChange(false)
         },
-        onError: (err) => {
+        onError: (err: any) => {
           console.error('[EditPhaseDialog] error:', err)
-          toast.error('Failed to update phase')
+          const message = err?.response?.data?.detail ?? 'Failed to update phase'
+          toast.error(message)
         },
       }
     )

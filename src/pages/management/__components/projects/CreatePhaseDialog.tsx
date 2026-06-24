@@ -58,9 +58,10 @@ export default function CreatePhaseDialog({ project, open, onOpenChange }: Props
           form.reset()
           onOpenChange(false)
         },
-        onError: (err) => {
+        onError: (err: any) => {
           console.error('[CreatePhaseDialog] error:', err)
-          toast.error('Failed to create phase')
+          const message = err?.response?.data?.detail ?? 'Failed to create phase'
+          toast.error(message)
         },
       }
     )
