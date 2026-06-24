@@ -17,6 +17,7 @@ import { useAuthStore } from "@/store/auth"
 import { useLogout } from "@/hooks/useAuth"
 import { getRoleLabel } from "@/lib/roles"
 import { ROLES, ROUTES } from "@/constants"
+import { Button } from "@/pages/_components/ui/button"
 
 type NavItem = {
   label: string
@@ -119,26 +120,30 @@ export function Sidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; on
             </div>
           )}
           {!collapsed && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
               onClick={logout}
-              className="ml-auto inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-md text-sidebar-foreground/50 transition hover:bg-sidebar-accent/60 hover:text-white"
+              className="ml-auto text-sidebar-foreground/50 hover:bg-sidebar-accent/60 hover:text-white"
               aria-label="Logout"
             >
               <LogOut className="h-4 w-4" />
-            </button>
+            </Button>
           )}
         </div>
       </div>
 
       {/* Collapse toggle */}
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="icon"
         onClick={toggleSidebar}
-        className="absolute -right-3 top-20 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground/50 shadow-sm transition hover:text-white"
+        className="absolute -right-3 top-20 h-6 w-6 rounded-full border border-sidebar-border bg-sidebar text-sidebar-foreground/50 shadow-sm hover:bg-sidebar hover:text-white"
       >
         {collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
-      </button>
+      </Button>
     </aside>
     </>
   )
