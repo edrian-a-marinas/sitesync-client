@@ -15,6 +15,9 @@ export const createProjectRequest = (data: ProjectCreate) =>
 export const updateProjectRequest = (projectId: number, data: ProjectUpdate) =>
   api.patch(`/projects/${projectId}`, data);
 
+export const deleteProjectRequest = (projectId: number) =>
+  api.delete(`/projects/${projectId}`)
+
 export const assignManagerRequest = (projectId: number, data: AssignUserRequest) =>
   api.post(`/projects/${projectId}/assign-manager`, data);
 

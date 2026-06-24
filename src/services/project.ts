@@ -3,6 +3,7 @@ import {
   getProjectByIdRequest,
   createProjectRequest,
   updateProjectRequest,
+  deleteProjectRequest,
   assignManagerRequest,
   assignWorkerRequest,
   createPhaseRequest,
@@ -39,6 +40,10 @@ export const updateProject = async (projectId: number, data: ProjectUpdate): Pro
   const response = await updateProjectRequest(projectId, data);
   return response.data;
 };
+
+export const deleteProject = async (projectId: number): Promise<void> => {
+  await deleteProjectRequest(projectId)
+}
 
 export const assignManager = async (projectId: number, data: AssignUserRequest): Promise<{ message: string }> => {
   const response = await assignManagerRequest(projectId, data);

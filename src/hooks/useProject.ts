@@ -4,6 +4,7 @@ import {
   getProjectById,
   createProject,
   updateProject,
+  deleteProject,
   assignManager,
   assignWorker,
   createPhase,
@@ -51,6 +52,16 @@ export const useUpdateProject = () => {
     },
   });
 };
+
+export const useDeleteProject = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (projectId: number) => deleteProject(projectId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+    },
+  })
+}
 
 export const useAssignManager = () => {
   const queryClient = useQueryClient();
