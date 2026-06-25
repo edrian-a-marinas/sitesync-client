@@ -15,14 +15,15 @@ export const useUsersByRole = (roleId: number) => {
 };
 
 // --- Used in ManageUsersPage ---
-export const useUsers = () => {
+export const useUsers = (scope?: 'mine' | 'all') => {
   return useQuery<UserResponse[]>({
-    queryKey: ["users"],
+    queryKey: ["users", scope ?? 'all'],
     queryFn: async () => {
-      const users = await getUsers();
+      const users = await getUsers(scope);
       console.log("[useUsers] fetched users:", users);
       return users;
     },
+    placeholderData: (prev) => prev,
   });
 };
 
