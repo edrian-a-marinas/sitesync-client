@@ -1,11 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
-import { useUsers, useActivateUser, useDeactivateUser, useUpdateUser } from '@/hooks/useUser'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { UserUpdateSchema, type UserUpdateInput, type UserResponse } from '@/validations/auth'
-import { toast } from 'sonner'
+import { useUsers } from '@/hooks/useUser'
+import type { UserResponse } from '@/validations/auth'
 import {
   useReactTable,
   getCoreRowModel,
@@ -26,12 +23,6 @@ import { Badge } from '@/pages/_components/ui/badge'
 import { Button } from '@/pages/_components/ui/button'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/pages/_components/ui/dropdown-menu'
-import {
   Select,
   SelectContent,
   SelectItem,
@@ -44,28 +35,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/pages/_components/ui/dialog'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/pages/_components/ui/alert-dialog'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/pages/_components/ui/form'
-import { Input } from '@/pages/_components/ui/input'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
-import { MoreHorizontal, Plus, Users, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { Plus, Users, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import OwnerRegisterForm from './__components/owner/RegisterForm'
+import EditUserDialog from './__components/users/EditUserDialog'
+import StatusConfirmDialog from './__components/users/StatusConfirmDialog'
+import UserActionsDropdown from './__components/users/UserActionsDropdown'
 
 // --- Used in ManageUsersPage ---
 const ROLE_LABEL: Record<number, string> = {
@@ -97,73 +72,33 @@ export default function ManageUsersPage() {
   const [statusTarget, setStatusTarget] = useState<{ user: UserResponse; action: 'activate' | 'deactivate' } | null>(null)
 
   const { data: users, isLoading, isError } = useUsers()
-  const activateUser = useActivateUser()
-  const deactivateUser = useDeactivateUser()
-  const updateUser = useUpdateUser()
 
-  const editForm = useForm<UserUpdateInput>({
-    resolver: zodResolver(UserUpdateSchema),
-    defaultValues: {
-      first_name: '',
-      middle_name: '',
-      last_name: '',
-      phone_number: '',
-    },
-  })
-
-  const handleEditOpen = (u: UserResponse) => {
-    editForm.reset({
-      first_name: u.first_name,
-      last_name: u.last_name,
-      middle_name: '',
-      phone_number: '',
-    })
+  const handleEdit = useCallback((u: UserResponse) => {
+    console.log('[ManageUsersPage] edit user:', u.id)
     setEditUser(u)
-  }
+  }, [])
 
-  const handleEditSubmit = async (data: UserUpdateInput) => {
-    if (!editUser) return
-    try {
-      await updateUser.mutateAsync({ userId: editUser.id, data })
-      toast.success('User updated successfully.')
-      setEditUser(null)
-    } catch (err) {
-      console.error('[ManageUsersPage] edit error:', err)
-      toast.error('Failed to update user.')
-    }
-  }
+  const handleStatusChange = useCallback((u: UserResponse, action: 'activate' | 'deactivate') => {
+    console.log('[ManageUsersPage] status change:', u.id, action)
+    setStatusTarget({ user: u, action })
+  }, [])
 
-  const handleStatusConfirm = async () => {
-    if (!statusTarget) return
-    try {
-      if (statusTarget.action === 'activate') {
-        await activateUser.mutateAsync(statusTarget.user.id)
-        toast.success(`${statusTarget.user.first_name} activated.`)
-      } else {
-        await deactivateUser.mutateAsync(statusTarget.user.id)
-        toast.success(`${statusTarget.user.first_name} deactivated.`)
-      }
-      setStatusTarget(null)
-    } catch (err) {
-      console.error('[ManageUsersPage] status error:', err)
-      toast.error('Failed to update user status.')
-    }
-  }
+  const filteredUsers = useMemo(() => {
+    return (users ?? []).filter((u) => {
+      const roleMatch =
+        roleFilter === 'all' ||
+        (roleFilter === 'owner' && u.role_id === ROLES.OWNER) ||
+        (roleFilter === 'pm' && u.role_id === ROLES.PROJECT_MANAGER) ||
+        (roleFilter === 'worker' && u.role_id === ROLES.SITE_WORKER)
 
-  const filteredUsers = (users ?? []).filter((u) => {
-    const roleMatch =
-      roleFilter === 'all' ||
-      (roleFilter === 'owner' && u.role_id === ROLES.OWNER) ||
-      (roleFilter === 'pm' && u.role_id === ROLES.PROJECT_MANAGER) ||
-      (roleFilter === 'worker' && u.role_id === ROLES.SITE_WORKER)
+      const statusMatch =
+        statusFilter === 'all' ||
+        (statusFilter === 'active' && u.is_active) ||
+        (statusFilter === 'inactive' && !u.is_active)
 
-    const statusMatch =
-      statusFilter === 'all' ||
-      (statusFilter === 'active' && u.is_active) ||
-      (statusFilter === 'inactive' && !u.is_active)
-
-    return roleMatch && statusMatch
-  })
+      return roleMatch && statusMatch
+    })
+  }, [users, roleFilter, statusFilter])
 
   const columns = useMemo(() => [
     columnHelper.accessor((row) => `${row.first_name} ${row.last_name}`, {
@@ -208,45 +143,20 @@ export default function ManageUsersPage() {
     columnHelper.display({
       id: 'actions',
       header: () => null,
-      cell: ({ row }) => {
-        const u = row.original
-        const isSelf = u.id === user?.id
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => handleEditOpen(u)}>
-                  Edit
-                </DropdownMenuItem>
-                {isOwner && !isSelf && (
-                  u.is_active ? (
-                    <DropdownMenuItem
-                      className="text-red-600 dark:text-red-400"
-                      onClick={() => setStatusTarget({ user: u, action: 'deactivate' })}
-                    >
-                      Deactivate
-                    </DropdownMenuItem>
-                  ) : (
-                    <DropdownMenuItem
-                      className="text-emerald-600 dark:text-emerald-400"
-                      onClick={() => setStatusTarget({ user: u, action: 'activate' })}
-                    >
-                      Activate
-                    </DropdownMenuItem>
-                  )
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )
-      },
+      cell: ({ row }) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <UserActionsDropdown
+            user={row.original}
+            currentUserId={user?.id}
+            isOwner={isOwner}
+            onEdit={handleEdit}
+            onStatusChange={handleStatusChange}
+          />
+        </div>
+      ),
     }),
-  ], [isOwner, user?.id, editForm])
+  ], [isOwner, user?.id, handleEdit, handleStatusChange])
+
   const table = useReactTable({
     data: filteredUsers,
     columns,
@@ -387,97 +297,16 @@ export default function ManageUsersPage() {
       </Dialog>
 
       {/* Edit Dialog */}
-      <Dialog open={!!editUser} onOpenChange={(open) => { if (!open) setEditUser(null) }}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              Edit User — {editUser?.first_name} {editUser?.last_name}
-            </DialogTitle>
-          </DialogHeader>
-          <Form {...editForm}>
-            <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="flex flex-col gap-4">
-              <div className="grid grid-cols-2 gap-3">
-                <FormField
-                  control={editForm.control}
-                  name="first_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="last_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name</FormLabel>
-                      <FormControl><Input {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <FormField
-                control={editForm.control}
-                name="middle_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Middle Name <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={editForm.control}
-                name="phone_number"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Phone <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
-                    <FormControl><Input placeholder="+63 912 345 6789" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={updateUser.isPending} className="mt-2 w-full">
-                {updateUser.isPending ? 'Saving...' : 'Save Changes'}
-              </Button>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
+      <EditUserDialog
+        user={editUser}
+        onOpenChange={(open) => { if (!open) setEditUser(null) }}
+      />
 
-      {/* Activate / Deactivate Confirm */}
-      <AlertDialog open={!!statusTarget} onOpenChange={(open) => { if (!open) setStatusTarget(null) }}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {statusTarget?.action === 'deactivate' ? 'Deactivate' : 'Activate'} User
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {statusTarget?.action === 'deactivate'
-                ? `This will prevent ${statusTarget?.user.first_name} from logging in. You can reactivate them anytime.`
-                : `This will restore ${statusTarget?.user.first_name}'s access to the system.`}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleStatusConfirm}
-              className={
-                statusTarget?.action === 'deactivate'
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-emerald-600 hover:bg-emerald-700'
-              }
-            >
-              {statusTarget?.action === 'deactivate' ? 'Deactivate' : 'Activate'}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Status Confirm Dialog */}
+      <StatusConfirmDialog
+        target={statusTarget}
+        onOpenChange={(open) => { if (!open) setStatusTarget(null) }}
+      />
 
     </div>
   )
