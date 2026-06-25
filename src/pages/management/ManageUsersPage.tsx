@@ -67,11 +67,11 @@ export default function ManageUsersPage() {
   const [statusTarget, setStatusTarget] = useState<{ user: UserResponse; action: 'activate' | 'deactivate' } | null>(null)
   const [assignmentsUser, setAssignmentsUser] = useState<UserResponse | null>(null)
   const [projectFilter, setProjectFilter] = useState<number | null>(null)
+  const [workerScope, setWorkerScope] = useState<'mine' | 'all'>('mine')
 
   const { data: activeProjects } = useProjects('Active')
   const { data: selectedProjectDetail } = useProjectDetail(projectFilter)
-
-  const { data: users, isLoading, isError } = useUsers()
+  const { data: users, isLoading, isError } = useUsers(!isOwner ? workerScope : undefined)
 
   const handleEdit = useCallback((u: UserResponse) => {
     setEditUser(u)
@@ -174,13 +174,14 @@ export default function ManageUsersPage() {
             user={row.original}
             currentUserId={user?.id}
             isOwner={isOwner}
+            canChangeStatus={isOwner || workerScope === 'mine'}
             onEdit={handleEdit}
             onStatusChange={handleStatusChange}
           />
         </div>
       ),
     }),
-  ], [isOwner, user?.id, handleEdit, handleStatusChange])
+  ], [isOwner, user?.id, workerScope, handleEdit, handleStatusChange])
 
   const table = useReactTable({
     data: filteredUsers,
@@ -234,6 +235,17 @@ export default function ManageUsersPage() {
               ))}
             </SelectContent>
           </Select>
+          {!isOwner && (
+            <Select value={workerScope} onValueChange={(v) => setWorkerScope(v as 'mine' | 'all')}>
+              <SelectTrigger className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mine">My Site Workers</SelectItem>
+                <SelectItem value="all">All Site Workers</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
           <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as RoleFilter)}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Role" />
