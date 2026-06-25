@@ -35,7 +35,7 @@ export default function UserActionsDropdown({ user, currentUserId, isOwner, onEd
         <DropdownMenuItem onClick={() => onEdit(user)}>
           Edit
         </DropdownMenuItem>
-        {isOwner && !isSelf && (
+        {!isSelf && (
           user.is_active ? (
             <DropdownMenuItem
               className="text-red-600 dark:text-red-400"
