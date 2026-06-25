@@ -108,7 +108,7 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit, (errs) => console.log('[EditProjectDialog] zod errors:', errs))} className="flex flex-col gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
             <FormField
               control={form.control}
               name="name"

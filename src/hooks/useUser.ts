@@ -20,7 +20,6 @@ export const useUsers = (scope?: 'mine' | 'all') => {
     queryKey: ["users", scope ?? 'all'],
     queryFn: async () => {
       const users = await getUsers(scope);
-      console.log("[useUsers] fetched users:", users);
       return users;
     },
     placeholderData: (prev) => prev,
@@ -31,11 +30,9 @@ export const useUpdateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ userId, data }: { userId: number; data: UserUpdateInput }) => {
-      console.log("[useUpdateUser] updating user:", userId, data);
       return updateUser(userId, data);
     },
     onSuccess: (updated) => {
-      console.log("[useUpdateUser] success:", updated);
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
@@ -45,11 +42,9 @@ export const useActivateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (userId: number) => {
-      console.log("[useActivateUser] activating user:", userId);
       return activateUser(userId);
     },
     onSuccess: (updated) => {
-      console.log("[useActivateUser] success:", updated);
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
@@ -59,11 +54,9 @@ export const useDeactivateUser = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (userId: number) => {
-      console.log("[useDeactivateUser] deactivating user:", userId);
       return deactivateUser(userId);
     },
     onSuccess: (updated) => {
-      console.log("[useDeactivateUser] success:", updated);
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
