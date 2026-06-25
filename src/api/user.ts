@@ -14,3 +14,6 @@ export const activateUserRequest = (userId: number) =>
 
 export const deactivateUserRequest = (userId: number) =>
   api.patch(`/users/${userId}/deactivate`);
+
+export const getUserAssignmentsRequest = (userId: number) =>
+  api.get(`/users/${userId}/assignments`);

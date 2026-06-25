@@ -1,6 +1,6 @@
-import { getUsersRequest, updateUserRequest, activateUserRequest, deactivateUserRequest } from "@/api/user";
-import type { UserResponse } from "@/validations/auth";
-import type { UserUpdateInput } from "@/validations/auth";
+import { getUsersRequest, updateUserRequest, activateUserRequest, deactivateUserRequest, getUserAssignmentsRequest } from "@/api/user";
+import type { UserResponse, UserUpdateInput } from "@/validations/auth";
+import type { UserAssignment } from "@/types/user";
 
 // --- Used in ProjectsPage ---
 export const getUsers = async (): Promise<UserResponse[]> => {
@@ -23,3 +23,8 @@ export const deactivateUser = async (userId: number): Promise<UserResponse> => {
   const response = await deactivateUserRequest(userId);
   return response.data;
 };
+
+export const getUserAssignments = async (userId: number): Promise<UserAssignment[]> => {
+  const response = await getUserAssignmentsRequest(userId)
+  return response.data
+}

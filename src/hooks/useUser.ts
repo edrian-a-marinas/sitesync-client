@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getUsers, updateUser, activateUser, deactivateUser } from "@/services/user";
+import { getUsers, updateUser, activateUser, deactivateUser, getUserAssignments } from "@/services/user";
+import type { UserAssignment } from "@/types/user";
 import type { UserResponse, UserUpdateInput } from "@/validations/auth";
 
 // --- Used in ProjectsPage ---
@@ -66,3 +67,11 @@ export const useDeactivateUser = () => {
     },
   });
 };
+
+export const useUserAssignments = (userId: number | null) => {
+  return useQuery<UserAssignment[]>({
+    queryKey: ["user-assignments", userId],
+    queryFn: () => getUserAssignments(userId!),
+    enabled: !!userId,
+  })
+}
