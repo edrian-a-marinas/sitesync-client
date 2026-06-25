@@ -53,6 +53,12 @@ export default function CreateLogDialog({ open, onOpenChange, projectId }: Props
   const errors = form.formState.errors
 
   const onSubmit = (data: DailyLogCreate) => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    if (new Date(data.log_date) > today) {
+      toast.error('Log date cannot be in the future')
+      return
+    }
     createLog(
       { projectId, data },
       {
@@ -149,7 +155,7 @@ export default function CreateLogDialog({ open, onOpenChange, projectId }: Props
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes</FormLabel>
+                  <FormLabel>Notes <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Any additional notes or observations..."
