@@ -43,6 +43,9 @@ export default function ReportsPage() {
         if (status === 200) {
           setGenerateOpen(false)
           toast.info('A report for this week already exists.')
+        } else if (status === 503) {
+          setGenerateOpen(false)
+          toast.error('Report service is temporarily unavailable. Please try again in a few minutes.')
         } else {
           toast.error('Failed to generate report. Please try again.')
         }
