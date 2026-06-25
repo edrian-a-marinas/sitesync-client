@@ -20,15 +20,18 @@ import { Button } from '@/pages/_components/ui/button'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 import { FileText, Download, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import { toast } from 'sonner'
+import { formatPHP, getMoneyTooltip } from '@/utils/formatPHP'
 
 const columnHelper = createColumnHelper<ReportResponse>()
 
 interface Props {
   reports: ReportResponse[]
   isLoading: boolean
+  selectedReport: ReportResponse | null
+  onSelectReport: (report: ReportResponse) => void
 }
 
-export default function ReportTable({ reports, isLoading }: Props) {
+export default function ReportTable({ reports, isLoading, selectedReport, onSelectReport }: Props) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'week_start', desc: true }])
 
   const handleDownload = (report: ReportResponse) => {
@@ -51,6 +54,33 @@ export default function ReportTable({ reports, isLoading }: Props) {
       cell: (info) => (
         <span className="text-zinc-500 dark:text-zinc-400">{info.getValue()}</span>
       ),
+    }),
+    columnHelper.accessor('total_hours', {
+      header: 'Total Hours',
+      cell: (info) => (
+        <span className="text-zinc-700 dark:text-zinc-300">{info.getValue().toLocaleString()}h</span>
+      ),
+    }),
+    columnHelper.accessor('total_material_cost', {
+      header: 'Material Cost',
+      cell: (info) => (
+        <span className="text-zinc-700 dark:text-zinc-300" title={getMoneyTooltip(info.getValue())}>
+          {formatPHP(info.getValue(), 'short')}
+        </span>
+      ),
+    }),
+    columnHelper.accessor('incident_count', {
+      header: 'Incidents',
+      cell: (info) => {
+        const count = info.getValue()
+        const open = info.row.original.open_incident_count
+        if (count === 0) return <span className="text-zinc-400">—</span>
+        return (
+          <span className={open > 0 ? 'font-medium text-red-600 dark:text-red-400' : 'text-zinc-700 dark:text-zinc-300'}>
+            {count}{open > 0 ? ` (${open} open)` : ''}
+          </span>
+        )
+      },
     }),
     columnHelper.accessor('created_at', {
       header: 'Generated On',
@@ -95,7 +125,7 @@ export default function ReportTable({ reports, isLoading }: Props) {
   const renderSkeletonRows = () =>
     Array.from({ length: 5 }).map((_, i) => (
       <TableRow key={i}>
-        {Array.from({ length: 4 }).map((__, j) => (
+        {Array.from({ length: 7 }).map((__, j) => (
           <TableCell key={j}><Skeleton className="h-4 w-24" /></TableCell>
         ))}
       </TableRow>
@@ -133,7 +163,7 @@ export default function ReportTable({ reports, isLoading }: Props) {
         <TableBody>
           {isLoading ? renderSkeletonRows() : table.getRowModel().rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={4} className="py-16 text-center">
+              <TableCell colSpan={7} className="py-16 text-center">
                 <div className="flex flex-col items-center gap-2 text-zinc-400 dark:text-zinc-500">
                   <FileText className="h-8 w-8" />
                   <p className="text-sm">No reports generated yet for this project.</p>
@@ -144,7 +174,12 @@ export default function ReportTable({ reports, isLoading }: Props) {
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                className="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/30"
+                className={`cursor-pointer transition-colors ${
+                  selectedReport?.id === row.original.id
+                    ? 'bg-zinc-50 dark:bg-zinc-800/50'
+                    : 'hover:bg-zinc-50 dark:hover:bg-zinc-800/30'
+                }`}
+                onClick={() => onSelectReport(row.original)}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
