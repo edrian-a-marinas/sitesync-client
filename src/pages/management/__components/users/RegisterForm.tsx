@@ -50,15 +50,12 @@ export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerR
         middle_name: data.middle_name || undefined,
         phone_number: data.phone_number || undefined,
       }
-      console.log('[OwnerRegisterForm] submitting:', payload)
       await registerUser(payload)
-      console.log('[OwnerRegisterForm] success')
       toast.success('User registered successfully.')
       queryClient.invalidateQueries({ queryKey: ['users'] })
       form.reset()
       onSuccess?.()
     } catch (err: unknown) {
-      console.error('[OwnerRegisterForm] error:', err)
       const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
       const message = typeof detail === 'string'
         ? detail

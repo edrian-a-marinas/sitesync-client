@@ -31,7 +31,6 @@ export default function StatusConfirmDialog({ target, onOpenChange }: Props) {
   const handleConfirm = async () => {
     if (!target || confirmInput !== confirmWord) return
     try {
-      console.log('[StatusConfirmDialog] action:', target.action, 'user:', target.user.id)
       if (target.action === 'activate') {
         await activateUser.mutateAsync(target.user.id)
         toast.success(`${target.user.first_name} activated.`)
@@ -42,7 +41,6 @@ export default function StatusConfirmDialog({ target, onOpenChange }: Props) {
       setConfirmInput('')
       onOpenChange(false)
     } catch (err) {
-      console.error('[StatusConfirmDialog] error:', err)
       toast.error('Failed to update user status.')
     }
   }

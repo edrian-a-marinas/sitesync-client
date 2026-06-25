@@ -72,12 +72,10 @@ export default function EditUserDialog({ user, onOpenChange }: Props) {
     }
 
     try {
-      console.log('[EditUserDialog] submitting:', user.id, payload)
       await updateUser.mutateAsync({ userId: user.id, data: payload })
       toast.success('User updated successfully.')
       onOpenChange(false)
     } catch (err) {
-      console.error('[EditUserDialog] error:', err)
       const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
       const message = typeof detail === 'string' ? detail : 'Failed to update user.'
       toast.error(message)
