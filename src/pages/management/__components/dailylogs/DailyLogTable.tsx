@@ -39,7 +39,7 @@ interface Props {
 }
 
 export default function DailyLogTable({ logs, isLoading, selectedLog, onSelectLog, onEditLog }: Props) {
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'log_date', desc: true }])
 
   const columns = useMemo(() => [
     columnHelper.accessor('log_date', {
