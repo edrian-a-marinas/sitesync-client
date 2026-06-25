@@ -7,6 +7,7 @@ export const useDailyLogs = (projectId: number | null) => {
     queryKey: ['daily-logs', projectId],
     queryFn: () => getDailyLogs(projectId!),
     enabled: projectId !== null,
+    placeholderData: (prev) => prev,
   })
 }
 
