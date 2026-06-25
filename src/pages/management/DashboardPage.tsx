@@ -2,9 +2,9 @@ import { useState } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
 import { useOwnerDashboard, useManagerDashboard, useManagerAggregateDashboard } from '@/hooks/useDashboard'
-import { OwnerKPICards, ManagerKPICards, ManagerAggregateKPICards } from './__components/charts/KPICards'
-import { BudgetVsActualChart, MaterialConsumptionChart } from './__components/charts/Charts'
-import { ProjectHealthTable } from './__components/charts/ProjectHealthTable'
+import { OwnerKPICards, ManagerKPICards, ManagerAggregateKPICards } from './__components/dashboard/KPICards'
+import { BudgetVsActualChart, MaterialConsumptionChart } from './__components/dashboard/Charts'
+import { ProjectHealthTable } from './__components/dashboard/ProjectHealthTable'
 import {
   OwnerFilterBar,
   ProjectScopeToggle,
@@ -13,7 +13,7 @@ import {
   filterMaterialTrends,
   type DashboardFilters,
   type ScopeSelection,
-} from './__components/DashboardFilter'
+} from './__components/dashboard/DashboardFilter'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/pages/_components/ui/accordion'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 
