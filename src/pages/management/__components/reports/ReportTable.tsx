@@ -1,0 +1,161 @@
+import { useMemo, useState } from 'react'
+import type { ReportResponse } from '@/types/report'
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  flexRender,
+  createColumnHelper,
+  type SortingState,
+} from '@tanstack/react-table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/pages/_components/ui/table'
+import { Button } from '@/pages/_components/ui/button'
+import { Skeleton } from '@/pages/_components/ui/skeleton'
+import { FileText, Download, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { toast } from 'sonner'
+
+const columnHelper = createColumnHelper<ReportResponse>()
+
+interface Props {
+  reports: ReportResponse[]
+  isLoading: boolean
+}
+
+export default function ReportTable({ reports, isLoading }: Props) {
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'week_start', desc: true }])
+
+  const handleDownload = (report: ReportResponse) => {
+    if (!report.file_url) {
+      toast.error('Download link unavailable. Please try again.')
+      return
+    }
+    window.open(report.file_url, '_blank')
+  }
+
+  const columns = useMemo(() => [
+    columnHelper.accessor('week_start', {
+      header: 'Week Start',
+      cell: (info) => (
+        <span className="font-medium text-zinc-900 dark:text-zinc-100">{info.getValue()}</span>
+      ),
+    }),
+    columnHelper.accessor('week_end', {
+      header: 'Week End',
+      cell: (info) => (
+        <span className="text-zinc-500 dark:text-zinc-400">{info.getValue()}</span>
+      ),
+    }),
+    columnHelper.accessor('created_at', {
+      header: 'Generated On',
+      cell: (info) => (
+        <span className="text-zinc-500 dark:text-zinc-400">
+          {new Date(info.getValue()).toLocaleDateString('en-PH', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+          })}
+        </span>
+      ),
+    }),
+    columnHelper.display({
+      id: 'actions',
+      header: () => null,
+      cell: ({ row }) => (
+        <div onClick={(e) => e.stopPropagation()}>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleDownload(row.original)}
+            disabled={!row.original.file_url}
+          >
+            <Download className="mr-1.5 h-4 w-4" />
+            Download
+          </Button>
+        </div>
+      ),
+    }),
+  ], [])
+
+  const table = useReactTable({
+    data: reports,
+    columns,
+    state: { sorting },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+  })
+
+  const renderSkeletonRows = () =>
+    Array.from({ length: 5 }).map((_, i) => (
+      <TableRow key={i}>
+        {Array.from({ length: 4 }).map((__, j) => (
+          <TableCell key={j}><Skeleton className="h-4 w-24" /></TableCell>
+        ))}
+      </TableRow>
+    ))
+
+  return (
+    <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <Table>
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead
+                  key={header.id}
+                  className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
+                  onClick={header.column.getToggleSortingHandler()}
+                >
+                  <span className="flex items-center gap-1">
+                    {flexRender(header.column.columnDef.header, header.getContext())}
+                    {header.column.getCanSort() && (
+                      header.column.getIsSorted() === 'asc' ? (
+                        <ArrowUp className="h-3 w-3" />
+                      ) : header.column.getIsSorted() === 'desc' ? (
+                        <ArrowDown className="h-3 w-3" />
+                      ) : (
+                        <ArrowUpDown className="h-3 w-3 opacity-40" />
+                      )
+                    )}
+                  </span>
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {isLoading ? renderSkeletonRows() : table.getRowModel().rows.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={4} className="py-16 text-center">
+                <div className="flex flex-col items-center gap-2 text-zinc-400 dark:text-zinc-500">
+                  <FileText className="h-8 w-8" />
+                  <p className="text-sm">No reports generated yet for this project.</p>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                className="transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/30"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  )
+}
