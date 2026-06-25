@@ -37,10 +37,11 @@ import {
 } from '@/pages/_components/ui/dialog'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { Plus, Users, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
-import OwnerRegisterForm from './__components/owner/RegisterForm'
+import OwnerRegisterForm from './__components/users/RegisterForm'
 import EditUserDialog from './__components/users/EditUserDialog'
 import StatusConfirmDialog from './__components/users/StatusConfirmDialog'
 import UserActionsDropdown from './__components/users/UserActionsDropdown'
+import UserAssignmentsModal from './__components/users/UserAssignmentsModal'
 
 const ROLE_BADGE: Record<number, string> = {
   [ROLES.OWNER]: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
@@ -63,17 +64,22 @@ export default function ManageUsersPage() {
   const [registerOpen, setRegisterOpen] = useState(false)
   const [editUser, setEditUser] = useState<UserResponse | null>(null)
   const [statusTarget, setStatusTarget] = useState<{ user: UserResponse; action: 'activate' | 'deactivate' } | null>(null)
+  const [assignmentsUser, setAssignmentsUser] = useState<UserResponse | null>(null)
 
   const { data: users, isLoading, isError } = useUsers()
 
   const handleEdit = useCallback((u: UserResponse) => {
-    console.log('[ManageUsersPage] edit user:', u.id)
     setEditUser(u)
   }, [])
 
   const handleStatusChange = useCallback((u: UserResponse, action: 'activate' | 'deactivate') => {
-    console.log('[ManageUsersPage] status change:', u.id, action)
     setStatusTarget({ user: u, action })
+  }, [])
+
+  const handleRowClick = useCallback((u: UserResponse) => {
+    // Owners have no project assignments — skip modal for them
+    if (u.role_id === ROLES.OWNER) return
+    setAssignmentsUser(u)
   }, [])
 
   const filteredUsers = useMemo(() => {
@@ -82,7 +88,6 @@ export default function ManageUsersPage() {
       [ROLES.PROJECT_MANAGER]: 1,
       [ROLES.SITE_WORKER]: 2,
     }
-
     return (users ?? [])
       .filter((u) => {
         const roleMatch =
@@ -90,12 +95,10 @@ export default function ManageUsersPage() {
           (roleFilter === 'owner' && u.role_id === ROLES.OWNER) ||
           (roleFilter === 'pm' && u.role_id === ROLES.PROJECT_MANAGER) ||
           (roleFilter === 'worker' && u.role_id === ROLES.SITE_WORKER)
-
         const statusMatch =
           statusFilter === 'all' ||
           (statusFilter === 'active' && u.is_active) ||
           (statusFilter === 'inactive' && !u.is_active)
-
         return roleMatch && statusMatch
       })
       .sort((a, b) => {
@@ -186,7 +189,6 @@ export default function ManageUsersPage() {
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-10">
-
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
@@ -278,18 +280,22 @@ export default function ManageUsersPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  className="hover:bg-zinc-50 dark:hover:bg-zinc-800/30"
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const isClickable = row.original.role_id !== ROLES.OWNER
+                return (
+                  <TableRow
+                    key={row.id}
+                    className={`transition-colors ${isClickable ? 'cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/30' : ''}`}
+                    onClick={() => handleRowClick(row.original)}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                )
+              })
             )}
           </TableBody>
         </Table>
@@ -317,6 +323,11 @@ export default function ManageUsersPage() {
         onOpenChange={(open) => { if (!open) setStatusTarget(null) }}
       />
 
+      {/* Assignments Modal */}
+      <UserAssignmentsModal
+        user={assignmentsUser}
+        onOpenChange={(open) => { if (!open) setAssignmentsUser(null) }}
+      />
     </div>
   )
 }
