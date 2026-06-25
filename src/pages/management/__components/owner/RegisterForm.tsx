@@ -1,72 +1,189 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useRegister } from '@/hooks/useAuth'
-import { RegisterSchema } from '@/validations/auth'
+import { RegisterSchema, type RegisterInput } from '@/validations/auth'
 import { ROLES } from '@/constants'
-import type { RegisterInput } from '@/validations/auth'
+import { useQueryClient } from '@tanstack/react-query'
+import { registerUser } from '@/services/auth'
+import { toast } from 'sonner'
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/pages/_components/ui/form'
+import { Input } from '@/pages/_components/ui/input'
+import { Button } from '@/pages/_components/ui/button'
+import { RadioGroup, RadioGroupItem } from '@/pages/_components/ui/radio-group'
+import { Label } from '@/pages/_components/ui/label'
 
-export default function OwnerRegisterForm() {
-  const { mutate: register, isPending, isError, isSuccess } = useRegister()
-  const { register: field, handleSubmit, reset, formState: { errors } } = useForm<RegisterInput>({
+interface OwnerRegisterFormProps {
+  onSuccess?: () => void
+}
+
+// --- Used in ManageUsersPage ---
+export default function OwnerRegisterForm({ onSuccess }: OwnerRegisterFormProps) {
+  const queryClient = useQueryClient()
+
+  const form = useForm<RegisterInput>({
     resolver: zodResolver(RegisterSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      first_name: '',
+      middle_name: '',
+      last_name: '',
+      phone_number: '',
+      role_id: ROLES.PROJECT_MANAGER,
+    },
   })
 
-  const onSubmit = (data: RegisterInput) => {
-    register(data, { onSuccess: () => reset() })
+  const isSubmitting = form.formState.isSubmitting
+
+  const onSubmit = async (data: RegisterInput) => {
+    try {
+      await registerUser(data)
+      toast.success('User registered successfully.')
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+      form.reset()
+      onSuccess?.()
+    } catch (err: unknown) {
+      console.error('[OwnerRegisterForm] error:', err)
+      const message =
+        (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ??
+        'Failed to register user. Please try again.'
+      toast.error(message)
+    }
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-      <div className="w-full max-w-sm rounded-xl bg-white p-8 shadow-md">
-        <h1 className="mb-6 text-2xl font-semibold text-zinc-900">Register User</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">First Name</label>
-            <input {...field('first_name')} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400" />
-            {errors.first_name && <p className="text-xs text-red-500">{errors.first_name.message}</p>}
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">Middle Name (optional)</label>
-            <input {...field('middle_name')} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">Last Name</label>
-            <input {...field('last_name')} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400" />
-            {errors.last_name && <p className="text-xs text-red-500">{errors.last_name.message}</p>}
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">Email</label>
-            <input {...field('email')} type="email" className="rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400" />
-            {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">Password</label>
-            <input {...field('password')} type="password" className="rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400" />
-            {errors.password && <p className="text-xs text-red-500">{errors.password.message}</p>}
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">Phone (optional)</label>
-            <input {...field('phone_number')} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-zinc-700">Role</label>
-            <select {...field('role_id', { valueAsNumber: true })} className="rounded-lg border border-zinc-200 px-3 py-2 text-sm outline-none focus:border-zinc-400">
-              <option value={ROLES.PROJECT_MANAGER}>Project Manager</option>
-              <option value={ROLES.SITE_WORKER}>Site Worker</option>
-            </select>
-            {errors.role_id && <p className="text-xs text-red-500">{errors.role_id.message}</p>}
-          </div>
-          {isError && <p className="text-xs text-red-500">Registration failed. Please try again.</p>}
-          {isSuccess && <p className="text-xs text-green-500">User registered successfully.</p>}
-          <button
-            type="submit"
-            disabled={isPending}
-            className="mt-2 rounded-lg bg-zinc-900 py-2 text-sm font-medium text-white transition hover:bg-zinc-700 disabled:opacity-50"
-          >
-            {isPending ? 'Registering...' : 'Register'}
-          </button>
-        </form>
-      </div>
-    </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+
+        {/* Role Selection */}
+        <FormField
+          control={form.control}
+          name="role_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Role</FormLabel>
+              <FormControl>
+                <RadioGroup
+                  value={String(field.value)}
+                  onValueChange={(v) => {
+                    field.onChange(Number(v))
+                  }}
+                  className="flex gap-6"
+                >
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value={String(ROLES.PROJECT_MANAGER)} id="role-pm" />
+                    <Label htmlFor="role-pm">Project Manager</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <RadioGroupItem value={String(ROLES.SITE_WORKER)} id="role-worker" />
+                    <Label htmlFor="role-worker">Site Worker</Label>
+                  </div>
+                </RadioGroup>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Name Row */}
+        <div className="grid grid-cols-3 gap-3">
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>First Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Juan" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="middle_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Middle Name <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
+                <FormControl>
+                  <Input placeholder="Cruz" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Last Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Dela Cruz" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        {/* Email */}
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="juan@sitesync.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Password */}
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Password</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="Min. 8 characters" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Phone */}
+        <FormField
+          control={form.control}
+          name="phone_number"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
+              <FormControl>
+                <Input placeholder="+63 912 345 6789" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
+          {isSubmitting ? 'Registering...' : 'Register User'}
+        </Button>
+
+      </form>
+    </Form>
   )
 }
