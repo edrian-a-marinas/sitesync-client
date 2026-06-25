@@ -44,7 +44,7 @@ export const RegisterSchema = z.object({
   role_id: z.number().int().positive(),
 })
 
-
+// --- Inferred types ---
 export type LoginInput = z.infer<typeof LoginSchema>;
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type TokenResponse = z.infer<typeof TokenResponseSchema>;

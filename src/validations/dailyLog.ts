@@ -13,5 +13,6 @@ export const DailyLogUpdateSchema = z.object({
   notes: z.string().optional(),
 })
 
+// --- Inferred types ---
 export type DailyLogCreate = z.infer<typeof DailyLogCreateSchema>
 export type DailyLogUpdate = z.infer<typeof DailyLogUpdateSchema>
