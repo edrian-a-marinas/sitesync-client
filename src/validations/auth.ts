@@ -18,6 +18,7 @@ export const UserResponseSchema = z.object({
   last_name: z.string(),
   role_id: z.number(),
   is_active: z.boolean(),
+  has_assignments: z.boolean().default(false),   // used in AssignUserDialog.tsx
 });
 
 export const TokenResponseSchema = z.object({
