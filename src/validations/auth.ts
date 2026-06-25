@@ -4,19 +4,11 @@ const PasswordStr = z.string().min(8).max(72);
 const NameStr = z.string().min(1).max(50).regex(/^[A-Za-z\s-]+$/);
 const PhoneStr = z.string().min(7).max(20);
 
+
+// --- Used in LoginPage ---
 export const LoginSchema = z.object({
   email: z.string().email(),
   password: PasswordStr,
-});
-
-export const RegisterSchema = z.object({
-  email: z.string().email(),
-  password: PasswordStr,
-  first_name: NameStr,
-  middle_name: NameStr.optional(),
-  last_name: NameStr,
-  phone_number: PhoneStr.optional(),
-  role_id: z.number().int().positive(),
 });
 
 export const UserResponseSchema = z.object({
@@ -33,7 +25,27 @@ export const TokenResponseSchema = z.object({
   token_type: z.literal("bearer"),
 });
 
+// --- Used in ManageUsersPage ---
+export const UserUpdateSchema = z.object({
+  first_name: NameStr.optional(),
+  middle_name: NameStr.optional(),
+  last_name: NameStr.optional(),
+  phone_number: PhoneStr.optional(),
+});
+
+export const RegisterSchema = z.object({
+  email: z.string().email(),
+  password: PasswordStr,
+  first_name: NameStr,
+  middle_name: NameStr.optional(),
+  last_name: NameStr,
+  phone_number: PhoneStr.optional(),
+  role_id: z.number().int().positive(),
+});
+
+
 export type LoginInput = z.infer<typeof LoginSchema>;
-export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type UserResponse = z.infer<typeof UserResponseSchema>;
 export type TokenResponse = z.infer<typeof TokenResponseSchema>;
+export type RegisterInput = z.infer<typeof RegisterSchema>;
+export type UserUpdateInput = z.infer<typeof UserUpdateSchema>;
