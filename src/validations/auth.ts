@@ -37,11 +37,11 @@ export const RegisterSchema = z.object({
   email: z.string().email(),
   password: PasswordStr,
   first_name: NameStr,
-  middle_name: NameStr.optional(),
+  middle_name: z.union([NameStr, z.literal('')]).optional(),
   last_name: NameStr,
-  phone_number: PhoneStr.optional(),
+  phone_number: z.union([PhoneStr, z.literal('')]).optional(),
   role_id: z.number().int().positive(),
-});
+})
 
 
 export type LoginInput = z.infer<typeof LoginSchema>;
