@@ -58,7 +58,7 @@ export default function ManageUsersPage() {
   const isOwner = user?.role_id === ROLES.OWNER
 
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('all')
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
   const [sorting, setSorting] = useState<SortingState>([])
   const [registerOpen, setRegisterOpen] = useState(false)
   const [editUser, setEditUser] = useState<UserResponse | null>(null)
@@ -77,20 +77,36 @@ export default function ManageUsersPage() {
   }, [])
 
   const filteredUsers = useMemo(() => {
-    return (users ?? []).filter((u) => {
-      const roleMatch =
-        roleFilter === 'all' ||
-        (roleFilter === 'owner' && u.role_id === ROLES.OWNER) ||
-        (roleFilter === 'pm' && u.role_id === ROLES.PROJECT_MANAGER) ||
-        (roleFilter === 'worker' && u.role_id === ROLES.SITE_WORKER)
+    const ROLE_ORDER: Record<number, number> = {
+      [ROLES.OWNER]: 0,
+      [ROLES.PROJECT_MANAGER]: 1,
+      [ROLES.SITE_WORKER]: 2,
+    }
 
-      const statusMatch =
-        statusFilter === 'all' ||
-        (statusFilter === 'active' && u.is_active) ||
-        (statusFilter === 'inactive' && !u.is_active)
+    return (users ?? [])
+      .filter((u) => {
+        const roleMatch =
+          roleFilter === 'all' ||
+          (roleFilter === 'owner' && u.role_id === ROLES.OWNER) ||
+          (roleFilter === 'pm' && u.role_id === ROLES.PROJECT_MANAGER) ||
+          (roleFilter === 'worker' && u.role_id === ROLES.SITE_WORKER)
 
-      return roleMatch && statusMatch
-    })
+        const statusMatch =
+          statusFilter === 'all' ||
+          (statusFilter === 'active' && u.is_active) ||
+          (statusFilter === 'inactive' && !u.is_active)
+
+        return roleMatch && statusMatch
+      })
+      .sort((a, b) => {
+        if (roleFilter === 'all') {
+          const roleDiff = (ROLE_ORDER[a.role_id] ?? 99) - (ROLE_ORDER[b.role_id] ?? 99)
+          if (roleDiff !== 0) return roleDiff
+        }
+        const nameA = `${a.first_name} ${a.last_name}`.toLowerCase()
+        const nameB = `${b.first_name} ${b.last_name}`.toLowerCase()
+        return nameA.localeCompare(nameB)
+      })
   }, [users, roleFilter, statusFilter])
 
   const columns = useMemo(() => [
@@ -200,7 +216,7 @@ export default function ManageUsersPage() {
           </Select>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
             <SelectTrigger className="w-36">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder="Active" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
