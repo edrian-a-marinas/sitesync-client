@@ -12,6 +12,7 @@ import {
 } from "@/api/project";
 import type {
   ProjectResponse,
+  ProjectDetailResponse,
   ProjectCreate,
   ProjectUpdate,
   PhaseResponse,
@@ -67,5 +68,11 @@ export const createPhase = async (projectId: number, data: PhaseCreate): Promise
 
 export const updatePhase = async (projectId: number, phaseId: number, data: PhaseUpdate): Promise<PhaseResponse> => {
   const response = await updatePhaseRequest(projectId, phaseId, data);
+  return response.data;
+};
+
+// --- Used in ManageUsersPage ---
+export const getProjectDetail = async (projectId: number): Promise<ProjectDetailResponse> => {
+  const response = await getProjectByIdRequest(projectId);
   return response.data;
 };

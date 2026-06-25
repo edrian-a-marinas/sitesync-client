@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   getProjects,
   getProjectById,
+  getProjectDetail,
   createProject,
   updateProject,
   deleteProject,
@@ -113,5 +114,15 @@ export const useUpdatePhase = () => {
     onSuccess: (_, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: ["projects", "detail", projectId] });
     },
+  });
+};
+
+// --- Used in ManageUsersPage ---
+export const useProjectDetail = (projectId: number | null) => {
+  return useQuery<ProjectDetailResponse>({
+    queryKey: ["projects", "detail", projectId],
+    queryFn: () => getProjectDetail(projectId!),
+    enabled: projectId !== null,
+    placeholderData: (prev) => prev,
   });
 };

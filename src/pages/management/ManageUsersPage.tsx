@@ -39,6 +39,7 @@ import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { Plus, Users, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import OwnerRegisterForm from './__components/users/RegisterForm'
 import EditUserDialog from './__components/users/EditUserDialog'
+import { useProjects, useProjectDetail } from '@/hooks/useProject'
 import StatusConfirmDialog from './__components/users/StatusConfirmDialog'
 import UserActionsDropdown from './__components/users/UserActionsDropdown'
 import UserAssignmentsModal from './__components/users/UserAssignmentsModal'
@@ -65,6 +66,10 @@ export default function ManageUsersPage() {
   const [editUser, setEditUser] = useState<UserResponse | null>(null)
   const [statusTarget, setStatusTarget] = useState<{ user: UserResponse; action: 'activate' | 'deactivate' } | null>(null)
   const [assignmentsUser, setAssignmentsUser] = useState<UserResponse | null>(null)
+  const [projectFilter, setProjectFilter] = useState<number | null>(null)
+
+  const { data: activeProjects } = useProjects('Active')
+  const { data: selectedProjectDetail } = useProjectDetail(projectFilter)
 
   const { data: users, isLoading, isError } = useUsers()
 
@@ -99,7 +104,15 @@ export default function ManageUsersPage() {
           statusFilter === 'all' ||
           (statusFilter === 'active' && u.is_active) ||
           (statusFilter === 'inactive' && !u.is_active)
-        return roleMatch && statusMatch
+        const projectMatch = (() => {
+          if (!projectFilter || !selectedProjectDetail) return true
+          const memberIds = new Set([
+            ...(selectedProjectDetail.managers ?? []).map((m) => m.id),
+            ...(selectedProjectDetail.workers ?? []).map((w) => w.id),
+          ])
+          return memberIds.has(u.id)
+        })()
+        return roleMatch && statusMatch && projectMatch
       })
       .sort((a, b) => {
         if (roleFilter === 'all') {
@@ -110,7 +123,7 @@ export default function ManageUsersPage() {
         const nameB = `${b.first_name} ${b.last_name}`.toLowerCase()
         return nameA.localeCompare(nameB)
       })
-  }, [users, roleFilter, statusFilter])
+  }, [users, roleFilter, statusFilter, projectFilter, selectedProjectDetail])
 
   const columns = useMemo(() => [
     columnHelper.accessor((row) => `${row.first_name} ${row.last_name}`, {
@@ -205,6 +218,22 @@ export default function ManageUsersPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Select
+            value={projectFilter !== null ? String(projectFilter) : 'all'}
+            onValueChange={(v) => setProjectFilter(v === 'all' ? null : Number(v))}
+          >
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Filter by Project" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Projects</SelectItem>
+              {(activeProjects ?? []).map((p) => (
+                <SelectItem key={p.id} value={String(p.id)}>
+                  {p.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as RoleFilter)}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Role" />
