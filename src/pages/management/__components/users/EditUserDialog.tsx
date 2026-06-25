@@ -53,14 +53,34 @@ export default function EditUserDialog({ user, onOpenChange }: Props) {
 
   const onSubmit = async (data: UserUpdateInput) => {
     if (!user) return
+
+    const hasChanges =
+      (data.first_name && data.first_name !== user.first_name) ||
+      (data.last_name && data.last_name !== user.last_name) ||
+      !!data.middle_name ||
+      !!data.phone_number
+
+    if (!hasChanges) {
+      toast.error('Nothing to update.')
+      return
+    }
+
+    const payload = {
+      ...data,
+      middle_name: data.middle_name || undefined,
+      phone_number: data.phone_number || undefined,
+    }
+
     try {
-      console.log('[EditUserDialog] submitting:', user.id, data)
-      await updateUser.mutateAsync({ userId: user.id, data })
+      console.log('[EditUserDialog] submitting:', user.id, payload)
+      await updateUser.mutateAsync({ userId: user.id, data: payload })
       toast.success('User updated successfully.')
       onOpenChange(false)
     } catch (err) {
       console.error('[EditUserDialog] error:', err)
-      toast.error('Failed to update user.')
+      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
+      const message = typeof detail === 'string' ? detail : 'Failed to update user.'
+      toast.error(message)
     }
   }
 

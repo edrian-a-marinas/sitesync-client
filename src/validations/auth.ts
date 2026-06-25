@@ -27,11 +27,11 @@ export const TokenResponseSchema = z.object({
 
 // --- Used in ManageUsersPage ---
 export const UserUpdateSchema = z.object({
-  first_name: NameStr.optional(),
-  middle_name: NameStr.optional(),
-  last_name: NameStr.optional(),
-  phone_number: PhoneStr.optional(),
-});
+  first_name: z.union([NameStr, z.literal('')]).optional(),
+  middle_name: z.union([NameStr, z.literal('')]).optional(),
+  last_name: z.union([NameStr, z.literal('')]).optional(),
+  phone_number: z.union([PhoneStr, z.literal('')]).optional(),
+})
 
 export const RegisterSchema = z.object({
   email: z.string().email(),
