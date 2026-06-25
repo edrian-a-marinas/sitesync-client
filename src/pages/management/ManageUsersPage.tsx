@@ -336,7 +336,7 @@ export default function ManageUsersPage() {
           <DialogHeader>
             <DialogTitle>Register New User</DialogTitle>
           </DialogHeader>
-          <OwnerRegisterForm onSuccess={() => setRegisterOpen(false)} />
+          <OwnerRegisterForm onSuccess={() => setRegisterOpen(false)} isOwner={isOwner} />
         </DialogContent>
       </Dialog>
 

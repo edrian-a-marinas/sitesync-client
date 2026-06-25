@@ -17,13 +17,15 @@ import { Input } from '@/pages/_components/ui/input'
 import { Button } from '@/pages/_components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/pages/_components/ui/radio-group'
 import { Label } from '@/pages/_components/ui/label'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
 
 interface OwnerRegisterFormProps {
   onSuccess?: () => void
+  isOwner?: boolean
 }
 
 // --- Used in ManageUsersPage ---
-export default function OwnerRegisterForm({ onSuccess }: OwnerRegisterFormProps) {
+export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerRegisterFormProps) {
   const queryClient = useQueryClient()
 
   const form = useForm<RegisterInput>({
@@ -35,7 +37,7 @@ export default function OwnerRegisterForm({ onSuccess }: OwnerRegisterFormProps)
       middle_name: '',
       last_name: '',
       phone_number: '',
-      role_id: ROLES.PROJECT_MANAGER,
+      role_id: isOwner ? ROLES.PROJECT_MANAGER : ROLES.SITE_WORKER,
     },
   })
 
@@ -77,22 +79,40 @@ export default function OwnerRegisterForm({ onSuccess }: OwnerRegisterFormProps)
             <FormItem>
               <FormLabel>Role</FormLabel>
               <FormControl>
-                <RadioGroup
-                  value={String(field.value)}
-                  onValueChange={(v) => {
-                    field.onChange(Number(v))
-                  }}
-                  className="flex gap-6"
-                >
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value={String(ROLES.PROJECT_MANAGER)} id="role-pm" />
-                    <Label htmlFor="role-pm">Project Manager</Label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RadioGroupItem value={String(ROLES.SITE_WORKER)} id="role-worker" />
-                    <Label htmlFor="role-worker">Site Worker</Label>
-                  </div>
-                </RadioGroup>
+                <TooltipProvider>
+                  <RadioGroup
+                    value={String(field.value)}
+                    onValueChange={(v) => {
+                      if (!isOwner && Number(v) === ROLES.PROJECT_MANAGER) return
+                      field.onChange(Number(v))
+                    }}
+                    className="flex gap-6"
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div className={`flex items-center gap-2 ${!isOwner ? 'cursor-not-allowed opacity-40' : ''}`}>
+                          <RadioGroupItem
+                            value={String(ROLES.PROJECT_MANAGER)}
+                            id="role-pm"
+                            disabled={!isOwner}
+                          />
+                          <Label htmlFor="role-pm" className={!isOwner ? 'cursor-not-allowed' : ''}>
+                            Project Manager
+                          </Label>
+                        </div>
+                      </TooltipTrigger>
+                      {!isOwner && (
+                        <TooltipContent>
+                          Only Owners can create Project Managers
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                    <div className="flex items-center gap-2">
+                      <RadioGroupItem value={String(ROLES.SITE_WORKER)} id="role-worker" />
+                      <Label htmlFor="role-worker">Site Worker</Label>
+                    </div>
+                  </RadioGroup>
+                </TooltipProvider>
               </FormControl>
               <FormMessage />
             </FormItem>
