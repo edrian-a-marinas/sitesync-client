@@ -35,9 +35,10 @@ interface Props {
   open: boolean
   onOpenChange: (open: boolean) => void
   projectId: number
+  existingDates: string[]
 }
 
-export default function CreateLogDialog({ open, onOpenChange, projectId }: Props) {
+export default function CreateLogDialog({ open, onOpenChange, projectId, existingDates }: Props) {
   const { mutate: createLog, isPending } = useCreateDailyLog()
 
   const form = useForm<DailyLogCreate>({
@@ -59,6 +60,10 @@ export default function CreateLogDialog({ open, onOpenChange, projectId }: Props
       toast.error('Log date cannot be in the future')
       return
     }
+    if (existingDates.includes(data.log_date)) {
+      toast.error('A log already exists for this date')
+      return
+    }anagement/DailyLogsPage.tsx
     createLog(
       { projectId, data },
       {

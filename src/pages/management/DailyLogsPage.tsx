@@ -88,6 +88,7 @@ export default function DailyLogsPage() {
           open={createOpen}
           onOpenChange={setCreateOpen}
           projectId={selectedProjectId}
+          existingDates={(logs ?? []).map((l) => l.log_date)}
         />
       )}
     </div>
