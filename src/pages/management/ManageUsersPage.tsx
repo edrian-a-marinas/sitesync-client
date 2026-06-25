@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useAuthStore } from '@/store/auth'
-import { ROLES } from '@/constants'
+import { ROLES, ROLE_LABEL } from '@/constants'
 import { useUsers } from '@/hooks/useUser'
 import type { UserResponse } from '@/validations/auth'
 import {
@@ -41,13 +41,6 @@ import OwnerRegisterForm from './__components/owner/RegisterForm'
 import EditUserDialog from './__components/users/EditUserDialog'
 import StatusConfirmDialog from './__components/users/StatusConfirmDialog'
 import UserActionsDropdown from './__components/users/UserActionsDropdown'
-
-// --- Used in ManageUsersPage ---
-const ROLE_LABEL: Record<number, string> = {
-  [ROLES.OWNER]: 'Owner',
-  [ROLES.PROJECT_MANAGER]: 'Project Manager',
-  [ROLES.SITE_WORKER]: 'Site Worker',
-}
 
 const ROLE_BADGE: Record<number, string> = {
   [ROLES.OWNER]: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',

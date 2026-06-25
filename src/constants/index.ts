@@ -16,6 +16,12 @@ export const ROUTES = {
   ATTENDANCE: "/attendance",
 } as const;
 
+// --- Used in ManageUsersPage ---
+export const ROLE_LABEL: Record<number, string> = {
+  1: 'Owner',
+  2: 'Project Manager',
+  3: 'Site Worker',
+}
 
 // --- Role IDs as seeded in the database — must match roles table ---
 export const ROLES = {
