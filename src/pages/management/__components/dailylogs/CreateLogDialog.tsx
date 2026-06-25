@@ -63,7 +63,7 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
     if (existingDates.includes(data.log_date)) {
       toast.error('A log already exists for this date')
       return
-    }anagement/DailyLogsPage.tsx
+    }
     createLog(
       { projectId, data },
       {
