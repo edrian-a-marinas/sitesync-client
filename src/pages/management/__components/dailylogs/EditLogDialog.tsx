@@ -88,8 +88,8 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
   }
 
   const handleOpenChange = (open: boolean) => {
-    if (!open) form.reset()
     onOpenChange(open)
+    if (!open) setTimeout(() => form.reset(), 200)
   }
 
   const errors = form.formState.errors
