@@ -5,6 +5,7 @@ import { Sidebar } from '@/pages/_components/Sidebar'
 import { TopNav } from '@/pages/_components/TopNav'
 import DashboardPage from '@/pages/management/DashboardPage'
 import ProjectsPage from '@/pages/management/ProjectsPage'
+import ManageUsersPage from '@/pages/management/ManageUsersPage'
 import WorkerPage from '@/pages/worker/WorkerPage'
 import { useLocation } from '@tanstack/react-router'
 export default function HomePage() {
@@ -21,6 +22,7 @@ export default function HomePage() {
     }
     if (user.role_id === ROLES.OWNER || user.role_id === ROLES.PROJECT_MANAGER) {
       if (path === ROUTES.PROJECTS) return <ProjectsPage />
+      if (path === ROUTES.MANAGE_USERS) return <ManageUsersPage />
       return <DashboardPage />
     }
     return null

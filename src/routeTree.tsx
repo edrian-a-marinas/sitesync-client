@@ -71,6 +71,13 @@ const projectsRoute = createRoute({
   component: HomePage,
 })
 
+// --- Used in ManageUsersPage ---
+const manageUsersRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: ROUTES.MANAGE_USERS,
+  component: HomePage,
+})
+
 const indexRoute = createRoute({
   getParentRoute: () => protectedRoute,
   path: '/',
@@ -80,7 +87,7 @@ const indexRoute = createRoute({
 // Route tree
 const routeTree = rootRoute.addChildren([
   publicRoute.addChildren([loginRoute, loginAdminRoute]),
-  protectedRoute.addChildren([homeRoute, indexRoute, projectsRoute]),
+  protectedRoute.addChildren([homeRoute, indexRoute, projectsRoute, manageUsersRoute]),
 ])
 
 function NotFound() {
