@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import type { ReportResponse } from '@/types/report'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
 import { useProjects } from '@/hooks/useProject'
@@ -7,6 +8,7 @@ import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { FileText } from 'lucide-react'
 import ReportFilters from './__components/reports/ReportFilters'
 import ReportTable from './__components/reports/ReportTable'
+import ReportDetailSheet from './__components/reports/ReportDetailSheet'
 import GenerateReportDialog from './__components/reports/GenerateReportDialog'
 import { toast } from 'sonner'
 
@@ -16,17 +18,25 @@ export default function ReportsPage() {
 
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [generateOpen, setGenerateOpen] = useState(false)
-
+  const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(null)
+  const [isPolling, setIsPolling] = useState(false)
+  const [newReport, setNewReport] = useState<ReportResponse | null>(null)
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
-  const { data: reports, isLoading: reportsLoading, isError } = useReports(selectedProjectId)
+  const { data: reports, isLoading: reportsLoading, isError } = useReports(
+    selectedProjectId,
+    isPolling ? 3000 : undefined,
+  )
   const { mutate: generateReport, isPending: isGenerating } = useGenerateReport()
+  const [baselineReportId, setBaselineReportId] = useState<number | null>(null)
 
   const handleGenerate = () => {
     if (!selectedProjectId) return
+    setBaselineReportId(reports?.[0]?.id ?? null)
+    setNewReport(null)
     generateReport(selectedProjectId, {
       onSuccess: () => {
-        setGenerateOpen(false)
-        toast.success('Report generation started. It will be ready shortly.')
+        setIsPolling(true)
+        toast.info('Generating report... this may take a moment.')
       },
       onError: (error: any) => {
         const status = error?.response?.status
@@ -39,6 +49,25 @@ export default function ReportsPage() {
       },
     })
   }
+
+  useEffect(() => {
+    if (!isPolling) return
+    const latest = reports?.[0]
+    if (latest && latest.id !== baselineReportId) {
+      setIsPolling(false)
+      setNewReport(latest)
+      if (generateOpen) {
+        toast.success('Report is ready to download.')
+      } else {
+        toast.success('Report is ready to download.', {
+          action: {
+            label: 'Download',
+            onClick: () => latest.file_url && window.open(latest.file_url, '_blank'),
+          },
+        })
+      }
+    }
+  }, [reports, isPolling, baselineReportId, generateOpen])
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-10">
@@ -87,16 +116,30 @@ export default function ReportsPage() {
         <ReportTable
           reports={reports ?? []}
           isLoading={reportsLoading}
+          selectedReport={selectedReport}
+          onSelectReport={setSelectedReport}
         />
       )}
+
+      <ReportDetailSheet
+        report={selectedReport}
+        onOpenChange={(open) => !open && setSelectedReport(null)}
+      />
 
       {/* Generate Dialog */}
       {selectedProjectId !== null && (
         <GenerateReportDialog
           open={generateOpen}
-          onOpenChange={setGenerateOpen}
+          onOpenChange={(open) => {
+            setGenerateOpen(open)
+            if (!open) {
+              setNewReport(null)
+            }
+          }}
           onConfirm={handleGenerate}
           isPending={isGenerating}
+          isPolling={isPolling}
+          newReport={newReport}
         />
       )}
     </div>
