@@ -7,7 +7,7 @@ import {
 } from '@/pages/_components/ui/sheet'
 import { Badge } from '@/pages/_components/ui/badge'
 import { ScrollArea } from '@/pages/_components/ui/scroll-area'
-import { CalendarIcon, CloudIcon, ClipboardList, StickyNote } from 'lucide-react'
+import { CalendarIcon, CloudIcon, ClipboardList, StickyNote, User } from 'lucide-react'
 
 const WEATHER_BADGE: Record<string, string> = {
   Sunny: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
@@ -34,6 +34,17 @@ export default function LogDetailSheet({ log, onOpenChange }: Props) {
 
         <ScrollArea className="h-[calc(100vh-8rem)] pr-4">
           <div className="flex flex-col gap-6">
+
+            {/* Submitted By */}
+            <div className="flex flex-col gap-1.5">
+              <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+                <User className="h-3.5 w-3.5" />
+                Submitted By
+              </div>
+              <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                {log?.submitted_by_name ?? '—'}
+              </p>
+            </div>
 
             {/* Weather */}
             <div className="flex flex-col gap-1.5">
