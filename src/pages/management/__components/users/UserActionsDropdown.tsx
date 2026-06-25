@@ -19,7 +19,7 @@ interface Props {
 }
 
 // --- Used in ManageUsersPage ---
-export default function UserActionsDropdown({ user, currentUserId, isOwner, canChangeStatus = true, onEdit, onStatusChange }: Props) {
+export default function UserActionsDropdown({ user, currentUserId, canChangeStatus = true, onEdit, onStatusChange }: Props) {
   // Owner accounts are never editable or deactivatable
   if (user.role_id === ROLES.OWNER) return null
 
