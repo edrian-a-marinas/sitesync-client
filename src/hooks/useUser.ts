@@ -32,7 +32,7 @@ export const useUpdateUser = () => {
     mutationFn: ({ userId, data }: { userId: number; data: UserUpdateInput }) => {
       return updateUser(userId, data);
     },
-    onSuccess: (updated) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
@@ -44,7 +44,7 @@ export const useActivateUser = () => {
     mutationFn: (userId: number) => {
       return activateUser(userId);
     },
-    onSuccess: (updated) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
@@ -56,7 +56,7 @@ export const useDeactivateUser = () => {
     mutationFn: (userId: number) => {
       return deactivateUser(userId);
     },
-    onSuccess: (updated) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
     },
   });
