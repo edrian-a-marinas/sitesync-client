@@ -6,6 +6,7 @@ export interface ReportResponse {
   week_start: string
   week_end: string
   s3_key: string
+  source: 'manual' | 'scheduled'
   file_url: string | null
   total_hours: number
   total_material_cost: number

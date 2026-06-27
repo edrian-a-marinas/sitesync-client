@@ -8,6 +8,7 @@ export const ReportResponseSchema = z.object({
   week_start: z.string(),
   week_end: z.string(),
   s3_key: z.string(),
+  source: z.enum(['manual', 'scheduled']),
   file_url: z.string().nullable(),
   total_hours: z.number(),
   total_material_cost: z.number(),
