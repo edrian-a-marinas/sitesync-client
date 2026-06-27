@@ -19,6 +19,7 @@ import {
 import { Button } from '@/pages/_components/ui/button'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 import { FileText, Download, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { Badge } from '@/pages/_components/ui/badge'
 import { toast } from 'sonner'
 import { formatPHP, getMoneyTooltip } from '@/utils/formatPHP'
 
@@ -94,6 +95,21 @@ export default function ReportTable({ reports, isLoading, selectedReport, onSele
         </span>
       ),
     }),
+    columnHelper.accessor('source', {
+      header: 'Source',
+      cell: (info) => (
+        <Badge
+          variant="outline"
+          className={
+            info.getValue() === 'scheduled'
+              ? 'bg-blue-50 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+              : 'bg-zinc-100 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
+          }
+        >
+          {info.getValue() === 'scheduled' ? 'Auto (Monday)' : 'Manual'}
+        </Badge>
+      ),
+    }),
     columnHelper.display({
       id: 'actions',
       header: () => null,
@@ -163,7 +179,7 @@ export default function ReportTable({ reports, isLoading, selectedReport, onSele
         <TableBody>
           {isLoading ? renderSkeletonRows() : table.getRowModel().rows.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="py-16 text-center">
+              <TableCell colSpan={8} className="py-16 text-center">
                 <div className="flex flex-col items-center gap-2 text-zinc-400 dark:text-zinc-500">
                   <FileText className="h-8 w-8" />
                   <p className="text-sm">No reports generated yet for this project.</p>
