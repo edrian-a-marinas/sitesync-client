@@ -23,13 +23,16 @@ export default function ReportsPage() {
   const [newReport, setNewReport] = useState<ReportResponse | null>(null)
   const [pollAttempts, setPollAttempts] = useState(0)
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null)
-  const [existsThisWeek, setExistsThisWeek] = useState(false)
+  const [existsForDate, setExistsForDate] = useState<string | null>(null)
+  const today = new Date().toISOString().slice(0, 10)
+  const existsThisWeek = existsForDate === today
   const MAX_POLL_ATTEMPTS = 10 // 10 x 3s = 30s max wait
   const COOLDOWN_MS = 30000 // 30s lockout after failure, no background requests
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
-  // Reset the "exists" lock when switching projects — it's per-project, per-week
+
+  // Reset the "exists" lock when switching projects — it's per-project, per-day
   useEffect(() => {
-    setExistsThisWeek(false)
+    setExistsForDate(null)
   }, [selectedProjectId])
   const { data: reports, isLoading: reportsLoading, isError } = useReports(
     selectedProjectId,
@@ -46,7 +49,7 @@ export default function ReportsPage() {
       onSuccess: (data) => {
         if (data.status === 'exists') {
           setGenerateOpen(false)
-          setExistsThisWeek(true)
+          setExistsForDate(today)
           toast.info('A report for this week already exists.')
           return
         }
@@ -123,8 +126,8 @@ export default function ReportsPage() {
           hasProject={selectedProjectId !== null}
           disableGenerate={existsThisWeek}
           nextAvailableDate={
-            reports?.[0]
-              ? new Date(new Date(reports[0].week_start).getTime() + 7 * 86400000).toLocaleDateString('en-PH', {
+            existsThisWeek
+              ? new Date(Date.now() + 86400000).toLocaleDateString('en-PH', {
                   year: 'numeric', month: 'short', day: 'numeric',
                 })
               : null
