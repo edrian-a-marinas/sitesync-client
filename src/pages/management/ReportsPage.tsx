@@ -21,7 +21,16 @@ export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(null)
   const [isPolling, setIsPolling] = useState(false)
   const [newReport, setNewReport] = useState<ReportResponse | null>(null)
+  const [pollAttempts, setPollAttempts] = useState(0)
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(null)
+  const [existsThisWeek, setExistsThisWeek] = useState(false)
+  const MAX_POLL_ATTEMPTS = 10 // 10 x 3s = 30s max wait
+  const COOLDOWN_MS = 30000 // 30s lockout after failure, no background requests
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
+  // Reset the "exists" lock when switching projects — it's per-project, per-week
+  useEffect(() => {
+    setExistsThisWeek(false)
+  }, [selectedProjectId])
   const { data: reports, isLoading: reportsLoading, isError } = useReports(
     selectedProjectId,
     isPolling ? 3000 : undefined,
@@ -34,17 +43,23 @@ export default function ReportsPage() {
     setBaselineReportId(reports?.[0]?.id ?? null)
     setNewReport(null)
     generateReport(selectedProjectId, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        if (data.status === 'exists') {
+          setGenerateOpen(false)
+          setExistsThisWeek(true)
+          toast.info('A report for this week already exists.')
+          return
+        }
+        // status === 'queued'
+        setPollAttempts(0)
         setIsPolling(true)
         toast.info('Generating report... this may take a moment.')
       },
       onError: (error: any) => {
         const status = error?.response?.status
-        if (status === 200) {
+        if (status === 503) {
           setGenerateOpen(false)
-          toast.info('A report for this week already exists.')
-        } else if (status === 503) {
-          setGenerateOpen(false)
+          setCooldownUntil(Date.now() + COOLDOWN_MS)
           toast.error('Report service is temporarily unavailable. Please try again in a few minutes.')
         } else {
           toast.error('Failed to generate report. Please try again.')
@@ -69,8 +84,18 @@ export default function ReportsPage() {
           },
         })
       }
+      return
     }
-  }, [reports, isPolling, baselineReportId, generateOpen])
+    // No new report yet — count this poll attempt, stop after max reached
+    if (pollAttempts >= MAX_POLL_ATTEMPTS) {
+      setIsPolling(false)
+      setGenerateOpen(false)
+      setCooldownUntil(Date.now() + COOLDOWN_MS)
+      toast.error('Report generation timed out. The background service may be unavailable.')
+      return
+    }
+    setPollAttempts((prev) => prev + 1)
+  }, [reports, isPolling, baselineReportId, generateOpen, pollAttempts])
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-10">
@@ -96,6 +121,14 @@ export default function ReportsPage() {
           onProjectChange={(id) => setSelectedProjectId(id)}
           onGenerate={() => setGenerateOpen(true)}
           hasProject={selectedProjectId !== null}
+          disableGenerate={existsThisWeek}
+          nextAvailableDate={
+            reports?.[0]
+              ? new Date(new Date(reports[0].week_start).getTime() + 7 * 86400000).toLocaleDateString('en-PH', {
+                  year: 'numeric', month: 'short', day: 'numeric',
+                })
+              : null
+          }
         />
       </div>
 
@@ -143,6 +176,7 @@ export default function ReportsPage() {
           isPending={isGenerating}
           isPolling={isPolling}
           newReport={newReport}
+          cooldownUntil={cooldownUntil}
         />
       )}
     </div>
