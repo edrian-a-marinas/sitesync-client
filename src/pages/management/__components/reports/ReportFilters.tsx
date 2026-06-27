@@ -59,7 +59,7 @@ export default function ReportFilters({
                 </span>
               </TooltipTrigger>
               <TooltipContent>
-                A report was already generated for this project this week.
+                A report was already generated for this project today.
                 {nextAvailableDate ? ` You can generate a new one on ${nextAvailableDate}.` : ''}
               </TooltipContent>
             </Tooltip>
