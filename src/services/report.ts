@@ -6,6 +6,7 @@ export const getReports = async (projectId: number): Promise<ReportResponse[]> =
   return response.data
 }
 
-export const generateReport = async (projectId: number): Promise<void> => {
-  await generateReportRequest(projectId)
+export const generateReport = async (projectId: number): Promise<{ status: 'exists' | 'queued'; detail: string }> => {
+  const response = await generateReportRequest(projectId)
+  return response.data
 }
