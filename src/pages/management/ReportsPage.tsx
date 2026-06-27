@@ -21,9 +21,9 @@ export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(null)
   const [isPolling, setIsPolling] = useState(false)
   const [newReport, setNewReport] = useState<ReportResponse | null>(null)
-  const [pollAttempts, setPollAttempts] = useState(0)
+  const [pollStartedAt, setPollStartedAt] = useState<number | null>(null)
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null)
-  const MAX_POLL_ATTEMPTS = 10 // 10 x 3s = 30s max wait
+  const POLL_TIMEOUT_MS = 30000 // 30s real wall-clock budget, not tied to refetch count
   const COOLDOWN_MS = 30000 // 30s lockout after failure, no background requests
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
   const { data: reports, isLoading: reportsLoading, isError } = useReports(
@@ -48,7 +48,7 @@ export default function ReportsPage() {
           return
         }
         // status === 'queued'
-        setPollAttempts(0)
+        setPollStartedAt(Date.now())
         setIsPolling(true)
         toast.info('Generating report... this may take a moment.')
       },
@@ -83,16 +83,14 @@ export default function ReportsPage() {
       }
       return
     }
-    // No new report yet — count this poll attempt, stop after max reached
-    if (pollAttempts >= MAX_POLL_ATTEMPTS) {
+    // No new report yet — stop only once real time budget is exceeded
+    if (pollStartedAt && Date.now() - pollStartedAt >= POLL_TIMEOUT_MS) {
       setIsPolling(false)
       setGenerateOpen(false)
       setCooldownUntil(Date.now() + COOLDOWN_MS)
       toast.error('Report generation timed out. The background service may be unavailable.')
-      return
     }
-    setPollAttempts((prev) => prev + 1)
-  }, [reports, isPolling, baselineReportId, generateOpen, pollAttempts])
+  }, [reports, isPolling, baselineReportId, generateOpen, pollStartedAt])
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-10">
