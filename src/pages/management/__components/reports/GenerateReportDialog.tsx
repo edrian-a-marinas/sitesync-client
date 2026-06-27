@@ -9,6 +9,7 @@ import {
   AlertDialogTitle,
 } from '@/pages/_components/ui/alert-dialog'
 import type { ReportResponse } from '@/types/report'
+import { useState, useEffect } from 'react'
 import { Loader2, Download } from 'lucide-react'
 
 interface Props {
@@ -18,8 +19,8 @@ interface Props {
   isPending: boolean
   isPolling: boolean
   newReport: ReportResponse | null
+  cooldownUntil: number | null
 }
-
 export default function GenerateReportDialog({
   open,
   onOpenChange,
@@ -27,8 +28,24 @@ export default function GenerateReportDialog({
   isPending,
   isPolling,
   newReport,
+  cooldownUntil,
 }: Props) {
-  const isBusy = isPending || isPolling
+  const [cooldownLeft, setCooldownLeft] = useState(0)
+  useEffect(() => {
+    if (!cooldownUntil) {
+      setCooldownLeft(0)
+      return
+    }
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 1000))
+      setCooldownLeft(remaining)
+    }
+    tick()
+    const interval = setInterval(tick, 1000)
+    return () => clearInterval(interval)
+  }, [cooldownUntil])
+  const isCoolingDown = cooldownLeft > 0
+  const isBusy = isPending || isPolling || isCoolingDown
 
   const handleDownload = () => {
     if (newReport?.file_url) {
@@ -59,7 +76,9 @@ export default function GenerateReportDialog({
             </AlertDialogAction>
           ) : (
             <AlertDialogAction onClick={onConfirm} disabled={isBusy}>
-              {isBusy ? (
+              {isCoolingDown ? (
+                `Try again in ${cooldownLeft}s`
+              ) : isBusy ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {isPending ? 'Generating...' : 'Waiting for report...'}
