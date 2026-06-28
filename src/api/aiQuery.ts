@@ -7,5 +7,5 @@ export const createQueryRequest = (data: AIQueryRequest) =>
 export const getQueryRequest = (queryId: number) =>
   api.get<AIQueryResponse>(`/ai/query/${queryId}`)
 
-export const getQueriesRequest = () =>
-  api.get<AIQueryResponse[]>('/ai/queries')
+export const getQueriesRequest = (skip = 0, limit = 10) =>
+  api.get<AIQueryResponse[]>('/ai/queries', { params: { skip, limit } })

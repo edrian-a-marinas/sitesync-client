@@ -1,11 +1,18 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { createQuery, getQuery, getQueries } from '@/services/aiQuery'
 import type { AIQueryRequest, AIQueryResponse } from '@/types/aiQuery'
 
+const PAGE_SIZE = 10
+
 export const useGetQueries = () => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['ai-queries'],
-    queryFn: getQueries,
+    queryFn: ({ pageParam = 0 }) => getQueries(pageParam, PAGE_SIZE),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined
+      return allPages.length * PAGE_SIZE
+    },
   })
 }
 
@@ -34,10 +41,17 @@ export const useCreateQuery = () => {
   return useMutation({
     mutationFn: (data: AIQueryRequest) => createQuery(data),
     onSuccess: (newQuery) => {
-      queryClient.setQueryData<AIQueryResponse[]>(['ai-queries'], (old) => [
-        ...(old ?? []),
-        newQuery,
-      ])
+      queryClient.setQueryData<{ pages: AIQueryResponse[][], pageParams: unknown[] }>(
+        ['ai-queries'],
+        (old) => {
+          if (!old) return { pages: [[newQuery]], pageParams: [0] }
+          // Prepend to first page — backend is desc so first page = newest
+          // After reversal in sortedQueries this becomes the bottom
+          const pages = [...old.pages]
+          pages[0] = [newQuery, ...pages[0]]
+          return { ...old, pages }
+        }
+      )
     },
   })
 }

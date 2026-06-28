@@ -15,7 +15,7 @@ export const getQuery = async (queryId: number): Promise<AIQueryResponse> => {
   return response.data
 }
 
-export const getQueries = async (): Promise<AIQueryResponse[]> => {
-  const response = await getQueriesRequest()
+export const getQueries = async (skip = 0, limit = 10): Promise<AIQueryResponse[]> => {
+  const response = await getQueriesRequest(skip, limit)
   return response.data
 }

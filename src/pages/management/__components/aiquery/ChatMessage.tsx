@@ -26,10 +26,18 @@ export function ChatMessage({ query, onRateLimit }: Props) {
   // Patch the queries list cache when live data resolves so chat panel updates
   useEffect(() => {
     if (!liveQuery || liveQuery.status === 'Pending') return
-    queryClient.setQueryData<AIQueryResponse[]>(['ai-queries'], (old) => {
-      if (!old) return old
-      return old.map((q) => (q.id === liveQuery.id ? liveQuery : q))
-    })
+    queryClient.setQueryData<{ pages: AIQueryResponse[][], pageParams: unknown[] }>(
+      ['ai-queries'],
+      (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          pages: old.pages.map((page) =>
+            page.map((q) => (q.id === liveQuery.id ? liveQuery : q))
+          ),
+        }
+      }
+    )
   }, [liveQuery?.status, liveQuery?.answer])
 
   const didJustFail = liveQuery?.status === 'Failed' && query.status === 'Pending'
