@@ -1,6 +1,6 @@
 import type { DelayRiskResult } from '@/types/ml'
 import { Badge } from '@/pages/_components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/pages/_components/ui/card'
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/pages/_components/ui/accordion'
 
 interface Props {
   results: DelayRiskResult[]
@@ -14,13 +14,16 @@ const RISK_BADGE: Record<string, string> = {
 
 export default function DelayRiskCard({ results }: Props) {
   return (
-    <Card>
-      <CardHeader className="border-b border-zinc-200 dark:border-zinc-800">
-        <CardTitle className="text-sm font-semibold">Delay Risk</CardTitle>
-        <CardDescription>Project schedule delay probability</CardDescription>
-      </CardHeader>
-      <CardContent className="p-0">
-      <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+    <Accordion type="single" collapsible className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <AccordionItem value="delay-risk" className="border-0">
+        <AccordionTrigger className="px-5 py-4 text-sm font-semibold text-zinc-900 dark:text-zinc-100 hover:no-underline">
+          <div className="flex flex-col items-start gap-0.5">
+            <span>Delay Risk</span>
+            <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">Project schedule delay probability</span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pb-0">
+        <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
         {results.map((r) => (
           <div key={r.project_id} className="flex items-center justify-between px-5 py-3">
             <div className="flex flex-col gap-0.5">
@@ -51,7 +54,8 @@ export default function DelayRiskCard({ results }: Props) {
           </div>
         ))}
       </div>
-      </CardContent>
-    </Card>
+      </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   )
 }

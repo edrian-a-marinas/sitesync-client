@@ -1,5 +1,5 @@
 import type { MaterialForecastResult } from '@/types/ml'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/pages/_components/ui/card'
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/pages/_components/ui/accordion'
 import { formatPHP } from '@/utils/formatPHP'
 
 const MONTH_NAMES = [
@@ -13,13 +13,16 @@ interface Props {
 
 export default function MaterialForecastCard({ results }: Props) {
   return (
-    <Card>
-      <CardHeader className="border-b border-zinc-200 dark:border-zinc-800">
-        <CardTitle className="text-sm font-semibold">Material Cost Forecast</CardTitle>
-        <CardDescription>Predicted material spend for next month per project</CardDescription>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+    <Accordion type="single" collapsible className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <AccordionItem value="material-forecast" className="border-0">
+        <AccordionTrigger className="px-5 py-4 text-sm font-semibold text-zinc-900 dark:text-zinc-100 hover:no-underline">
+          <div className="flex flex-col items-start gap-0.5">
+            <span>Material Cost Forecast</span>
+            <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">Predicted material spend for next month per project</span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="pb-0">
+          <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
           {results.map((r) => (
             <div key={r.project_id} className="flex items-center justify-between px-5 py-3">
               <div className="flex flex-col gap-0.5">
@@ -34,7 +37,8 @@ export default function MaterialForecastCard({ results }: Props) {
             </div>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   )
 }
