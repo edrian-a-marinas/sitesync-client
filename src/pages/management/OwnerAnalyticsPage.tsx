@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
 import { useBudgetOverrun, useDelayRisk, useMaterialForecast, useMLStatus, useRetrainML } from '@/hooks/useML'
@@ -10,6 +11,9 @@ import BudgetOverrunCard from './__components/analytics/BudgetOverrunCard'
 import DelayRiskCard from './__components/analytics/DelayRiskCard'
 import MaterialForecastCard from './__components/analytics/MaterialForecastCard'
 import MLStatusBar from './__components/analytics/MLStatusBar'
+
+const COOLDOWN_MS = 15 * 60 * 1000 // 15 minutes
+const STATUS_POLL_INTERVAL = 2000   // poll every 2s while retraining
 
 function AnalyticsSkeleton() {
   return (
@@ -31,22 +35,56 @@ export default function OwnerAnalyticsPage() {
   const { user } = useAuthStore()
   if (user?.role_id !== ROLES.OWNER) return null
 
-  const { data: status } = useMLStatus()
-  const { data: budgetData, isLoading: budgetLoading, isError: budgetError } = useBudgetOverrun()
-  const { data: delayData, isLoading: delayLoading, isError: delayError } = useDelayRisk()
-  const { data: forecastData, isLoading: forecastLoading, isError: forecastError } = useMaterialForecast()
+  const [cooldownUntil, setCooldownUntil] = useState<number | null>(() => {
+    const stored = localStorage.getItem('ml_retrain_cooldown')
+    if (!stored) return null
+    const parsed = Number(stored)
+    return parsed > Date.now() ? parsed : null
+  })
+  const [isPollingStatus, setIsPollingStatus] = useState(false)
+  const preRetrainTimestampRef = useRef<string | null>(null)
+
+  const { data: status, refetch: refetchStatus } = useMLStatus()
+  const { data: budgetData, isLoading: budgetLoading, isError: budgetError, refetch: refetchBudget } = useBudgetOverrun()
+  const { data: delayData, isLoading: delayLoading, isError: delayError, refetch: refetchDelay } = useDelayRisk()
+  const { data: forecastData, isLoading: forecastLoading, isError: forecastError, refetch: refetchForecast } = useMaterialForecast()
   const { mutate: retrain, isPending: isRetraining } = useRetrainML()
 
   const isLoading = budgetLoading || delayLoading || forecastLoading
   const isError = budgetError || delayError || forecastError
-
   const modelsReady = status
     ? status.budget_overrun.ready && status.delay_risk.ready && status.material_forecast.ready
     : false
 
+  // Poll status while retraining — stop when last_trained changes
+  useEffect(() => {
+    if (!isPollingStatus) return
+    const interval = setInterval(async () => {
+      const result = await refetchStatus()
+      const newTimestamp = result.data?.budget_overrun.last_trained
+      if (newTimestamp && newTimestamp !== preRetrainTimestampRef.current) {
+        setIsPollingStatus(false)
+        // Wait 2 extra seconds before notifying and refreshing predictions
+        setTimeout(async () => {
+          await Promise.all([refetchBudget(), refetchDelay(), refetchForecast()])
+          toast.success('Models updated — predictions refreshed.')
+        }, 2000)
+      }
+    }, STATUS_POLL_INTERVAL)
+    return () => clearInterval(interval)
+  }, [isPollingStatus])
+
   const handleRetrain = () => {
+    // Snapshot current last_trained before retraining
+    preRetrainTimestampRef.current = status?.budget_overrun.last_trained ?? null
     retrain(undefined, {
-      onSuccess: () => toast.success('Retraining started. Models will update shortly.'),
+      onSuccess: () => {
+        toast.info('Retraining started. Waiting for models to update...')
+        const until = Date.now() + COOLDOWN_MS
+        setCooldownUntil(until)
+        localStorage.setItem('ml_retrain_cooldown', String(until))
+        setIsPollingStatus(true)
+      },
       onError: () => toast.error('Failed to trigger retraining. Please try again.'),
     })
   }
@@ -69,6 +107,7 @@ export default function OwnerAnalyticsPage() {
         status={status}
         isRetraining={isRetraining}
         onRetrain={handleRetrain}
+        cooldownUntil={cooldownUntil}
       />
 
       {!modelsReady && !isLoading && (
