@@ -49,6 +49,15 @@ export default function MaterialForecastCard({ results }: Props) {
               />
               <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `₱${(v / 1000).toFixed(0)}k`} />
               <RechartsTooltip
+                contentStyle={{
+                  background: '#18181b',
+                  border: '1px solid #3f3f46',
+                  borderRadius: 6,
+                  fontSize: 12,
+                  color: '#fafafa',
+                }}
+                labelStyle={{ color: '#a1a1aa' }}
+                itemStyle={{ color: '#fafafa' }}
                 formatter={(value) => [formatPHP(Number(value)), 'Predicted Cost']}
               />
               <Bar dataKey="predicted_cost" fill="#6366f1" radius={[4, 4, 0, 0]} />

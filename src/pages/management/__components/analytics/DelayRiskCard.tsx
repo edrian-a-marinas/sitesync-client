@@ -56,6 +56,15 @@ export default function DelayRiskCard({ results }: Props) {
               />
               <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
               <RechartsTooltip
+                contentStyle={{
+                  background: '#18181b',
+                  border: '1px solid #3f3f46',
+                  borderRadius: 6,
+                  fontSize: 12,
+                  color: '#fafafa',
+                }}
+                labelStyle={{ color: '#a1a1aa' }}
+                itemStyle={{ color: '#fafafa' }}
                 formatter={(value) => [`${Number(value)}%`, 'Delay Risk Score']}
               />
               <Bar dataKey="score" radius={[4, 4, 0, 0]}>
