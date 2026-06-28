@@ -1,5 +1,5 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createQuery, getQuery, getQueries } from '@/services/aiQuery'
+import { createQuery, getQuery, getQueries, deleteQuery, deleteAllQueries } from '@/services/aiQuery'
 import type { AIQueryRequest, AIQueryResponse } from '@/types/aiQuery'
 
 const PAGE_SIZE = 10
@@ -51,6 +51,36 @@ export const useCreateQuery = () => {
           pages[0] = [newQuery, ...pages[0]]
           return { ...old, pages }
         }
+      )
+    },
+  })
+}
+export const useDeleteQuery = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (queryId: number) => deleteQuery(queryId),
+    onSuccess: (_, queryId) => {
+      queryClient.setQueryData<{ pages: AIQueryResponse[][], pageParams: unknown[] }>(
+        ['ai-queries'],
+        (old) => {
+          if (!old) return old
+          return {
+            ...old,
+            pages: old.pages.map((page) => page.filter((q) => q.id !== queryId)),
+          }
+        }
+      )
+    },
+  })
+}
+export const useDeleteAllQueries = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => deleteAllQueries(),
+    onSuccess: () => {
+      queryClient.setQueryData<{ pages: AIQueryResponse[][], pageParams: unknown[] }>(
+        ['ai-queries'],
+        { pages: [[]], pageParams: [0] }
       )
     },
   })
