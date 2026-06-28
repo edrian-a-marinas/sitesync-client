@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from 'react'
+import { useSearch, useNavigate } from '@tanstack/react-router'
 import { useAuthStore } from '@/store/auth'
-import { ROLES, ROLE_LABEL } from '@/constants'
+import { ROLES, ROLE_LABEL, ROUTES } from '@/constants'
 import { useUsers } from '@/hooks/useUser'
 import type { UserResponse } from '@/validations/auth'
 import {
@@ -36,7 +37,8 @@ import {
   DialogTitle,
 } from '@/pages/_components/ui/dialog'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
-import { Plus, Users, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { Plus, Users, ArrowUpDown, ArrowUp, ArrowDown, Search } from 'lucide-react'
+import { Input } from '@/pages/_components/ui/input'
 import OwnerRegisterForm from './__components/users/RegisterForm'
 import EditUserDialog from './__components/users/EditUserDialog'
 import { useProjects, useProjectDetail } from '@/hooks/useProject'
@@ -66,12 +68,33 @@ export default function ManageUsersPage() {
   const [editUser, setEditUser] = useState<UserResponse | null>(null)
   const [statusTarget, setStatusTarget] = useState<{ user: UserResponse; action: 'activate' | 'deactivate' } | null>(null)
   const [assignmentsUser, setAssignmentsUser] = useState<UserResponse | null>(null)
+  const navigate = useNavigate()
+  const searchParams = useSearch({ strict: false }) as { page?: number; search?: string }
+  const page = searchParams.page ?? 1
+  const search = searchParams.search ?? ''
+  const PAGE_SIZE = 20
+
   const [projectFilter, setProjectFilter] = useState<number | null>(null)
   const [workerScope, setWorkerScope] = useState<'mine' | 'all'>('mine')
-
   const { data: activeProjects } = useProjects('Active')
   const { data: selectedProjectDetail } = useProjectDetail(projectFilter)
-  const { data: users, isLoading, isError } = useUsers(!isOwner ? workerScope : undefined)
+  const { data: usersData, isLoading, isError } = useUsers(!isOwner ? workerScope : undefined, page, PAGE_SIZE, search)
+
+  const handleSearchChange = useCallback((value: string) => {
+    navigate({
+      to: ROUTES.MANAGE_USERS,
+      search: (prev: any) => ({ ...prev, search: value, page: 1 }),
+    })
+  }, [navigate])
+
+  const handlePageChange = useCallback((newPage: number) => {
+    navigate({
+      to: ROUTES.MANAGE_USERS,
+      search: (prev: any) => ({ ...prev, page: newPage }),
+    })
+  }, [navigate])
+
+  const totalPages = usersData ? Math.max(1, Math.ceil(usersData.total / usersData.page_size)) : 1
 
   const handleEdit = useCallback((u: UserResponse) => {
     setEditUser(u)
@@ -93,7 +116,7 @@ export default function ManageUsersPage() {
       [ROLES.PROJECT_MANAGER]: 1,
       [ROLES.SITE_WORKER]: 2,
     }
-    return (users ?? [])
+    return (usersData?.items ?? [])
       .filter((u) => {
         const roleMatch =
           roleFilter === 'all' ||
@@ -123,7 +146,7 @@ export default function ManageUsersPage() {
         const nameB = `${b.first_name} ${b.last_name}`.toLowerCase()
         return nameA.localeCompare(nameB)
       })
-  }, [users, roleFilter, statusFilter, projectFilter, selectedProjectDetail])
+  }, [usersData, roleFilter, statusFilter, projectFilter, selectedProjectDetail])
 
   const columns = useMemo(() => [
     columnHelper.accessor((row) => `${row.first_name} ${row.last_name}`, {
@@ -274,6 +297,19 @@ export default function ManageUsersPage() {
         </div>
       </div>
 
+      {/* Search */}
+      <div className="relative w-full max-w-xs">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
+        <Input
+          defaultValue={search}
+          onChange={(e) => {
+            const timeout = setTimeout(() => handleSearchChange(e.target.value), 400)
+            return () => clearTimeout(timeout)
+          }}
+          placeholder="Search name or email..."
+          className="pl-8"
+        />
+      </div>
       {/* Error */}
       {isError && (
         <Alert variant="destructive">
@@ -342,6 +378,22 @@ export default function ManageUsersPage() {
         </Table>
       </div>
 
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Page {page} of {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => handlePageChange(page - 1)} disabled={page <= 1}>
+              Previous
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handlePageChange(page + 1)} disabled={page >= totalPages}>
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
       {/* Register Dialog */}
       <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
         <DialogContent className="max-w-lg">
