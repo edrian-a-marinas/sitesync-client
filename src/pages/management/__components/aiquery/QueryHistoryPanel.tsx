@@ -8,14 +8,18 @@ import type { AIQueryResponse } from '@/types/aiQuery'
 interface Props {
   queries: AIQueryResponse[]
   isLoading: boolean
+  onClose: () => void
 }
 
-export function QueryHistoryPanel({ queries, isLoading }: Props) {
+export function QueryHistoryPanel({ queries, isLoading, onClose }: Props) {
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-zinc-200 dark:border-zinc-800 px-4 py-3">
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Query History</h3>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">Last 90 days</p>
+      <div className="border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between">
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Query History</h3>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Last 90 days</p>
+        </div>
+        <button onClick={onClose} className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">✕</button>
       </div>
       <ScrollArea className="flex-1">
         {isLoading ? (

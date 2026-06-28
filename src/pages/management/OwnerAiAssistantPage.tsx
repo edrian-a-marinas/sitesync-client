@@ -1,9 +1,8 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
 import { useGetQueries, useCreateQuery } from '@/hooks/useAIQuery'
 import { useProjects } from '@/hooks/useProject'
-import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/pages/_components/ui/resizable'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { Clock } from 'lucide-react'
 import { toast } from 'sonner'
@@ -27,11 +26,17 @@ export default function OwnerAiAssistantPage() {
   const cooldownLeft = useCountdown(rateLimitUntil)
   const isRateLimited = cooldownLeft > 0
 
-  const { data: queries, isLoading: queriesLoading, isError: queriesError } = useGetQueries()
+  const { data: queriesData, isLoading: queriesLoading, isError: queriesError, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetQueries()
   const { data: projects } = useProjects()
   const { mutate: createQuery, isPending: isSubmitting } = useCreateQuery()
+  const [historyOpen, setHistoryOpen] = useState(false)
 
-  const sortedQueries = [...(queries ?? [])]
+  const sortedQueries = useMemo(() => {
+    if (!queriesData) return []
+    // Each page is newest-first from backend; reverse each page then reverse pages order
+    const allPages = [...queriesData.pages].reverse()
+    return allPages.flatMap((page) => [...page].reverse())
+  }, [queriesData])
 
   const handleRateLimit = (retryAfter: number) => {
     const until = Date.now() + retryAfter * 1000
@@ -79,8 +84,8 @@ export default function OwnerAiAssistantPage() {
       )}
 
       {/* Resizable layout */}
-      <ResizablePanelGroup className="flex-1 rounded-lg border border-zinc-200 dark:border-zinc-800">
-        <ResizablePanel defaultSize={65} minSize={40}>
+      <div className="flex flex-1 gap-3 overflow-hidden">
+        <div className="flex flex-1 rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden">
           <ChatPanel
             queries={sortedQueries}
             isLoading={queriesLoading}
@@ -96,13 +101,19 @@ export default function OwnerAiAssistantPage() {
             onProjectChange={setSelectedProjectId}
             onSubmit={handleSubmit}
             onRateLimit={handleRateLimit}
+            hasNextPage={!!hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            onLoadMore={fetchNextPage}
+            onToggleHistory={() => setHistoryOpen((v) => !v)}
+            historyOpen={historyOpen}
           />
-        </ResizablePanel>
-        <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={35} minSize={25}>
-          <QueryHistoryPanel queries={sortedQueries} isLoading={queriesLoading} />
-        </ResizablePanel>
-      </ResizablePanelGroup>
+        </div>
+        {historyOpen && (
+          <div className="w-80 shrink-0 rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden">
+            <QueryHistoryPanel queries={sortedQueries} isLoading={queriesLoading} onClose={() => setHistoryOpen(false)} />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
