@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react'
+import { useSearch, useNavigate } from '@tanstack/react-router'
 import { useAuthStore } from '@/store/auth'
-import { ROLES } from '@/constants'
+import { ROLES, ROUTES } from '@/constants'
 import { useProjects } from '@/hooks/useProject'
 import { useDailyLogs } from '@/hooks/useDailyLog'
 import type { DailyLogResponse } from '@/types/dailyLog'
@@ -16,20 +17,36 @@ import LogDetailSheet from './__components/dailylogs/LogDetailSheet'
 export default function DailyLogsPage() {
   const { user } = useAuthStore()
   const isOwner = user?.role_id === ROLES.OWNER
-
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
+  const navigate = useNavigate()
+  const searchParams = useSearch({ strict: false }) as { project?: number; page?: number; search?: string }
+  const selectedProjectId = searchParams.project ?? null
+  const page = searchParams.page ?? 1
+  const search = searchParams.search ?? ''
   const [selectedLog, setSelectedLog] = useState<DailyLogResponse | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [editLog, setEditLog] = useState<DailyLogResponse | null>(null)
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
   const PAGE_SIZE = 20
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
   const { data: logs, isLoading: logsLoading, isError } = useDailyLogs(selectedProjectId, page, PAGE_SIZE, search)
   const handleSearchChange = useCallback((value: string) => {
-    setSearch(value)
-    setPage(1)
-  }, [])
+    navigate({
+      to: ROUTES.DAILY_LOGS,
+      search: (prev: any) => ({ ...prev, search: value, page: 1 }),
+    })
+  }, [navigate])
+  const handlePageChange = useCallback((newPage: number) => {
+    navigate({
+      to: ROUTES.DAILY_LOGS,
+      search: (prev: any) => ({ ...prev, page: newPage }),
+    })
+  }, [navigate])
+  const handleProjectChange = useCallback((id: number) => {
+    setSelectedLog(null)
+    navigate({
+      to: ROUTES.DAILY_LOGS,
+      search: { project: id, page: 1, search: '' },
+    })
+  }, [navigate])
   const totalPages = logs ? Math.max(1, Math.ceil(logs.total / logs.page_size)) : 1
 
   return (
@@ -52,12 +69,7 @@ export default function DailyLogsPage() {
           projects={projects ?? []}
           projectsLoading={projectsLoading}
           selectedProjectId={selectedProjectId}
-          onProjectChange={(id) => {
-            setSelectedProjectId(id)
-            setSelectedLog(null)
-            setPage(1)
-            setSearch('')
-          }}
+          onProjectChange={handleProjectChange}
           onNewLog={() => setCreateOpen(true)}
         />
       </div>
@@ -87,7 +99,7 @@ export default function DailyLogsPage() {
           onEditLog={setEditLog}
           page={page}
           totalPages={totalPages}
-          onPageChange={setPage}
+          onPageChange={handlePageChange}
         />
       )}
     <LogDetailSheet
