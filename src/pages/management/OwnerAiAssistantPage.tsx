@@ -31,7 +31,7 @@ export default function OwnerAiAssistantPage() {
   const { data: projects } = useProjects()
   const { mutate: createQuery, isPending: isSubmitting } = useCreateQuery()
 
-  const sortedQueries = [...(queries ?? [])].reverse()
+  const sortedQueries = [...(queries ?? [])]
 
   const handleRateLimit = (retryAfter: number) => {
     const until = Date.now() + retryAfter * 1000
