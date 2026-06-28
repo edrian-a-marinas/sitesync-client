@@ -45,9 +45,11 @@ function useCountdown(until: number | null) {
   return left
 }
 
-function ChatMessage({ query, onRateLimit }: { query: AIQueryResponse; onRateLimit: (retryAfter: number) => void }) {
-  const isPending = query.status === 'Pending'
-  const { data: liveQuery } = useGetQuery(isPending ? query.id : null, isPending)
+function ChatMessage({ query, onRateLimit, isActivePoller }: { query: AIQueryResponse; onRateLimit: (retryAfter: number) => void; isActivePoller: boolean }) {
+  const { data: liveQuery } = useGetQuery(
+    query.status === 'Pending' && isActivePoller ? query.id : null,
+    query.status === 'Pending' && isActivePoller
+  )
   const display = liveQuery ?? query
   const parsed = parseAnswer(display.answer)
 
@@ -246,8 +248,8 @@ export default function OwnerAiAssistantPage() {
                 </div>
               ) : (
                 <div className="flex flex-col gap-6">
-                  {sortedQueries.map((q) => (
-                    <ChatMessage key={q.id} query={q} onRateLimit={handleRateLimit} />
+                  {sortedQueries.map((q, i) => (
+                    <ChatMessage key={q.id} query={q} onRateLimit={handleRateLimit} isActivePoller={i === 0} />
                   ))}
                   <div ref={bottomRef} />
                 </div>

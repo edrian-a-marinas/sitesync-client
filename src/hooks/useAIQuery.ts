@@ -15,8 +15,10 @@ export const useGetQuery = (queryId: number | null, enabled: boolean) => {
     queryFn: () => getQuery(queryId!),
     enabled: !!queryId && enabled,
     refetchInterval: (query) => {
-      const status = query.state.data?.status
-      return status === 'Pending' ? 2000 : false
+      const data = query.state.data
+      if (!data) return false
+      if (data.answer) return false
+      return data.status === 'Pending' ? 2000 : false
     },
   })
 }
