@@ -56,7 +56,7 @@ const columnHelper = createColumnHelper<ProjectResponse>()
 export default function ProjectsPage() {
   const { user } = useAuthStore()
   const isOwner = user?.role_id === ROLES.OWNER
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('Active')
   const [sorting, setSorting] = useState<SortingState>([])
   const [selectedProject, setSelectedProject] = useState<ProjectResponse | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
