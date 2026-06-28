@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/auth'
 import LoginPage from '@/pages/LoginPage'
 import HomePage from '@/pages/HomePage'
 import { ROUTES } from '@/constants'
+import type { DailyLogsSearch } from '@/types/dailyLog'
 
 // Root route
 const rootRoute = createRootRoute({
@@ -77,10 +78,16 @@ const manageUsersRoute = createRoute({
   component: HomePage,
 })
 
+
 const dailyLogsRoute = createRoute({
   getParentRoute: () => protectedRoute,
   path: ROUTES.DAILY_LOGS,
   component: HomePage,
+  validateSearch: (search: Record<string, unknown>): DailyLogsSearch => ({
+    project: search.project ? Number(search.project) : undefined,
+    page: search.page ? Number(search.page) : 1,
+    search: typeof search.search === 'string' ? search.search : '',
+  }),
 })
 const reportsRoute = createRoute({
   getParentRoute: () => protectedRoute,

@@ -14,3 +14,10 @@ export interface DailyLogListResponse {
   page: number
   page_size: number
 }
+
+// --- Used in routeTree ---
+export interface DailyLogsSearch {
+  project?: number
+  page: number
+  search: string
+}
