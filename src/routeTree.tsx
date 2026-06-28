@@ -95,6 +95,13 @@ const dailyLogsRoute = createRoute({
     search: typeof search.search === 'string' ? search.search : '',
   }),
 })
+
+const analyticsRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: ROUTES.ANALYTICS,
+  component: HomePage,
+})
+
 const reportsRoute = createRoute({
   getParentRoute: () => protectedRoute,
   path: ROUTES.REPORTS,
@@ -114,7 +121,7 @@ const indexRoute = createRoute({
 // Route tree
 const routeTree = rootRoute.addChildren([
   publicRoute.addChildren([loginRoute, loginAdminRoute]),
-  protectedRoute.addChildren([homeRoute, indexRoute, projectsRoute, manageUsersRoute, dailyLogsRoute, reportsRoute]),
+  protectedRoute.addChildren([homeRoute, indexRoute, projectsRoute, manageUsersRoute, dailyLogsRoute, reportsRoute, analyticsRoute]),
 ])
 
 function NotFound() {
