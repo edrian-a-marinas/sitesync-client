@@ -4,6 +4,7 @@ import LoginPage from '@/pages/LoginPage'
 import HomePage from '@/pages/HomePage'
 import { ROUTES } from '@/constants'
 import type { DailyLogsSearch } from '@/types/dailyLog'
+import type { ReportsSearch } from '@/types/report'
 
 // Root route
 const rootRoute = createRootRoute({
@@ -93,6 +94,10 @@ const reportsRoute = createRoute({
   getParentRoute: () => protectedRoute,
   path: ROUTES.REPORTS,
   component: HomePage,
+  validateSearch: (search: Record<string, unknown>): ReportsSearch => ({
+    project: search.project ? Number(search.project) : undefined,
+    page: search.page ? Number(search.page) : 1,
+  }),
 })
 
 const indexRoute = createRoute({

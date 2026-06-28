@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useSearch, useNavigate } from '@tanstack/react-router'
 import type { ReportResponse } from '@/types/report'
 import { useAuthStore } from '@/store/auth'
-import { ROLES } from '@/constants'
+import { ROLES, ROUTES } from '@/constants'
 import { useProjects } from '@/hooks/useProject'
 import { useReports, useGenerateReport } from '@/hooks/useReport'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
@@ -16,7 +17,12 @@ export default function ReportsPage() {
   const { user } = useAuthStore()
   const isOwner = user?.role_id === ROLES.OWNER
 
-  const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
+  const navigate = useNavigate()
+  const searchParams = useSearch({ strict: false }) as { project?: number; page?: number }
+  const selectedProjectId = searchParams.project ?? null
+  const page = searchParams.page ?? 1
+  const PAGE_SIZE = 20
+
   const [generateOpen, setGenerateOpen] = useState(false)
   const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(null)
   const [isPolling, setIsPolling] = useState(false)
@@ -28,17 +34,35 @@ export default function ReportsPage() {
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
   const { data: reports, isLoading: reportsLoading, isError } = useReports(
     selectedProjectId,
+    page,
+    PAGE_SIZE,
     isPolling ? 3000 : undefined,
   )
   const today = new Date().toISOString().slice(0, 10)
-  const latestReportDate = reports?.[0]?.created_at ? reports[0].created_at.slice(0, 10) : null
+  const latestReportDate = reports?.items?.[0]?.created_at ? reports.items[0].created_at.slice(0, 10) : null
   const existsThisWeek = latestReportDate === today
   const { mutate: generateReport, isPending: isGenerating } = useGenerateReport()
-  const [baselineReportId, setBaselineReportId] = useState<number | null>(null)
+  const handleProjectChange = useCallback((id: number) => {
+    setSelectedReport(null)
+    navigate({
+      to: ROUTES.REPORTS,
+      search: { project: id, page: 1 },
+    })
+  }, [navigate])
 
+  const handlePageChange = useCallback((newPage: number) => {
+    navigate({
+      to: ROUTES.REPORTS,
+      search: (prev: any) => ({ ...prev, page: newPage }),
+    })
+  }, [navigate])
+
+  const totalPages = reports ? Math.max(1, Math.ceil(reports.total / reports.page_size)) : 1
+
+  const [baselineReportId, setBaselineReportId] = useState<number | null>(null)
   const handleGenerate = () => {
     if (!selectedProjectId) return
-    setBaselineReportId(reports?.[0]?.id ?? null)
+    setBaselineReportId(reports?.items?.[0]?.id ?? null)
     setNewReport(null)
     generateReport(selectedProjectId, {
       onSuccess: (data) => {
@@ -67,7 +91,7 @@ export default function ReportsPage() {
 
   useEffect(() => {
     if (!isPolling) return
-    const latest = reports?.[0]
+    const latest = reports?.items?.[0]
     if (latest && latest.id !== baselineReportId) {
       setIsPolling(false)
       setNewReport(latest)
@@ -113,7 +137,7 @@ export default function ReportsPage() {
           projects={projects ?? []}
           projectsLoading={projectsLoading}
           selectedProjectId={selectedProjectId}
-          onProjectChange={(id) => setSelectedProjectId(id)}
+          onProjectChange={handleProjectChange}
           onGenerate={() => setGenerateOpen(true)}
           hasProject={selectedProjectId !== null}
           disableGenerate={existsThisWeek}
@@ -145,10 +169,13 @@ export default function ReportsPage() {
       {/* Table */}
       {selectedProjectId !== null && (
         <ReportTable
-          reports={reports ?? []}
+          reports={reports?.items ?? []}
           isLoading={reportsLoading}
           selectedReport={selectedReport}
           onSelectReport={setSelectedReport}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
         />
       )}
 
