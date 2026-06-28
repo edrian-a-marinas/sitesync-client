@@ -10,4 +10,5 @@ export interface AIQueryResponse {
   question: string
   answer: string | null
   status: 'Pending' | 'Done' | 'Failed'
+  created_at: string
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetQuery } from '@/hooks/useAIQuery'
 import { Badge } from '@/pages/_components/ui/badge'
@@ -16,17 +16,10 @@ interface Props {
 export function ChatMessage({ query, onRateLimit }: Props) {
   const queryClient = useQueryClient()
   const isPending = query.status === 'Pending'
-  const pollStartRef = useRef<number | null>(null)
-  const [pollEnabled, setPollEnabled] = useState(isPending)
+  const isRecent = (Date.now() - new Date(query.created_at).getTime()) < 5 * 60 * 1000
+  const shouldPoll = isPending && isRecent
 
-  useEffect(() => {
-    if (!isPending || !pollEnabled) return
-    if (!pollStartRef.current) pollStartRef.current = Date.now()
-    const timeout = setTimeout(() => setPollEnabled(false), 60_000)
-    return () => clearTimeout(timeout)
-  }, [isPending, pollEnabled])
-
-  const { data: liveQuery } = useGetQuery(pollEnabled ? query.id : null, pollEnabled)
+  const { data: liveQuery } = useGetQuery(shouldPoll ? query.id : null, shouldPoll)
   const display = liveQuery ?? query
   const parsed = parseAnswer(display.answer)
 
@@ -39,9 +32,10 @@ export function ChatMessage({ query, onRateLimit }: Props) {
     })
   }, [liveQuery?.status, liveQuery?.answer])
 
-  // Toast on failure
+  const didJustFail = liveQuery?.status === 'Failed' && query.status === 'Pending'
+
   useEffect(() => {
-    if (display.status !== 'Failed') return
+    if (!didJustFail) return
     if (parsed?.type === 'rate_limit') {
       onRateLimit(parsed.retryAfter)
       toast.error(`Groq rate limit reached. Try again in ${parsed.retryAfter}s.`)
@@ -50,7 +44,7 @@ export function ChatMessage({ query, onRateLimit }: Props) {
     } else if (parsed?.type === 'error') {
       toast.error('AI query failed. Please try again.')
     }
-  }, [display.status, display.answer])
+  }, [didJustFail])
 
   const renderAnswer = () => {
     if (display.status === 'Pending') {
