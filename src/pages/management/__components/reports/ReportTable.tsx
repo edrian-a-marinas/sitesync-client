@@ -30,9 +30,11 @@ interface Props {
   isLoading: boolean
   selectedReport: ReportResponse | null
   onSelectReport: (report: ReportResponse) => void
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
 }
-
-export default function ReportTable({ reports, isLoading, selectedReport, onSelectReport }: Props) {
+export default function ReportTable({ reports, isLoading, selectedReport, onSelectReport, page, totalPages, onPageChange }: Props) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'week_start', desc: true }])
 
   const handleDownload = (report: ReportResponse) => {
@@ -103,10 +105,12 @@ export default function ReportTable({ reports, isLoading, selectedReport, onSele
           className={
             info.getValue() === 'scheduled'
               ? 'bg-blue-50 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+              : info.getValue() === 'seeded'
+              ? 'bg-amber-50 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
               : 'bg-zinc-100 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
           }
         >
-          {info.getValue() === 'scheduled' ? 'Auto (Monday)' : 'Manual'}
+          {info.getValue() === 'scheduled' ? 'Auto (Monday)' : info.getValue() === 'seeded' ? 'Historical' : 'Manual'}
         </Badge>
       ),
     }),
@@ -207,6 +211,31 @@ export default function ReportTable({ reports, isLoading, selectedReport, onSele
           )}
         </TableBody>
       </Table>
+    {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Page {page} of {totalPages}
+          </p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(page - 1)}
+              disabled={page <= 1}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPageChange(page + 1)}
+              disabled={page >= totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
