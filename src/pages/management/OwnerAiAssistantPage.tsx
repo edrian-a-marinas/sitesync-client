@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
-import { useGetQueries, useCreateQuery } from '@/hooks/useAIQuery'
+import { useGetQueries, useCreateQuery, useDeleteQuery, useDeleteAllQueries } from '@/hooks/useAIQuery'
 import { useProjects } from '@/hooks/useProject'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { Clock } from 'lucide-react'
@@ -29,6 +29,8 @@ export default function OwnerAiAssistantPage() {
   const { data: queriesData, isLoading: queriesLoading, isError: queriesError, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetQueries()
   const { data: projects } = useProjects()
   const { mutate: createQuery, isPending: isSubmitting } = useCreateQuery()
+  const { mutate: deleteQuery } = useDeleteQuery()
+  const { mutate: deleteAllQueries, isPending: isDeletingAll } = useDeleteAllQueries()
   const [historyOpen, setHistoryOpen] = useState(false)
 
   const sortedQueries = useMemo(() => {
@@ -42,6 +44,17 @@ export default function OwnerAiAssistantPage() {
     const until = Date.now() + retryAfter * 1000
     setRateLimitUntil(until)
     localStorage.setItem('groq_rate_limit_until', String(until))
+  }
+  const handleDeleteQuery = (queryId: number) => {
+    deleteQuery(queryId, {
+      onError: () => toast.error('Failed to delete query. Please try again.'),
+    })
+  }
+  const handleDeleteAll = () => {
+    deleteAllQueries(undefined, {
+      onSuccess: (data) => toast.success(`Deleted ${data.deleted} ${data.deleted === 1 ? 'query' : 'queries'}.`),
+      onError: () => toast.error('Failed to delete all queries. Please try again.'),
+    })
   }
 
   const handleSubmit = (text?: string) => {
@@ -84,7 +97,7 @@ export default function OwnerAiAssistantPage() {
       )}
 
       {/* Resizable layout */}
-      <div className="flex flex-1 gap-3 overflow-hidden">
+      <div className="mx-auto flex w-full max-w-6xl flex-1 gap-3 overflow-hidden">
         <div className="flex flex-1 rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden">
           <ChatPanel
             queries={sortedQueries}
@@ -110,7 +123,14 @@ export default function OwnerAiAssistantPage() {
         </div>
         {historyOpen && (
           <div className="w-80 shrink-0 rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <QueryHistoryPanel queries={sortedQueries} isLoading={queriesLoading} onClose={() => setHistoryOpen(false)} />
+            <QueryHistoryPanel
+              queries={sortedQueries}
+              isLoading={queriesLoading}
+              onClose={() => setHistoryOpen(false)}
+              onDeleteQuery={handleDeleteQuery}
+              onDeleteAll={handleDeleteAll}
+              isDeletingAll={isDeletingAll}
+            />
           </div>
         )}
       </div>

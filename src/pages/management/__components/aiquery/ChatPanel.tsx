@@ -142,15 +142,14 @@ export function ChatPanel({
           </div>
         )}
       </div>
-
       {/* Input */}
       <div className="border-t border-zinc-200 dark:border-zinc-800 px-4 py-3">
-        <div className="flex items-end gap-2">
+        <div className="flex items-center gap-2">
           <Select
             value={selectedProjectId !== null ? String(selectedProjectId) : 'all'}
             onValueChange={(v) => onProjectChange(v === 'all' ? null : Number(v))}
           >
-            <SelectTrigger className="w-44 shrink-0">
+            <SelectTrigger className="w-44 shrink-0 h-10">
               <SelectValue placeholder="All projects" />
             </SelectTrigger>
             <SelectContent>
@@ -183,7 +182,7 @@ export function ChatPanel({
                     size="sm"
                     onClick={() => onSubmit()}
                     disabled={isDisabled || !question.trim()}
-                    className={isDisabled ? 'pointer-events-none' : ''}
+                    className={`h-10 w-10 ${isDisabled ? 'pointer-events-none' : ''}`}
                   >
                     <Send className="h-4 w-4" />
                   </Button>
