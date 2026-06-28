@@ -20,9 +20,11 @@ export default function DailyLogsPage() {
   const [selectedLog, setSelectedLog] = useState<DailyLogResponse | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [editLog, setEditLog] = useState<DailyLogResponse | null>(null)
-
+  const [page, setPage] = useState(1)
+  const PAGE_SIZE = 20
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
-  const { data: logs, isLoading: logsLoading, isError } = useDailyLogs(selectedProjectId)
+  const { data: logs, isLoading: logsLoading, isError } = useDailyLogs(selectedProjectId, page, PAGE_SIZE)
+  const totalPages = logs ? Math.max(1, Math.ceil(logs.total / logs.page_size)) : 1
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-10">
@@ -47,6 +49,7 @@ export default function DailyLogsPage() {
           onProjectChange={(id) => {
             setSelectedProjectId(id)
             setSelectedLog(null)
+            setPage(1)
           }}
           onNewLog={() => setCreateOpen(true)}
         />
@@ -67,11 +70,14 @@ export default function DailyLogsPage() {
 
       {selectedProjectId !== null && (
         <DailyLogTable
-          logs={logs ?? []}
+          logs={logs?.items ?? []}
           isLoading={logsLoading}
           selectedLog={selectedLog}
           onSelectLog={(log) => setSelectedLog(prev => prev?.id === log.id ? null : log)}
           onEditLog={setEditLog}
+          page={page}
+          totalPages={totalPages}
+          onPageChange={setPage}
         />
       )}
     <LogDetailSheet
@@ -88,7 +94,7 @@ export default function DailyLogsPage() {
           open={createOpen}
           onOpenChange={setCreateOpen}
           projectId={selectedProjectId}
-          existingDates={(logs ?? []).map((l) => l.log_date)}
+          existingDates={(logs?.items ?? []).map((l) => l.log_date)}
         />
       )}
     </div>
