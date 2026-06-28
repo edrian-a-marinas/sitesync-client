@@ -44,6 +44,12 @@ export const useRetrainML = () => {
     mutationFn: triggerRetrain,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['ml-status'] })
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['ml-status'] })
+        queryClient.invalidateQueries({ queryKey: ['ml-budget-overrun'] })
+        queryClient.invalidateQueries({ queryKey: ['ml-delay-risk'] })
+        queryClient.invalidateQueries({ queryKey: ['ml-material-forecast'] })
+      }, 3000)
     },
   })
 }
