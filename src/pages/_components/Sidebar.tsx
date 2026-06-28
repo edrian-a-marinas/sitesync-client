@@ -35,7 +35,7 @@ const NAV: NavItem[] = [
   { label: "Reports", icon: FileText, path: ROUTES.REPORTS },
   { label: "Manage Users", icon: Users, path: ROUTES.MANAGE_USERS },
   { label: "Analytics", icon: BarChart3, path: ROUTES.ANALYTICS, ownerOnly: true },
-  { label: "AI Assistant", icon: Sparkles, path: ROUTES.AI, ownerOnly: true },
+  { label: "AI Assistant", icon: Sparkles, path: ROUTES.AI_ASSISTANT, ownerOnly: true },
   { label: "Settings", icon: Settings, path: ROUTES.SETTINGS },
   { label: "My Attendance", icon: CalendarCheck, path: ROUTES.ATTENDANCE, workerOnly: true },
 ]

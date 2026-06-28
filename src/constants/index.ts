@@ -7,7 +7,7 @@ export const ROUTES = {
   DASHBOARD: "/dashboard",
   PROJECTS: "/projects",
   WORKERS: "/workers",
-  AI: "/ai",
+  AI_ASSISTANT: '/ai-assistant',
   SETTINGS: "/settings",
   DAILY_LOGS: "/daily-logs",
   REPORTS: "/reports",
