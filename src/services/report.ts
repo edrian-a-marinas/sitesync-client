@@ -1,8 +1,7 @@
 import { getReportsRequest, generateReportRequest } from '@/api/report'
-import type { ReportResponse } from '@/types/report'
-
-export const getReports = async (projectId: number): Promise<ReportResponse[]> => {
-  const response = await getReportsRequest(projectId)
+import type { ReportListResponse } from '@/types/report'
+export const getReports = async (projectId: number, page: number, pageSize: number): Promise<ReportListResponse> => {
+  const response = await getReportsRequest(projectId, page, pageSize)
   return response.data
 }
 

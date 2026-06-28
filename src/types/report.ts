@@ -1,3 +1,15 @@
+export interface ReportListResponse {
+  items: ReportResponse[]
+  total: number
+  page: number
+  page_size: number
+}
+
+export interface ReportsSearch {
+  project?: number
+  page: number
+}
+
 export interface ReportResponse {
   id: number
   project_id: number
@@ -6,7 +18,7 @@ export interface ReportResponse {
   week_start: string
   week_end: string
   s3_key: string
-  source: 'manual' | 'scheduled'
+  source: 'manual' | 'scheduled' | 'seeded'
   file_url: string | null
   total_hours: number
   total_material_cost: number
