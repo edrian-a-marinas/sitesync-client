@@ -9,6 +9,7 @@ import ManageUsersPage from '@/pages/management/ManageUsersPage'
 import DailyLogsPage from '@/pages/management/DailyLogsPage'
 import ReportsPage from '@/pages/management/ReportsPage'
 import OwnerAnalyticsPage from '@/pages/management/OwnerAnalyticsPage'
+import OwnerAiAssistantPage from '@/pages/management/OwnerAiAssistantPage'
 import WorkerPage from '@/pages/worker/WorkerPage'
 import { useLocation } from '@tanstack/react-router'
 export default function HomePage() {
@@ -29,6 +30,7 @@ export default function HomePage() {
       if (path === ROUTES.DAILY_LOGS) return <DailyLogsPage />
       if (path === ROUTES.REPORTS) return <ReportsPage />
       if (path === ROUTES.ANALYTICS) return <OwnerAnalyticsPage />
+      if (path === ROUTES.AI_ASSISTANT) return <OwnerAiAssistantPage />
       return <DashboardPage />
     }
     return null
