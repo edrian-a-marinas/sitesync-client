@@ -5,10 +5,9 @@ import {
   updateDailyLogRequest,
 } from '@/api/dailyLog'
 import type { DailyLogCreate, DailyLogUpdate } from '@/validations/dailyLog'
-import type { DailyLogResponse } from '@/types/dailyLog'
-
-export const getDailyLogs = async (projectId: number): Promise<DailyLogResponse[]> => {
-  const response = await getDailyLogsRequest(projectId)
+import type { DailyLogResponse, DailyLogListResponse } from '@/types/dailyLog'
+export const getDailyLogs = async (projectId: number, page: number, pageSize: number): Promise<DailyLogListResponse> => {
+  const response = await getDailyLogsRequest(projectId, page, pageSize)
   return response.data
 }
 

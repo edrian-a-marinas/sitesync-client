@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getDailyLogs, createDailyLog, updateDailyLog } from '@/services/dailyLog'
 import type { DailyLogCreate, DailyLogUpdate } from '@/validations/dailyLog'
 
-export const useDailyLogs = (projectId: number | null) => {
+export const useDailyLogs = (projectId: number | null, page: number = 1, pageSize: number = 20) => {
   return useQuery({
-    queryKey: ['daily-logs', projectId],
-    queryFn: () => getDailyLogs(projectId!),
+    queryKey: ['daily-logs', projectId, page, pageSize],
+    queryFn: () => getDailyLogs(projectId!, page, pageSize),
     enabled: projectId !== null,
     placeholderData: (prev) => prev,
   })

@@ -8,3 +8,9 @@ export interface DailyLogResponse {
   work_accomplished: string
   notes: string | null
 }
+export interface DailyLogListResponse {
+  items: DailyLogResponse[]
+  total: number
+  page: number
+  page_size: number
+}
