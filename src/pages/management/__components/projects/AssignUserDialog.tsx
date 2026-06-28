@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
+import type { UserResponse } from '@/types/auth'
 import { AssignUserRequestSchema, type AssignUserRequest, type ProjectResponse } from '@/validations/project'
 import { useAssignManager, useAssignWorker } from '@/hooks/useProject'
 import { useUsers, useUsersByRole } from '@/hooks/useUser'
@@ -45,13 +46,13 @@ export default function AssignUserDialog({ project, type, open, onOpenChange, ex
   // Managers: use existing role-filtered hook (PM list is small)
   // Workers: use all site workers system-wide with has_assignments flag
   const { data: managers, isLoading: loadingManagers } = useUsersByRole(ROLES.PROJECT_MANAGER)
-  const { data: allWorkers, isLoading: loadingWorkers } = useUsers('all')
+  const { data: allWorkersData, isLoading: loadingWorkers } = useUsers('all', 1, 100)
 
   const isLoading = isManager ? loadingManagers : loadingWorkers
 
   const rawUsers = isManager
     ? (managers ?? [])
-    : (allWorkers ?? []).filter((u) => u.role_id === ROLES.SITE_WORKER)
+    : (allWorkersData?.items ?? []).filter((u: UserResponse) => u.role_id === ROLES.SITE_WORKER)
 
   const filteredUsers = rawUsers
     .filter((u) => !excludeUserIds.includes(u.id))
