@@ -1,12 +1,11 @@
 import { useRef, useEffect } from 'react'
-import { ScrollArea } from '@/pages/_components/ui/scroll-area'
 import { Button } from '@/pages/_components/ui/button'
 import { Textarea } from '@/pages/_components/ui/textarea'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/pages/_components/ui/select'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
-import { Bot, Send } from 'lucide-react'
+import { Bot, Send, History, ChevronUp } from 'lucide-react'
 import { ChatMessage } from './ChatMessage'
 import { SUGGESTED_QUESTIONS, formatCooldown } from './utils'
 import type { AIQueryResponse } from '@/types/aiQuery'
@@ -23,10 +22,15 @@ interface Props {
   isRateLimited: boolean
   cooldownLeft: number
   isSubmitting: boolean
+  hasNextPage: boolean
+  isFetchingNextPage: boolean
+  historyOpen: boolean
   onQuestionChange: (value: string) => void
   onProjectChange: (value: number | null) => void
   onSubmit: (text?: string) => void
   onRateLimit: (retryAfter: number) => void
+  onLoadMore: () => void
+  onToggleHistory: () => void
 }
 
 export function ChatPanel({
@@ -39,16 +43,41 @@ export function ChatPanel({
   isDisabled,
   isRateLimited,
   cooldownLeft,
+  hasNextPage,
+  isFetchingNextPage,
+  historyOpen,
   onQuestionChange,
   onProjectChange,
   onSubmit,
   onRateLimit,
+  onLoadMore,
+  onToggleHistory,
 }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  const prevScrollHeightRef = useRef(0)
+  const prevQueriesLengthRef = useRef(0)
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [queries])
+    const el = scrollRef.current
+    if (!el) return
+
+    const isFirstLoad = prevQueriesLengthRef.current === 0
+    const isNewMessage = queries.length === prevQueriesLengthRef.current + 1
+    const isLoadMore = queries.length > prevQueriesLengthRef.current + 1
+
+    if (isFirstLoad || isNewMessage) {
+      // Scroll to bottom on first load or new message sent
+      el.scrollTop = el.scrollHeight
+    } else if (isLoadMore) {
+      // Preserve position when older messages prepended
+      el.scrollTop = el.scrollHeight - prevScrollHeightRef.current
+    }
+
+    prevScrollHeightRef.current = el.scrollHeight
+    prevQueriesLengthRef.current = queries.length
+  }, [queries.length])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -59,7 +88,7 @@ export function ChatPanel({
 
   return (
     <div className="flex h-full flex-col">
-      <ScrollArea className="flex-1 px-5 py-4">
+      <div ref={scrollRef} className="flex-1 px-5 py-4 overflow-y-auto [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:border [&::-webkit-scrollbar-thumb]:border-transparent">
         {isLoading ? (
           <div className="flex flex-col gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -92,13 +121,27 @@ export function ChatPanel({
           </div>
         ) : (
           <div className="flex flex-col gap-6">
+            {hasNextPage && (
+              <div className="flex justify-center py-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onLoadMore}
+                  disabled={isFetchingNextPage}
+                  className="gap-1.5 text-xs text-zinc-500"
+                >
+                  <ChevronUp className="h-3.5 w-3.5" />
+                  {isFetchingNextPage ? 'Loading...' : 'Load older messages'}
+                </Button>
+              </div>
+            )}
             {queries.map((q) => (
               <ChatMessage key={q.id} query={q} onRateLimit={onRateLimit} />
             ))}
             <div ref={bottomRef} />
           </div>
         )}
-      </ScrollArea>
+      </div>
 
       {/* Input */}
       <div className="border-t border-zinc-200 dark:border-zinc-800 px-4 py-3">
@@ -154,9 +197,20 @@ export function ChatPanel({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <p className="mt-1.5 text-xs text-zinc-400 dark:text-zinc-500">
-          Press Enter to send, Shift+Enter for new line.
-        </p>
+        <div className="mt-1.5 flex items-center justify-between">
+          <p className="text-xs text-zinc-400 dark:text-zinc-500">
+            Press Enter to send, Shift+Enter for new line.
+          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onToggleHistory}
+            className="h-6 gap-1.5 text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+          >
+            <History className="h-3.5 w-3.5" />
+            {historyOpen ? 'Hide History' : 'Show History'}
+          </Button>
+        </div>
       </div>
     </div>
   )
