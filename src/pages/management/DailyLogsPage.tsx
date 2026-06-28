@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
 import { useProjects } from '@/hooks/useProject'
@@ -7,6 +7,7 @@ import type { DailyLogResponse } from '@/types/dailyLog'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { ClipboardList } from 'lucide-react'
 import DailyLogFilters from './__components/dailylogs/DailyLogFilters'
+import DailyLogSearch from './__components/dailylogs/DailyLogSearch'
 import DailyLogTable from './__components/dailylogs/DailyLogTable'
 import CreateLogDialog from './__components/dailylogs/CreateLogDialog'
 import EditLogDialog from './__components/dailylogs/EditLogDialog'
@@ -21,9 +22,14 @@ export default function DailyLogsPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [editLog, setEditLog] = useState<DailyLogResponse | null>(null)
   const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
   const PAGE_SIZE = 20
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
-  const { data: logs, isLoading: logsLoading, isError } = useDailyLogs(selectedProjectId, page, PAGE_SIZE)
+  const { data: logs, isLoading: logsLoading, isError } = useDailyLogs(selectedProjectId, page, PAGE_SIZE, search)
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value)
+    setPage(1)
+  }, [])
   const totalPages = logs ? Math.max(1, Math.ceil(logs.total / logs.page_size)) : 1
 
   return (
@@ -50,11 +56,15 @@ export default function DailyLogsPage() {
             setSelectedProjectId(id)
             setSelectedLog(null)
             setPage(1)
+            setSearch('')
           }}
           onNewLog={() => setCreateOpen(true)}
         />
       </div>
 
+      {selectedProjectId !== null && (
+        <DailyLogSearch onSearchChange={handleSearchChange} />
+      )}
       {selectedProjectId === null && (
         <div className="flex flex-col items-center gap-2 py-24 text-zinc-400 dark:text-zinc-500">
           <ClipboardList className="h-10 w-10" />
