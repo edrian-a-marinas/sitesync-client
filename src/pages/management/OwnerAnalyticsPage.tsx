@@ -3,6 +3,7 @@ import { ROLES } from '@/constants'
 import { useBudgetOverrun, useDelayRisk, useMaterialForecast, useMLStatus, useRetrainML } from '@/hooks/useML'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/pages/_components/ui/tabs'
 import { BarChart2 } from 'lucide-react'
 import { toast } from 'sonner'
 import BudgetOverrunCard from './__components/analytics/BudgetOverrunCard'
@@ -83,28 +84,49 @@ export default function OwnerAnalyticsPage() {
           <AlertDescription>Failed to load predictions. Please try again.</AlertDescription>
         </Alert>
       )}
-
       {isLoading ? (
         <AnalyticsSkeleton />
       ) : (
-        <>
-          {budgetData && budgetData.results.length > 0 ? (
-            <BudgetOverrunCard results={budgetData.results} />
-          ) : (
-            <div className="flex flex-col items-center gap-2 py-12 text-zinc-400 dark:text-zinc-500">
-              <BarChart2 className="h-8 w-8" />
-              <p className="text-sm">No budget overrun data available.</p>
-            </div>
-          )}
+        <Tabs defaultValue="budget">
+          <TabsList className="mb-4 w-full justify-start">
+            <TabsTrigger value="budget">Budget Overrun Risk</TabsTrigger>
+            <TabsTrigger value="delay">Delay Risk</TabsTrigger>
+            <TabsTrigger value="material">Material Cost Forecast</TabsTrigger>
+          </TabsList>
 
-          {delayData && delayData.results.length > 0 && (
-            <DelayRiskCard results={delayData.results} />
-          )}
+          <TabsContent value="budget">
+            {budgetData && budgetData.results.length > 0 ? (
+              <BudgetOverrunCard results={budgetData.results} />
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-12 text-zinc-400 dark:text-zinc-500">
+                <BarChart2 className="h-8 w-8" />
+                <p className="text-sm">No budget overrun data available.</p>
+              </div>
+            )}
+          </TabsContent>
 
-          {forecastData && forecastData.results.length > 0 && (
-            <MaterialForecastCard results={forecastData.results} />
-          )}
-        </>
+          <TabsContent value="delay">
+            {delayData && delayData.results.length > 0 ? (
+              <DelayRiskCard results={delayData.results} />
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-12 text-zinc-400 dark:text-zinc-500">
+                <BarChart2 className="h-8 w-8" />
+                <p className="text-sm">No delay risk data available.</p>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="material">
+            {forecastData && forecastData.results.length > 0 ? (
+              <MaterialForecastCard results={forecastData.results} />
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-12 text-zinc-400 dark:text-zinc-500">
+                <BarChart2 className="h-8 w-8" />
+                <p className="text-sm">No material forecast data available.</p>
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       )}
     </div>
   )
