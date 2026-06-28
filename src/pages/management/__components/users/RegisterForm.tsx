@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RegisterSchema, type RegisterInput } from '@/validations/auth'
+import { RegisterSchema, type RegisterInput } from '@/validations/user'
 import { ROLES } from '@/constants'
 import { useQueryClient } from '@tanstack/react-query'
 import { registerUser } from '@/services/auth'

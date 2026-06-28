@@ -1,7 +1,8 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { UserUpdateSchema, type UserUpdateInput, type UserResponse } from '@/validations/auth'
+import { UserUpdateSchema, type UserUpdateInput } from '@/validations/user'
+import type { UserResponse } from '@/validations/auth'
 import { useUpdateUser } from '@/hooks/useUser'
 import { toast } from 'sonner'
 import {
