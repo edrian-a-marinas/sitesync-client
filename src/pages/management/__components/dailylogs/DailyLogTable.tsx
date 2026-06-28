@@ -20,6 +20,13 @@ import { Badge } from '@/pages/_components/ui/badge'
 import { Button } from '@/pages/_components/ui/button'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 import { ClipboardList, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+} from '@/pages/_components/ui/pagination'
 
 const WEATHER_BADGE: Record<string, string> = {
   Sunny: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
@@ -36,9 +43,11 @@ interface Props {
   selectedLog: DailyLogResponse | null
   onSelectLog: (log: DailyLogResponse) => void
   onEditLog: (log: DailyLogResponse) => void
+  page: number
+  totalPages: number
+  onPageChange: (page: number) => void
 }
-
-export default function DailyLogTable({ logs, isLoading, selectedLog, onSelectLog, onEditLog }: Props) {
+export default function DailyLogTable({ logs, isLoading, selectedLog, onSelectLog, onEditLog, page, totalPages, onPageChange }: Props) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'log_date', desc: true }])
 
   const columns = useMemo(() => [
@@ -171,6 +180,37 @@ export default function DailyLogTable({ logs, isLoading, selectedLog, onSelectLo
           )}
         </TableBody>
       </Table>
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-zinc-200 px-4 py-3 dark:border-zinc-800">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            Page {page} of {totalPages}
+          </p>
+          <Pagination className="mx-0 w-auto justify-end">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (page > 1) onPageChange(page - 1)
+                  }}
+                  className={page <= 1 ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    if (page < totalPages) onPageChange(page + 1)
+                  }}
+                  className={page >= totalPages ? 'pointer-events-none opacity-50' : ''}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
     </div>
   )
 }
