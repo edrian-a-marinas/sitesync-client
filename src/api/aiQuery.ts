@@ -9,3 +9,9 @@ export const getQueryRequest = (queryId: number) =>
 
 export const getQueriesRequest = (skip = 0, limit = 10) =>
   api.get<AIQueryResponse[]>('/ai/queries', { params: { skip, limit } })
+
+export const deleteQueryRequest = (queryId: number) =>
+  api.delete<void>(`/ai/query/${queryId}`)
+
+export const deleteAllQueriesRequest = () =>
+  api.delete<{ deleted: number }>('/ai/queries')
