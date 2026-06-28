@@ -2,8 +2,8 @@ import api from "@/lib/axios";
 
 
 // --- Used in ProjectsPage and ManageUsersPage ---
-export const getUsersRequest = (scope?: string) =>
-  api.get("/users", { params: scope ? { scope } : undefined });
+export const getUsersRequest = (scope?: string, page: number = 1, pageSize: number = 20, search?: string) =>
+  api.get("/users", { params: { ...(scope ? { scope } : {}), page, page_size: pageSize, search: search || undefined } });
 
 // --- Used in ManageUsersPage ---
 export const updateUserRequest = (userId: number, data: Record<string, unknown>) =>

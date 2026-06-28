@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getUsers, updateUser, activateUser, deactivateUser, getUserAssignments } from "@/services/user";
-import type { UserAssignment } from "@/types/user";
+import { getUsersRequest } from "@/api/user";
+import type { UserAssignment, UserListResponse } from "@/types/user";
 import type { UserResponse, UserUpdateInput } from "@/validations/auth";
 
 // --- Used in ProjectsPage ---
@@ -8,20 +9,18 @@ export const useUsersByRole = (roleId: number) => {
   return useQuery<UserResponse[]>({
     queryKey: ["users", roleId],
     queryFn: async () => {
-      const users = await getUsers();
-      return users.filter((u) => u.role_id === roleId && u.is_active);
+      const res = await getUsersRequest(undefined, 1, 100)
+      const users: UserResponse[] = res.data.items
+      return users.filter((u) => u.role_id === roleId && u.is_active)
     },
   });
 };
 
 // --- Used in ManageUsersPage ---
-export const useUsers = (scope?: 'mine' | 'all') => {
-  return useQuery<UserResponse[]>({
-    queryKey: ["users", scope ?? 'all'],
-    queryFn: async () => {
-      const users = await getUsers(scope);
-      return users;
-    },
+export const useUsers = (scope?: 'mine' | 'all', page: number = 1, pageSize: number = 20, search: string = '') => {
+  return useQuery<UserListResponse>({
+    queryKey: ["users", scope ?? 'all', page, pageSize, search],
+    queryFn: () => getUsers(scope, page, pageSize, search),
     placeholderData: (prev) => prev,
   });
 };

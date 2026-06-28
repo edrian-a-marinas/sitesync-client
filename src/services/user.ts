@@ -1,10 +1,9 @@
 import { getUsersRequest, updateUserRequest, activateUserRequest, deactivateUserRequest, getUserAssignmentsRequest } from "@/api/user";
 import type { UserResponse, UserUpdateInput } from "@/validations/auth";
-import type { UserAssignment } from "@/types/user";
-
+import type { UserAssignment, UserListResponse } from "@/types/user";
 // --- Used in ProjectsPage and ManageUsersPage ---
-export const getUsers = async (scope?: string): Promise<UserResponse[]> => {
-  const response = await getUsersRequest(scope);
+export const getUsers = async (scope?: string, page: number = 1, pageSize: number = 20, search?: string): Promise<UserListResponse> => {
+  const response = await getUsersRequest(scope, page, pageSize, search);
   return response.data;
 };
 
