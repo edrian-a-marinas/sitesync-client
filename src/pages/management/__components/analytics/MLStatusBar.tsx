@@ -49,9 +49,10 @@ export default function MLStatusBar({ status, isRetraining, onRetrain, cooldownU
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Model Status</span>
         {status ? (
-          (Object.keys(status) as (keyof MLStatus)[]).map((key) => (
-            <div key={key} className="flex items-center gap-1.5">
+          <>
+            {(Object.keys(status) as (keyof MLStatus)[]).map((key) => (
               <Badge
+                key={key}
                 variant="outline"
                 className={
                   status[key].ready
@@ -61,15 +62,15 @@ export default function MLStatusBar({ status, isRetraining, onRetrain, cooldownU
               >
                 {status[key].ready ? '✓' : '✗'} {MODEL_LABELS[key]}
               </Badge>
-              {status[key].last_trained && (
-                <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                  {new Date(status[key].last_trained!).toLocaleDateString('en-PH', {
-                    month: 'short', day: 'numeric', year: 'numeric',
-                  })}
-                </span>
-              )}
-            </div>
-          ))
+            ))}
+            {status.budget_overrun.last_trained && (
+              <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                {new Date(status.budget_overrun.last_trained).toLocaleDateString('en-PH', {
+                  month: 'short', day: 'numeric', year: 'numeric',
+                })}
+              </span>
+            )}
+          </>
         ) : (
           <span className="text-xs text-zinc-400">Loading...</span>
         )}
