@@ -39,8 +39,9 @@ export default function ReportsPage() {
     isPolling ? 3000 : undefined,
   )
   const today = new Date().toISOString().slice(0, 10)
-  const latestReportDate = reports?.items?.[0]?.created_at ? reports.items[0].created_at.slice(0, 10) : null
-  const existsThisWeek = latestReportDate === today
+  const existsToday = reports?.items?.some(
+    (r) => r.generated_by === user?.id && r.created_at.slice(0, 10) === today
+  ) ?? false
   const { mutate: generateReport, isPending: isGenerating } = useGenerateReport()
   const handleProjectChange = useCallback((id: number) => {
     setSelectedReport(null)
@@ -140,9 +141,9 @@ export default function ReportsPage() {
           onProjectChange={handleProjectChange}
           onGenerate={() => setGenerateOpen(true)}
           hasProject={selectedProjectId !== null}
-          disableGenerate={existsThisWeek}
+          disableGenerate={existsToday}
           nextAvailableDate={
-            existsThisWeek
+            existsToday
               ? new Date(Date.now() + 86400000).toLocaleDateString('en-PH', {
                   year: 'numeric', month: 'short', day: 'numeric',
                 })
