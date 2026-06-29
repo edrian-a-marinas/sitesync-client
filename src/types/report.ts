@@ -13,7 +13,7 @@ export interface ReportsSearch {
 export interface ReportResponse {
   id: number
   project_id: number
-  generated_by: number
+  generated_by: number | null
   generated_by_name: string | null
   week_start: string
   week_end: string

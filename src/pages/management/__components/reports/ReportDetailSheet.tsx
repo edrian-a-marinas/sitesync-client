@@ -35,7 +35,7 @@ export default function ReportDetailSheet({ report, onOpenChange }: Props) {
               </div>
               <div className="flex items-center gap-2">
                 <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                  {report?.generated_by_name ?? '—'}
+                  {report?.source === 'scheduled' ? '—' : report?.generated_by_name ?? '—'}
                 </p>
                 {report && (
                   <Badge
@@ -43,10 +43,12 @@ export default function ReportDetailSheet({ report, onOpenChange }: Props) {
                     className={
                       report.source === 'scheduled'
                         ? 'bg-blue-50 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                        : report.source === 'seeded'
+                        ? 'bg-amber-50 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                         : 'bg-zinc-100 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
                     }
                   >
-                    {report.source === 'scheduled' ? 'Auto (Monday)' : 'Manual'}
+                    {report.source === 'scheduled' ? 'Auto (Monday)' : report.source === 'seeded' ? 'Historical' : 'Manual'}
                   </Badge>
                 )}
               </div>
