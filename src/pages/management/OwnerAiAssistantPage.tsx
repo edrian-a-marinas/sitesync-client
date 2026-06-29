@@ -37,10 +37,12 @@ export default function OwnerAiAssistantPage() {
 
   const sortedQueries = useMemo(() => {
     if (!queriesData) return []
-    // Each page is newest-first from backend; reverse each page then reverse pages order
+
     const allPages = [...queriesData.pages].reverse()
     return allPages.flatMap((page) => [...page].reverse())
   }, [queriesData])
+
+  const isWaitingForResponse = sortedQueries[sortedQueries.length - 1]?.status === 'Pending'
 
   const handleRateLimit = (retryAfter: number) => {
     const until = Date.now() + retryAfter * 1000
@@ -68,7 +70,7 @@ export default function OwnerAiAssistantPage() {
 
   const handleSubmit = (text?: string) => {
     const trimmed = (text ?? question).trim()
-    if (!trimmed || isSubmitting || isRateLimited) return
+    if (!trimmed || isSubmitting || isRateLimited || isWaitingForResponse) return
     createQuery(
       { question: trimmed, project_id: selectedProjectId },
       {
@@ -77,8 +79,7 @@ export default function OwnerAiAssistantPage() {
       }
     )
   }
-
-  const isDisabled = isSubmitting || isRateLimited
+  const isDisabled = isSubmitting || isRateLimited || isWaitingForResponse
 
   return (
     <div className="flex h-[calc(100vh-64px)] flex-col gap-0 px-6 pb-6 pt-0">
@@ -119,6 +120,7 @@ export default function OwnerAiAssistantPage() {
             isRateLimited={isRateLimited}
             cooldownLeft={cooldownLeft}
             isSubmitting={isSubmitting}
+            isWaitingForResponse={isWaitingForResponse}
             onQuestionChange={setQuestion}
             onProjectChange={handleProjectChange}
             onSubmit={handleSubmit}
