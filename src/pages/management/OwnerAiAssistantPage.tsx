@@ -107,7 +107,7 @@ export default function OwnerAiAssistantPage() {
       )}
 
       {/* Resizable layout */}
-      <div className="mx-auto flex w-full max-w-6xl flex-1 gap-3 overflow-hidden">
+      <div className="mx-auto flex w-full max-w-4xl flex-1 overflow-hidden">
         <div className="flex flex-1 rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden">
           <ChatPanel
             queries={sortedQueries}
@@ -133,19 +133,19 @@ export default function OwnerAiAssistantPage() {
             scopeMarkers={scopeMarkers}
           />
         </div>
-        {historyOpen && (
-          <div className="w-80 shrink-0 rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden">
-            <QueryHistoryPanel
-              queries={sortedQueries}
-              isLoading={queriesLoading}
-              onClose={() => setHistoryOpen(false)}
-              onDeleteQuery={handleDeleteQuery}
-              onDeleteAll={handleDeleteAll}
-              isDeletingAll={isDeletingAll}
-            />
-          </div>
-        )}
       </div>
+      {historyOpen && (
+        <div className="fixed right-6 top-16 h-[calc(100vh-88px)] w-72 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-xl overflow-hidden z-50">
+          <QueryHistoryPanel
+            queries={sortedQueries}
+            isLoading={queriesLoading}
+            onClose={() => setHistoryOpen(false)}
+            onDeleteQuery={handleDeleteQuery}
+            onDeleteAll={handleDeleteAll}
+            isDeletingAll={isDeletingAll}
+          />
+        </div>
+      )}
     </div>
   )
 }

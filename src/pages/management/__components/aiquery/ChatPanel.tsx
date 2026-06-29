@@ -112,7 +112,7 @@ export function ChatPanel({
         : 'Ask about budgets, materials, workforce, incidents...'
 
   return (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col bg-white dark:bg-zinc-900">
       <div ref={scrollRef} className="flex-1 px-5 py-4 overflow-y-auto [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:border [&::-webkit-scrollbar-thumb]:border-transparent">
         {isLoading ? (
           <div className="flex flex-col gap-4">
