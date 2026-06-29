@@ -5,8 +5,7 @@ import { useGetSitePhotos, useUploadSitePhoto } from '@/hooks/useSitePhoto'
 import { SitePhotoUploadSchema } from '@/validations/sitePhoto'
 import { Button } from '@/pages/_components/ui/button'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
-import { Dialog } from '@/pages/_components/ui/dialog'
-import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { createPortal } from 'react-dom'
 import { ImageIcon, UploadCloud, ChevronLeft, ChevronRight, FileText } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
 import { toast } from 'sonner'
@@ -191,43 +190,44 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
       )}
 
       {/* Lightbox — existing photos */}
-      <Dialog open={activeIndex !== null} onOpenChange={(open) => { if (!open) setActiveIndex(null) }} modal={false}>
-        <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm pointer-events-auto" />
-          <DialogPrimitive.Content className="fixed inset-0 z-50 outline-none flex items-center justify-center pointer-events-none">
-            <DialogPrimitive.Title className="sr-only">
-              Site photo {(activeIndex ?? 0) + 1} of {total}
-            </DialogPrimitive.Title>
-            {activePhoto && (
-              <img
-                src={activePhoto.file_url}
-                alt={activePhoto.filename}
-                className="max-h-[80vh] max-w-[90vw] rounded-lg object-contain shadow-2xl pointer-events-auto"
-              />
-            )}
-          </DialogPrimitive.Content>
-          {activeIndex !== null && (
-            <NavBar index={activeIndex} onPrev={goPrev} onNext={goNext} />
+      {activeIndex !== null && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center">
+          {/* Overlay — click to close */}
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            onClick={() => setActiveIndex(null)}
+          />
+          {/* Image */}
+          {activePhoto && (
+            <img
+              src={activePhoto.file_url}
+              alt={activePhoto.filename}
+              className="relative z-10 max-h-[80vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            />
           )}
-        </DialogPrimitive.Portal>
-      </Dialog>
+          {/* Nav */}
+          <NavBar index={activeIndex} onPrev={goPrev} onNext={goNext} />
+        </div>,
+        document.body
+      )}
 
       {/* Newly uploaded photo preview */}
-      <Dialog open={!!pendingUrl} onOpenChange={(open) => { if (!open) setPendingUrl(null) }}>
-        <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm pointer-events-auto" />
-          <DialogPrimitive.Content className="fixed inset-0 z-50 outline-none flex items-center justify-center">
-            <DialogPrimitive.Title className="sr-only">Uploaded photo preview</DialogPrimitive.Title>
-            {pendingUrl && (
-              <img
-                src={pendingUrl}
-                alt="Uploaded photo"
-                className="max-h-[80vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
-              />
-            )}
-          </DialogPrimitive.Content>
-        </DialogPrimitive.Portal>
-      </Dialog>
+      {!!pendingUrl && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
+            onClick={() => setPendingUrl(null)}
+          />
+          <img
+            src={pendingUrl}
+            alt="Uploaded photo"
+            className="relative z-10 max-h-[80vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>,
+        document.body
+      )}
     </div>
   )
 }
