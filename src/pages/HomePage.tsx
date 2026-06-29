@@ -41,7 +41,7 @@ export default function HomePage() {
       <Sidebar mobileOpen={mobileSidebarOpen} onMobileClose={() => setMobileSidebarOpen(false)} />
       <div className={`flex flex-1 flex-col transition-all duration-200 ${sidebarCollapsed ? 'md:pl-[68px]' : 'md:pl-64'}`}>
         <TopNav onMenuClick={() => setMobileSidebarOpen(true)} />
-        <main className="flex-1 p-8" style={{ background: 'hsl(var(--page-bg))', minHeight: '100vh', transition: 'background 0.2s ease' }}>
+        <main className="flex-1 overflow-auto p-8" style={{ background: 'hsl(var(--page-bg))', transition: 'background 0.2s ease' }}>
           {content()}
         </main>
       </div>
