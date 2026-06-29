@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
@@ -28,6 +28,9 @@ import {
 } from '@/pages/_components/ui/select'
 import { Textarea } from '@/pages/_components/ui/textarea'
 import { Button } from '@/pages/_components/ui/button'
+import { UploadCloud, X, FileText } from 'lucide-react'
+import { useUploadSitePhoto } from '@/hooks/useSitePhoto'
+import { SitePhotoUploadSchema } from '@/validations/sitePhoto'
 
 const WEATHER_OPTIONS = ['Sunny', 'Cloudy', 'Rainy', 'Stormy']
 
@@ -39,6 +42,32 @@ interface Props {
 
 export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
   const { mutate: updateLog, isPending } = useUpdateDailyLog()
+  const { mutate: uploadPhoto } = useUploadSitePhoto(log?.project_id ?? 0, log?.id ?? 0)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [fileQueue, setFileQueue] = useState<File[]>([])
+
+  const handleFileQueue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? [])
+    const valid: File[] = []
+    for (const file of files) {
+      if (fileQueue.length + valid.length >= 10) {
+        toast.error('Maximum of 10 attachments per log.')
+        break
+      }
+      const result = SitePhotoUploadSchema.safeParse({ file })
+      if (!result.success) {
+        toast.error(`${file.name}: ${result.error.issues[0].message}`)
+        continue
+      }
+      valid.push(file)
+    }
+    setFileQueue((prev) => [...prev, ...valid])
+    e.target.value = ''
+  }
+
+  const removeFromQueue = (index: number) => {
+    setFileQueue((prev) => prev.filter((_, i) => i !== index))
+  }
 
   const form = useForm<DailyLogUpdate>({
     resolver: zodResolver(DailyLogUpdateSchema),
@@ -65,8 +94,8 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
     const hasChanges =
       data.weather_condition !== (log.weather_condition ?? '') ||
       data.work_accomplished !== log.work_accomplished ||
-      data.notes !== (log.notes ?? '')
-
+      data.notes !== (log.notes ?? '') ||
+      fileQueue.length > 0
     if (!hasChanges) {
       toast.error('Nothing to update.')
       return
@@ -76,7 +105,17 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
       { projectId, logId: log.id, data },
       {
         onSuccess: () => {
-          toast.success('Daily log updated successfully')
+          if (fileQueue.length > 0) {
+            fileQueue.forEach((file) =>
+              uploadPhoto(file, {
+                onError: () => toast.error(`Failed to upload ${file.name}`),
+              })
+            )
+            toast.success(`Log updated with ${fileQueue.length} attachment(s)`)
+          } else {
+            toast.success('Daily log updated successfully')
+          }
+          setFileQueue([])
           onOpenChange(false)
         },
         onError: (err: any) => {
@@ -89,7 +128,10 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
 
   const handleOpenChange = (open: boolean) => {
     onOpenChange(open)
-    if (!open) setTimeout(() => form.reset(), 200)
+    if (!open) {
+      setTimeout(() => form.reset(), 200)
+      setFileQueue([])
+    }
   }
 
   const errors = form.formState.errors
@@ -161,6 +203,53 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
                 </FormItem>
               )}
             />
+            {/* Optional attachments */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Attachments <span className="text-zinc-400 text-xs">(optional, max 10)</span>
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 gap-1.5 text-xs"
+                  disabled={fileQueue.length >= 10}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <UploadCloud className="h-3.5 w-3.5" />
+                  Add File
+                </Button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,application/pdf"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileQueue}
+                />
+              </div>
+              {fileQueue.length > 0 && (
+                <ul className="flex flex-col gap-1.5 max-h-36 overflow-y-auto">
+                  {fileQueue.map((file, i) => (
+                    <li key={i} className="flex items-center justify-between rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400">
+                      <div className="flex items-center gap-1.5 truncate">
+                        {file.type.startsWith('image/') ? (
+                          <img src={URL.createObjectURL(file)} className="h-6 w-6 rounded object-cover" alt={file.name} />
+                        ) : (
+                          <FileText className="h-4 w-4 shrink-0" />
+                        )}
+                        <span className="truncate">{file.name}</span>
+                      </div>
+                      <button type="button" onClick={() => removeFromQueue(i)} className="ml-2 shrink-0 text-zinc-400 hover:text-red-500 transition-colors">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
             <DialogFooter className="mt-2">
               <Button
                 type="button"
