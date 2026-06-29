@@ -82,9 +82,9 @@ export default function OwnerAiAssistantPage() {
   const isDisabled = isSubmitting || isRateLimited || isWaitingForResponse
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col gap-0 px-6 pb-6 pt-0">
+    <div className="flex h-[calc(100vh-128px)] flex-col gap-0 px-0 pb-0 pt-0">
       {/* Header */}
-      <div className="flex flex-wrap items-start justify-between gap-4 py-6">
+      <div className="flex flex-wrap items-start justify-between gap-4 pb-6">
         <div>
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
             AI Assistant{' '}
