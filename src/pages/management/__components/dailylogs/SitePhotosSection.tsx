@@ -7,7 +7,7 @@ import { Button } from '@/pages/_components/ui/button'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 import { Dialog } from '@/pages/_components/ui/dialog'
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { ImageIcon, UploadCloud, ChevronLeft, ChevronRight, FileText, X } from 'lucide-react'
+import { ImageIcon, UploadCloud, ChevronLeft, ChevronRight, FileText } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
 import { toast } from 'sonner'
 
@@ -25,6 +25,22 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
 
   const { data: photos, isLoading } = useGetSitePhotos(projectId, logId, true)
   const { mutate: upload, isPending } = useUploadSitePhoto(projectId, logId)
+
+  const total = photos?.length ?? 0
+  const activePhoto = activeIndex !== null ? photos?.[activeIndex] : null
+
+  const goPrev = () => setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))
+  const goNext = () => setActiveIndex((i) => (i !== null && i < total - 1 ? i + 1 : i))
+
+  useEffect(() => {
+    if (activeIndex === null) return
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') goPrev()
+      if (e.key === 'ArrowRight') goNext()
+    }
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [activeIndex, total])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -59,21 +75,29 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
     e.target.value = ''
   }
 
-  const total = photos?.length ?? 0
-  const activePhoto = activeIndex !== null ? photos?.[activeIndex] : null
-
-  const goPrev = () => setActiveIndex((i) => (i !== null && i > 0 ? i - 1 : i))
-  const goNext = () => setActiveIndex((i) => (i !== null && i < total - 1 ? i + 1 : i))
-
-  useEffect(() => {
-    if (activeIndex === null) return
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowLeft') goPrev()
-      if (e.key === 'ArrowRight') goNext()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [activeIndex, total])
+  const NavBar = ({ index, onPrev, onNext }: { index: number; onPrev: () => void; onNext: () => void }) => (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-black/60 rounded-full px-6 py-2 z-[60]">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onPrev}
+        disabled={index === 0}
+        className="text-zinc-300 hover:text-white disabled:opacity-30"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </Button>
+      <span className="text-sm text-zinc-300">{index + 1} of {total}</span>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onNext}
+        disabled={index === total - 1}
+        className="text-zinc-300 hover:text-white disabled:opacity-30"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </Button>
+    </div>
+  )
 
   return (
     <div className="flex flex-col gap-3">
@@ -111,6 +135,7 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
                     className="h-7 gap-1.5 text-xs"
                     disabled={isPending || total >= 10}
                     onClick={() => fileInputRef.current?.click()}
+                    style={{ cursor: isPending ? 'wait' : undefined }}
                   >
                     <UploadCloud className="h-3.5 w-3.5" />
                     {isPending ? 'Uploading...' : 'Upload'}
@@ -158,79 +183,51 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
                 className="flex h-24 w-full items-center justify-center rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors gap-1.5"
               >
                 <FileText className="h-4 w-4" />
-                {photo.filename}
+                PDF Document
               </a>
             )
           )}
         </div>
       )}
 
-      {/* Lightbox */}
+      {/* Lightbox — existing photos */}
       <Dialog open={activeIndex !== null} onOpenChange={(open) => { if (!open) setActiveIndex(null) }} modal={false}>
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/90 pointer-events-auto" />
-          <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 outline-none flex flex-col items-center gap-4">
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm pointer-events-auto" />
+          <DialogPrimitive.Content className="fixed inset-0 z-50 outline-none flex items-center justify-center pointer-events-none">
             <DialogPrimitive.Title className="sr-only">
               Site photo {(activeIndex ?? 0) + 1} of {total}
             </DialogPrimitive.Title>
             {activePhoto && (
-              <>
-                <img
-                  src={activePhoto.file_url}
-                  alt={activePhoto.filename}
-                  className="max-h-[80vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
-                />
-                <div className="flex items-center gap-6">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={goPrev}
-                    disabled={activeIndex === 0}
-                    className="text-zinc-300 hover:text-white disabled:opacity-30"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </Button>
-                  <span className="text-sm text-zinc-300">
-                    {(activeIndex ?? 0) + 1} of {total}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={goNext}
-                    disabled={activeIndex === total - 1}
-                    className="text-zinc-300 hover:text-white disabled:opacity-30"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </Button>
-                </div>
-              </>
+              <img
+                src={activePhoto.file_url}
+                alt={activePhoto.filename}
+                className="max-h-[80vh] max-w-[90vw] rounded-lg object-contain shadow-2xl pointer-events-auto"
+              />
             )}
-            <DialogPrimitive.Close className="absolute right-4 top-4 text-zinc-400 hover:text-white cursor-pointer">
-              <X className="h-5 w-5" />
-            </DialogPrimitive.Close>
           </DialogPrimitive.Content>
+          {activeIndex !== null && (
+            <NavBar index={activeIndex} onPrev={goPrev} onNext={goNext} />
+          )}
         </DialogPrimitive.Portal>
       </Dialog>
 
-    {/* Newly uploaded photo preview */}
-    <Dialog open={!!pendingUrl} onOpenChange={(open) => { if (!open) setPendingUrl(null) }}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/90 pointer-events-auto" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 outline-none flex flex-col items-center gap-4">
-          <DialogPrimitive.Title className="sr-only">Uploaded photo preview</DialogPrimitive.Title>
-          {pendingUrl && (
-            <img
-              src={pendingUrl}
-              alt="Uploaded photo"
-              className="max-h-[80vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
-            />
-          )}
-          <DialogPrimitive.Close className="absolute right-4 top-4 text-zinc-400 hover:text-white cursor-pointer">
-            <X className="h-5 w-5" />
-          </DialogPrimitive.Close>
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </Dialog>
+      {/* Newly uploaded photo preview */}
+      <Dialog open={!!pendingUrl} onOpenChange={(open) => { if (!open) setPendingUrl(null) }}>
+        <DialogPrimitive.Portal>
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm pointer-events-auto" />
+          <DialogPrimitive.Content className="fixed inset-0 z-50 outline-none flex items-center justify-center">
+            <DialogPrimitive.Title className="sr-only">Uploaded photo preview</DialogPrimitive.Title>
+            {pendingUrl && (
+              <img
+                src={pendingUrl}
+                alt="Uploaded photo"
+                className="max-h-[80vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+              />
+            )}
+          </DialogPrimitive.Content>
+        </DialogPrimitive.Portal>
+      </Dialog>
     </div>
   )
 }
