@@ -29,6 +29,7 @@ import {
 import { Textarea } from '@/pages/_components/ui/textarea'
 import { Button } from '@/pages/_components/ui/button'
 import { UploadCloud, X, FileText } from 'lucide-react'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
 import { useGetSitePhotos, useUploadSitePhoto } from '@/hooks/useSitePhoto'
 import { useQueryClient } from '@tanstack/react-query'
 import { SitePhotoUploadSchema } from '@/validations/sitePhoto'
@@ -217,17 +218,30 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   Attachments <span className="text-zinc-400 text-xs">({totalCount}/10)</span>
                 </span>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-7 gap-1.5 text-xs"
-                  disabled={totalCount >= 10}
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <UploadCloud className="h-3.5 w-3.5" />
-                  Add File
-                </Button>
+                <TooltipProvider delayDuration={200}>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className={totalCount >= 10 ? 'cursor-not-allowed' : ''}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 gap-1.5 text-xs"
+                          disabled={totalCount >= 10}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <UploadCloud className="h-3.5 w-3.5" />
+                          Add File
+                        </Button>
+                      </span>
+                    </TooltipTrigger>
+                    {totalCount >= 10 && (
+                      <TooltipContent>
+                        <p>Max attachments reached. To add more, delete existing ones from the log detail.</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
                 <input
                   ref={fileInputRef}
                   type="file"
