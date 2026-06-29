@@ -5,7 +5,7 @@ import { Skeleton } from '@/pages/_components/ui/skeleton'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/pages/_components/ui/select'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
-import { Bot, Send, History, ChevronUp, FolderKanban } from 'lucide-react'
+import { Bot, Send, History, ChevronUp, FolderKanban, Loader2 } from 'lucide-react'
 import { ChatMessage } from './ChatMessage'
 import { SUGGESTED_QUESTIONS, formatCooldown } from './utils'
 import type { AIQueryResponse } from '@/types/aiQuery'
@@ -27,6 +27,7 @@ interface Props {
   isFetchingNextPage: boolean
   historyOpen: boolean
   scopeMarkers: ScopeMarker[]
+  isWaitingForResponse: boolean
   onQuestionChange: (value: string) => void
   onProjectChange: (value: number | null) => void
   onSubmit: (text?: string) => void
@@ -49,6 +50,7 @@ export function ChatPanel({
   isFetchingNextPage,
   historyOpen,
   scopeMarkers,
+  isWaitingForResponse,
   onQuestionChange,
   onProjectChange,
   onSubmit,
@@ -100,6 +102,14 @@ export function ChatPanel({
       onSubmit()
     }
   }
+  const selectedProject = projects.find((p) => p.id === selectedProjectId)
+  const placeholderText = isRateLimited
+    ? `Rate limited — available in ${formatCooldown(cooldownLeft)}`
+    : isWaitingForResponse
+      ? 'Waiting for the previous response...'
+      : selectedProject
+        ? `Ask about ${selectedProject.name}...`
+        : 'Ask about budgets, materials, workforce, incidents...'
 
   return (
     <div className="flex h-full flex-col">
@@ -186,11 +196,7 @@ export function ChatPanel({
             </SelectContent>
           </Select>
           <Textarea
-            placeholder={
-              isRateLimited
-                ? `Rate limited — available in ${formatCooldown(cooldownLeft)}`
-                : 'Ask about budgets, materials, workforce, incidents...'
-            }
+            placeholder={placeholderText}
             value={question}
             onChange={(e) => onQuestionChange(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -208,7 +214,11 @@ export function ChatPanel({
                     disabled={isDisabled || !question.trim()}
                     className={`h-10 w-10 ${isDisabled ? 'pointer-events-none' : ''}`}
                   >
-                    <Send className="h-4 w-4" />
+                    {isWaitingForResponse ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
                   </Button>
                 </span>
               </TooltipTrigger>
