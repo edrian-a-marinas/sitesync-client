@@ -1,12 +1,12 @@
 import { useRef, useState, useEffect } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
-import { useGetSitePhotos, useUploadSitePhoto } from '@/hooks/useSitePhoto'
+import { useGetSitePhotos, useUploadSitePhoto, useDeleteSitePhoto } from '@/hooks/useSitePhoto'
 import { SitePhotoUploadSchema } from '@/validations/sitePhoto'
 import { Button } from '@/pages/_components/ui/button'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 import { createPortal } from 'react-dom'
-import { ImageIcon, UploadCloud, ChevronLeft, ChevronRight, FileText } from 'lucide-react'
+import { ImageIcon, UploadCloud, ChevronLeft, ChevronRight, FileText, Trash2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
 import { toast } from 'sonner'
 
@@ -24,6 +24,23 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
 
   const { data: photos, isLoading } = useGetSitePhotos(projectId, logId, true)
   const { mutate: upload, isPending } = useUploadSitePhoto(projectId, logId)
+  const { mutate: deletePhoto, isPending: isDeleting } = useDeleteSitePhoto(projectId, logId)
+  const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
+
+  const handleDeleteConfirm = () => {
+    if (deleteTarget === null) return
+    deletePhoto(deleteTarget, {
+      onSuccess: () => {
+        toast.success('Attachment deleted.')
+        setDeleteTarget(null)
+        setActiveIndex(null)
+      },
+      onError: () => {
+        toast.error('Failed to delete. Please try again.')
+        setDeleteTarget(null)
+      },
+    })
+  }
 
   const total = photos?.length ?? 0
   const activePhoto = activeIndex !== null ? photos?.[activeIndex] : null
@@ -162,28 +179,46 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
         <div className="grid grid-cols-2 gap-2">
           {photos.map((photo, index) =>
             photo.content_type.startsWith('image/') ? (
-              <button
-                key={photo.id}
-                onClick={() => setActiveIndex(index)}
-                className="h-24 w-full rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 hover:opacity-90 transition-opacity cursor-pointer"
-              >
-                <img
-                  src={photo.file_url}
-                  alt={photo.filename}
-                  className="h-full w-full object-cover"
-                />
-              </button>
+              <div key={photo.id} className="relative group">
+                <button
+                  onClick={() => setActiveIndex(index)}
+                  className="h-24 w-full rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700 hover:opacity-90 transition-opacity cursor-pointer"
+                >
+                  <img
+                    src={photo.file_url}
+                    alt={photo.filename}
+                    className="h-full w-full object-cover"
+                  />
+                </button>
+                {canUpload && (
+                  <button
+                    onClick={() => setDeleteTarget(photo.id)}
+                    className="absolute top-1 right-1 z-10 hidden group-hover:flex items-center justify-center h-6 w-6 rounded-full bg-black/60 hover:bg-red-600 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-white" />
+                  </button>
+                )}
+              </div>
             ) : (
-              <a
-                key={photo.id}
-                href={photo.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex h-24 w-full items-center justify-center rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors gap-1.5"
-              >
-                <FileText className="h-4 w-4" />
-                PDF Document
-              </a>
+              <div key={photo.id} className="relative group">
+                <a
+                  href={photo.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-24 w-full items-center justify-center rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors gap-1.5"
+                >
+                  <FileText className="h-4 w-4" />
+                  PDF Document
+                </a>
+                {canUpload && (
+                  <button
+                    onClick={() => setDeleteTarget(photo.id)}
+                    className="absolute top-1 right-1 z-10 hidden group-hover:flex items-center justify-center h-6 w-6 rounded-full bg-black/60 hover:bg-red-600 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-white" />
+                  </button>
+                )}
+              </div>
             )
           )}
         </div>
@@ -210,6 +245,25 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
           <NavBar index={activeIndex} onPrev={goPrev} onNext={goNext} />
         </div>,
         document.body
+      )}
+
+      {/* Delete confirmation dialog */}
+      {deleteTarget !== null && (
+        <div className="fixed inset-0 z-[300] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleteTarget(null)} />
+          <div className="relative z-10 w-80 rounded-xl bg-white dark:bg-zinc-900 p-6 shadow-2xl flex flex-col gap-4">
+            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Delete this attachment?</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">This action cannot be undone.</p>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={() => setDeleteTarget(null)} disabled={isDeleting}>
+                Cancel
+              </Button>
+              <Button variant="destructive" size="sm" onClick={handleDeleteConfirm} disabled={isDeleting}>
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Newly uploaded photo preview */}
