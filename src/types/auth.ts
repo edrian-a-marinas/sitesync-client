@@ -1,4 +1,5 @@
-import type { UserResponse, TokenResponse, LoginInput, RegisterInput } from "@/validations/auth";
+import type { UserResponse, TokenResponse, LoginInput } from "@/validations/auth";
+import type { RegisterInput } from "@/validations/user";
 
 export type { LoginInput, RegisterInput, UserResponse, TokenResponse };
 
