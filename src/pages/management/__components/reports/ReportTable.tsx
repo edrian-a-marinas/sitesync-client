@@ -35,7 +35,7 @@ interface Props {
   onPageChange: (page: number) => void
 }
 export default function ReportTable({ reports, isLoading, selectedReport, onSelectReport, page, totalPages, onPageChange }: Props) {
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'week_start', desc: true }])
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }])
 
   const handleDownload = (report: ReportResponse) => {
     if (!report.file_url) {
