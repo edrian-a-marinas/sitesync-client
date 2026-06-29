@@ -30,6 +30,7 @@ import { Textarea } from '@/pages/_components/ui/textarea'
 import { Button } from '@/pages/_components/ui/button'
 import { UploadCloud, X, FileText } from 'lucide-react'
 import { useUploadSitePhoto } from '@/hooks/useSitePhoto'
+import { useQueryClient } from '@tanstack/react-query'
 import { SitePhotoUploadSchema } from '@/validations/sitePhoto'
 
 const WEATHER_OPTIONS = ['Sunny', 'Cloudy', 'Rainy', 'Stormy']
@@ -43,6 +44,7 @@ interface Props {
 export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
   const { mutate: updateLog, isPending } = useUpdateDailyLog()
   const { mutate: uploadPhoto } = useUploadSitePhoto(log?.project_id ?? 0, log?.id ?? 0)
+  const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [fileQueue, setFileQueue] = useState<File[]>([])
 
@@ -108,6 +110,9 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
           if (fileQueue.length > 0) {
             fileQueue.forEach((file) =>
               uploadPhoto(file, {
+                onSuccess: () => {
+                  queryClient.invalidateQueries({ queryKey: ['site-photos', log!.project_id, log!.id] })
+                },
                 onError: () => toast.error(`Failed to upload ${file.name}`),
               })
             )
