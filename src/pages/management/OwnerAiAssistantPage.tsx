@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { ChatPanel } from './__components/aiquery/ChatPanel'
 import { QueryHistoryPanel } from './__components/aiquery/QueryHistoryPanel'
 import { useCountdown, formatCooldown } from './__components/aiquery/utils'
+import type { ScopeMarker } from './__components/aiquery/utils'
 
 export default function OwnerAiAssistantPage() {
   const { user } = useAuthStore()
@@ -27,7 +28,8 @@ export default function OwnerAiAssistantPage() {
   const isRateLimited = cooldownLeft > 0
 
   const { data: queriesData, isLoading: queriesLoading, isError: queriesError, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetQueries()
-  const { data: projects } = useProjects()
+  const { data: projects } = useProjects('Active')
+  const [scopeMarkers, setScopeMarkers] = useState<ScopeMarker[]>([])
   const { mutate: createQuery, isPending: isSubmitting } = useCreateQuery()
   const { mutate: deleteQuery } = useDeleteQuery()
   const { mutate: deleteAllQueries, isPending: isDeletingAll } = useDeleteAllQueries()
@@ -44,6 +46,13 @@ export default function OwnerAiAssistantPage() {
     const until = Date.now() + retryAfter * 1000
     setRateLimitUntil(until)
     localStorage.setItem('groq_rate_limit_until', String(until))
+  }
+  const handleProjectChange = (projectId: number | null) => {
+    setSelectedProjectId(projectId)
+    const projectName = projectId === null
+      ? 'All projects'
+      : projects?.find((p) => p.id === projectId)?.name ?? 'Unknown project'
+    setScopeMarkers((prev) => [...prev, { id: `scope-${Date.now()}`, timestamp: Date.now(), projectName }])
   }
   const handleDeleteQuery = (queryId: number) => {
     deleteQuery(queryId, {
@@ -111,7 +120,7 @@ export default function OwnerAiAssistantPage() {
             cooldownLeft={cooldownLeft}
             isSubmitting={isSubmitting}
             onQuestionChange={setQuestion}
-            onProjectChange={setSelectedProjectId}
+            onProjectChange={handleProjectChange}
             onSubmit={handleSubmit}
             onRateLimit={handleRateLimit}
             hasNextPage={!!hasNextPage}
@@ -119,6 +128,7 @@ export default function OwnerAiAssistantPage() {
             onLoadMore={fetchNextPage}
             onToggleHistory={() => setHistoryOpen((v) => !v)}
             historyOpen={historyOpen}
+            scopeMarkers={scopeMarkers}
           />
         </div>
         {historyOpen && (
