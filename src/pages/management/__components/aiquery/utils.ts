@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react'
-
+export interface ScopeMarker {
+  id: string
+  timestamp: number
+  projectName: string
+}
 export const SUGGESTED_QUESTIONS = [
   'Which project has the highest budget overrun risk?',
   'How many incidents are still open across all projects?',

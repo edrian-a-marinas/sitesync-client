@@ -1,14 +1,15 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import { Button } from '@/pages/_components/ui/button'
 import { Textarea } from '@/pages/_components/ui/textarea'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/pages/_components/ui/select'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
-import { Bot, Send, History, ChevronUp } from 'lucide-react'
+import { Bot, Send, History, ChevronUp, FolderKanban } from 'lucide-react'
 import { ChatMessage } from './ChatMessage'
 import { SUGGESTED_QUESTIONS, formatCooldown } from './utils'
 import type { AIQueryResponse } from '@/types/aiQuery'
+import type { ScopeMarker } from './utils'
 import type { ProjectResponse } from '@/validations/project'
 
 interface Props {
@@ -25,6 +26,7 @@ interface Props {
   hasNextPage: boolean
   isFetchingNextPage: boolean
   historyOpen: boolean
+  scopeMarkers: ScopeMarker[]
   onQuestionChange: (value: string) => void
   onProjectChange: (value: number | null) => void
   onSubmit: (text?: string) => void
@@ -46,6 +48,7 @@ export function ChatPanel({
   hasNextPage,
   isFetchingNextPage,
   historyOpen,
+  scopeMarkers,
   onQuestionChange,
   onProjectChange,
   onSubmit,
@@ -55,30 +58,42 @@ export function ChatPanel({
 }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
-
   const prevScrollHeightRef = useRef(0)
   const prevQueriesLengthRef = useRef(0)
-
+  type TimelineItem =
+    | { type: 'query'; key: string; timestamp: number; query: AIQueryResponse }
+    | { type: 'marker'; key: string; timestamp: number; marker: ScopeMarker }
+  const timeline = useMemo<TimelineItem[]>(() => {
+    const queryItems: TimelineItem[] = queries.map((q) => ({
+      type: 'query',
+      key: `query-${q.id}`,
+      timestamp: new Date(q.created_at).getTime(),
+      query: q,
+    }))
+    const markerItems: TimelineItem[] = scopeMarkers.map((m) => ({
+      type: 'marker',
+      key: m.id,
+      timestamp: m.timestamp,
+      marker: m,
+    }))
+    return [...queryItems, ...markerItems].sort((a, b) => a.timestamp - b.timestamp)
+  }, [queries, scopeMarkers])
   useEffect(() => {
     const el = scrollRef.current
     if (!el) return
-
     const isFirstLoad = prevQueriesLengthRef.current === 0
-    const isNewMessage = queries.length === prevQueriesLengthRef.current + 1
-    const isLoadMore = queries.length > prevQueriesLengthRef.current + 1
-
+    const isNewMessage = timeline.length === prevQueriesLengthRef.current + 1
+    const isLoadMore = timeline.length > prevQueriesLengthRef.current + 1
     if (isFirstLoad || isNewMessage) {
-      // Scroll to bottom on first load or new message sent
+      // Scroll to bottom on first load, new message, or scope change marker
       el.scrollTop = el.scrollHeight
     } else if (isLoadMore) {
       // Preserve position when older messages prepended
       el.scrollTop = el.scrollHeight - prevScrollHeightRef.current
     }
-
     prevScrollHeightRef.current = el.scrollHeight
-    prevQueriesLengthRef.current = queries.length
-  }, [queries.length])
-
+    prevQueriesLengthRef.current = timeline.length
+  }, [timeline.length])
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -102,7 +117,7 @@ export function ChatPanel({
           <Alert variant="destructive">
             <AlertDescription>Failed to load conversation history. Please refresh.</AlertDescription>
           </Alert>
-        ) : queries.length === 0 ? (
+        ) : timeline.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 py-24 text-zinc-400 dark:text-zinc-500">
             <Bot className="h-10 w-10" />
             <p className="text-sm">Ask anything about your construction projects.</p>
@@ -135,9 +150,18 @@ export function ChatPanel({
                 </Button>
               </div>
             )}
-            {queries.map((q) => (
-              <ChatMessage key={q.id} query={q} onRateLimit={onRateLimit} />
-            ))}
+            {timeline.map((item) =>
+              item.type === 'marker' ? (
+                <div key={item.key} className="flex justify-center">
+                  <div className="flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/5 px-3 py-1 text-xs text-zinc-500 dark:text-zinc-400">
+                    <FolderKanban className="h-3 w-3 text-primary" />
+                    Switched to: {item.marker.projectName}
+                  </div>
+                </div>
+              ) : (
+                <ChatMessage key={item.key} query={item.query} onRateLimit={onRateLimit} />
+              )
+            )}
             <div ref={bottomRef} />
           </div>
         )}
