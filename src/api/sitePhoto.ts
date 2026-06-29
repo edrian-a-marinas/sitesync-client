@@ -13,3 +13,6 @@ export const uploadSitePhotoRequest = (projectId: number, logId: number, file: F
     { headers: { 'Content-Type': 'multipart/form-data' } }
   )
 }
+
+export const deleteSitePhotoRequest = (projectId: number, logId: number, photoId: number) =>
+  api.delete(`/projects/${projectId}/daily-logs/${logId}/site-photos/${photoId}`)
