@@ -24,7 +24,7 @@ interface Props {
 
 export default function LogDetailSheet({ log, onOpenChange }: Props) {
   return (
-    <Sheet open={!!log} onOpenChange={onOpenChange}>
+    <Sheet open={!!log} onOpenChange={(open) => { if (!open && !document.querySelector('[data-sonner-toast]:hover')) onOpenChange(open) }} modal={false}>
       <SheetContent className="w-full sm:max-w-md">
         <SheetHeader className="mb-4">
           <SheetTitle className="flex items-center gap-2">
