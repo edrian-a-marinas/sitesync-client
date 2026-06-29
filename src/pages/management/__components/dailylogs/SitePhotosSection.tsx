@@ -21,6 +21,7 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const canUpload = user?.role_id === ROLES.OWNER || user?.role_id === ROLES.PROJECT_MANAGER
   const [activeIndex, setActiveIndex] = useState<number | null>(null)
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null)
 
   const { data: photos, isLoading } = useGetSitePhotos(projectId, logId, true)
   const { mutate: upload, isPending } = useUploadSitePhoto(projectId, logId)
@@ -40,7 +41,19 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
       return
     }
     upload(file, {
-      onSuccess: () => toast.success('Photo uploaded successfully.'),
+      onSuccess: (photo) => {
+        const img = new Image()
+        img.src = photo.file_url
+        img.onload = () => {
+          toast.success('Photo uploaded successfully.', {
+            description: photo.filename,
+            action: {
+              label: 'View',
+              onClick: () => setPendingUrl(photo.file_url),
+            },
+          })
+        }
+      },
       onError: () => toast.error('Failed to upload. Please try again.'),
     })
     e.target.value = ''
@@ -153,9 +166,9 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
       )}
 
       {/* Lightbox */}
-      <Dialog open={activeIndex !== null} onOpenChange={(open) => { if (!open) setActiveIndex(null) }}>
+      <Dialog open={activeIndex !== null} onOpenChange={(open) => { if (!open) setActiveIndex(null) }} modal={false}>
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/90" />
+          <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/90 pointer-events-auto" />
           <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 outline-none flex flex-col items-center gap-4">
             <DialogPrimitive.Title className="sr-only">
               Site photo {(activeIndex ?? 0) + 1} of {total}
@@ -198,6 +211,26 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
           </DialogPrimitive.Content>
         </DialogPrimitive.Portal>
       </Dialog>
+
+    {/* Newly uploaded photo preview */}
+    <Dialog open={!!pendingUrl} onOpenChange={(open) => { if (!open) setPendingUrl(null) }}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/90 pointer-events-auto" />
+        <DialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 outline-none flex flex-col items-center gap-4">
+          <DialogPrimitive.Title className="sr-only">Uploaded photo preview</DialogPrimitive.Title>
+          {pendingUrl && (
+            <img
+              src={pendingUrl}
+              alt="Uploaded photo"
+              className="max-h-[80vh] max-w-[90vw] rounded-lg object-contain shadow-2xl"
+            />
+          )}
+          <DialogPrimitive.Close className="absolute right-4 top-4 text-zinc-400 hover:text-white cursor-pointer">
+            <X className="h-5 w-5" />
+          </DialogPrimitive.Close>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </Dialog>
     </div>
   )
 }
