@@ -29,7 +29,7 @@ import {
 import { Textarea } from '@/pages/_components/ui/textarea'
 import { Button } from '@/pages/_components/ui/button'
 import { UploadCloud, X, FileText } from 'lucide-react'
-import { useUploadSitePhoto } from '@/hooks/useSitePhoto'
+import { useGetSitePhotos, useUploadSitePhoto } from '@/hooks/useSitePhoto'
 import { useQueryClient } from '@tanstack/react-query'
 import { SitePhotoUploadSchema } from '@/validations/sitePhoto'
 
@@ -44,15 +44,18 @@ interface Props {
 export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
   const { mutate: updateLog, isPending } = useUpdateDailyLog()
   const { mutate: uploadPhoto } = useUploadSitePhoto(log?.project_id ?? 0, log?.id ?? 0)
+  const { data: existingPhotos } = useGetSitePhotos(log?.project_id ?? 0, log?.id ?? 0, !!log)
+  const existingCount = existingPhotos?.length ?? 0
   const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [fileQueue, setFileQueue] = useState<File[]>([])
+  const totalCount = existingCount + fileQueue.length
 
   const handleFileQueue = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? [])
     const valid: File[] = []
     for (const file of files) {
-      if (fileQueue.length + valid.length >= 10) {
+      if (totalCount + valid.length >= 10) {
         toast.error('Maximum of 10 attachments per log.')
         break
       }
@@ -212,14 +215,14 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Attachments <span className="text-zinc-400 text-xs">(optional, max 10)</span>
+                  Attachments <span className="text-zinc-400 text-xs">({totalCount}/10)</span>
                 </span>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   className="h-7 gap-1.5 text-xs"
-                  disabled={fileQueue.length >= 10}
+                  disabled={totalCount >= 10}
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <UploadCloud className="h-3.5 w-3.5" />
