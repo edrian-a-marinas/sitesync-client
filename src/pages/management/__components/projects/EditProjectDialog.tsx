@@ -85,8 +85,8 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
           toast.success('Project updated successfully')
           onOpenChange(false)
         },
-        onError: (err: any) => {
-          const message = err?.response?.data?.detail ?? 'Failed to update project'
+        onError: (err: unknown) => {
+          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to update project'
           toast.error(message)
         },
       }

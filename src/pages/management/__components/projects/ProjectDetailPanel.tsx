@@ -64,8 +64,8 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
           setUnassignTarget(null)
           setUnassignInput('')
         },
-        onError: (err: any) => {
-          const message = err?.response?.data?.detail ?? 'Failed to unassign'
+        onError: (err: unknown) => {
+          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to unassign'
           toast.error(message)
         },
       }

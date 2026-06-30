@@ -40,6 +40,7 @@ export default function ResetPasswordDialog({ user, onOpenChange }: Props) {
   useEffect(() => {
     if (user) {
       form.reset({ new_password: '' })
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets visibility toggle when dialog opens for a new user
       setVisible(false)
     }
   }, [user, form])
@@ -53,8 +54,8 @@ export default function ResetPasswordDialog({ user, onOpenChange }: Props) {
           toast.success(`Password reset for ${user.first_name} ${user.last_name}.`)
           onOpenChange(false)
         },
-        onError: (err: any) => {
-          const detail = err?.response?.data?.detail
+        onError: (err: unknown) => {
+          const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
           const message = typeof detail === 'string' ? detail : 'Failed to reset password.'
           toast.error(message)
         },

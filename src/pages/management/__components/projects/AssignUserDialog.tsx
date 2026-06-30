@@ -75,8 +75,8 @@ export default function AssignUserDialog({ project, type, open, onOpenChange, ex
           toast.success(isManager ? 'Manager assigned successfully' : 'Worker assigned successfully')
           handleOpenChange(false)
         },
-        onError: (err: any) => {
-          const message = err?.response?.data?.detail ?? (isManager
+        onError: (err: unknown) => {
+          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? (isManager
             ? 'Failed to assign manager'
             : 'Failed to assign worker')
           toast.error(message)

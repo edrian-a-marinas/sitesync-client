@@ -39,8 +39,8 @@ export default function DeleteConfirmDialog({ project, open, onOpenChange }: Pro
         toast.success('Project deleted successfully')
         handleOpenChange(false)
       },
-      onError: (err: any) => {
-        const message = err?.response?.data?.detail ?? 'Failed to delete project'
+      onError: (err: unknown) => {
+        const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to delete project'
         toast.error(message)
       },
     })
