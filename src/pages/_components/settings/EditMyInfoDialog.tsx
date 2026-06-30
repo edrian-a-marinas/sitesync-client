@@ -77,8 +77,8 @@ export default function EditMyInfoDialog({ user, open, onOpenChange }: Props) {
           toast.success('Profile updated successfully.')
           onOpenChange(false)
         },
-        onError: (err: any) => {
-          const detail = err?.response?.data?.detail
+        onError: (err: unknown) => {
+          const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
           const message = typeof detail === 'string' ? detail : 'Failed to update profile.'
           toast.error(message)
         },

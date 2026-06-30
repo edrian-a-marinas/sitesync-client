@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
+import type { ControllerRenderProps, FieldPath, FieldValues } from 'react-hook-form'
 import { PasswordChangeSchema, type PasswordChangeInput } from '@/validations/user'
 import { useChangePassword } from '@/hooks/useUser'
 import {
@@ -28,12 +29,12 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-function PasswordField({
+function PasswordField<TFieldValues extends FieldValues = FieldValues, TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>>({
   field,
   label,
   placeholder,
 }: {
-  field: any
+  field: ControllerRenderProps<TFieldValues, TName>
   label: string
   placeholder: string
 }) {
@@ -83,14 +84,14 @@ export default function ChangePasswordDialog({ open, onOpenChange }: Props) {
       toast.error('New password must be different from current password.')
       return
     }
-    const { confirm_new_password, ...payload } = data
+    const { confirm_new_password: _confirmNewPassword, ...payload } = data
     changePassword(payload, {
       onSuccess: () => {
         toast.success('Password changed successfully.')
         onOpenChange(false)
       },
-      onError: (err: any) => {
-        const detail = err?.response?.data?.detail
+      onError: (err: unknown) => {
+        const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
         const message = typeof detail === 'string' ? detail : 'Current password is incorrect.'
         toast.error(message)
       },

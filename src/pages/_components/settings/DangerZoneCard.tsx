@@ -35,8 +35,8 @@ export default function DangerZoneCard() {
         logout()
         navigate({ to: ROUTES.LOGIN })
       },
-      onError: (err: any) => {
-        const detail = err?.response?.data?.detail
+      onError: (err: unknown) => {
+        const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
         const message = typeof detail === 'string' ? detail : 'Failed to deactivate account.'
         toast.error(message)
         setConfirmOpen(false)
