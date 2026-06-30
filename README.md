@@ -32,11 +32,11 @@ Owners create projects with a name, location, budget, start date, and target com
 
 ### Daily Site Log
 
-Each end-of-shift log is stored as a SQLAlchemy model in RDS PostgreSQL and contains the project reference, submitting Project Manager, reporting date, workers present with hours worked, materials consumed with quantities and unit costs, equipment deployed, weather conditions, work accomplished, incident reports, and submission timestamps. Project Managers submit attendance on behalf of their assigned workers during end-of-shift logging. Site Workers can view their own attendance history but do not submit attendance directly. Alembic manages all schema versioning for logs, attendance records, equipment usage, and material tracking tables.
+Each end-of-shift log is stored as a SQLAlchemy model in RDS PostgreSQL and contains the project reference, submitting Project Manager, reporting date, workers present with hours worked, materials consumed with quantities and unit costs, equipment deployed, weather conditions, work accomplished, incident reports, and submission timestamps. Project Managers submit attendance on behalf of their assigned workers during end-of-shift logging. Site Workers can view their own attendance history but do not submit attendance directly. Site Workers can also view the current shift's daily log for their assigned project, read-only, and upload site photos to that log. Alembic manages all schema versioning for logs, attendance records, equipment usage, and material tracking tables.
 
 ### File Storage
 
-Project Managers upload supporting documentation for daily logs including progress photos, material delivery receipts, inspection documents, and incident evidence. Allowed file types are JPEG, PNG, WebP, and PDF. Files are rejected if they exceed 10MB. Files are stored as objects in AWS S3 via boto3, keeping binary data entirely outside the relational database. PostgreSQL stores only metadata such as filename, upload date, associated log reference, file type, and S3 object key through SQLAlchemy models. Alembic manages schema migrations for file and photo metadata tables.
+Project Managers and Site Workers upload supporting documentation for daily logs including progress photos, material delivery receipts, inspection documents, and incident evidence. Site Workers are scoped to uploading photos only for their own assigned project's current daily log — they cannot view or manage photos beyond that scope. Allowed file types are JPEG, PNG, WebP, and PDF. Files are rejected if they exceed 10MB. Files are stored as objects in AWS S3 via boto3, keeping binary data entirely outside the relational database. PostgreSQL stores only metadata such as filename, upload date, associated log reference, file type, and S3 object key through SQLAlchemy models. Alembic manages schema migrations for file and photo metadata tables.
 
 ### Background Report Generation
 
@@ -80,7 +80,7 @@ The sidebar collapses into a slide-out drawer on mobile, with page layouts being
 
 Owner — the construction company owner/CEO. The person who runs the business, owns all projects, sees everything, uses the AI assistant to make decisions. Not necessarily technical — just the boss.
 Project Manager — in construction this is typically the Civil Engineer or Site Engineer or Site Manager or Foreman. They manage the full project lifecycle, submit daily logs, monitor budget vs actual, assign workers. Could also be a Foreman in smaller firms.
-Site Worker — the construction workers on the ground. Masons, carpenters, electricians, laborers. They just log attendance and see their daily tasks. No management access.
+Site Worker — the construction workers on the ground. Masons, carpenters, electricians, laborers. They view their own attendance history, view the current shift's daily log for their assigned project, and upload site photos to that log. No management access, no editing of log fields, no access beyond their own assigned project.
 
 ### Owner & Project Manager Panel
 
@@ -100,7 +100,7 @@ Owner and Project Manager share the same UI shell and sidebar. The backend enfor
 
 Separate minimal UI — same design system, different shell and nav.
 
-| Menu              | Description                                                  |
-| ----------------- | ------------------------------------------------------------ |
-| **My Attendance** | View personal attendance history across assigned projects.   |
-| **Daily Log**     | View the current shift daily log for their assigned project. |
+| Menu              | Description                                                                  |
+| ----------------- | ----------------------------------------------------------------------------- |
+| **My Attendance** | View personal attendance history for their assigned project.                  |
+| **Daily Log**     | View the current shift daily log for their assigned project, read-only.       |
