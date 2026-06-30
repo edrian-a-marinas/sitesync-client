@@ -1,30 +1,16 @@
-import { createRootRoute, createRoute, createRouter, Outlet, Navigate } from '@tanstack/react-router'
-import { useAuthStore } from '@/store/auth'
+import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router'
 import LoginPage from '@/pages/LoginPage'
 import HomePage from '@/pages/HomePage'
 import { ROUTES } from '@/constants'
 import type { DailyLogsSearch } from '@/types/dailyLog'
 import type { ReportsSearch } from '@/types/report'
 import type { UsersSearch } from '@/types/user'
+import { ProtectedRoute, PublicRoute, NotFound } from '@/pages/_components/RouteGuards'
 
 // Root route
 const rootRoute = createRootRoute({
   component: Outlet,
 })
-
-// Auth guard component
-function ProtectedRoute() {
-  const { isAuthenticated } = useAuthStore()
-  if (!isAuthenticated) return <Navigate to={ROUTES.LOGIN} />
-  return <Outlet />
-}
-
-function PublicRoute() {
-  const { isAuthenticated } = useAuthStore()
-  if (isAuthenticated) return <Navigate to="/" />
-  return <Outlet />
-}
-
 // Public routes
 const publicRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -43,18 +29,6 @@ const loginAdminRoute = createRoute({
   path: ROUTES.LOGIN_ADMIN,
   component: LoginPage,
 })
-
-
-// Future routes (uncomment when pages are ready)
-/*
-import RegisterPage from '@/pages/RegisterPage'
-
-const registerRoute = createRoute({
-  getParentRoute: () => protectedRoute,
-  path: ROUTES.REGISTER,
-  component: RegisterPage,
-})
-*/
 
 // Protected routes
 const protectedRoute = createRoute({
@@ -134,12 +108,6 @@ const routeTree = rootRoute.addChildren([
   publicRoute.addChildren([loginRoute, loginAdminRoute]),
   protectedRoute.addChildren([homeRoute, indexRoute, projectsRoute, manageUsersRoute, dailyLogsRoute, reportsRoute, analyticsRoute, aiAssistantRoute, settingsRoute]),
 ])
-
-function NotFound() {
-  const { isAuthenticated } = useAuthStore()
-  if (!isAuthenticated) return <Navigate to={ROUTES.LOGIN} />
-  return <div>404 — Page Not Found</div>
-}
 
 export const router = createRouter({
   routeTree,
