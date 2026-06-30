@@ -72,6 +72,6 @@ export const useUserAssignments = (userId: number | null) => {
 // --- Used in SettingsPage ---
 export const useChangePassword = () => {
   return useMutation({
-    mutationFn: (data: PasswordChangeInput) => changePassword(data),
+    mutationFn: (data: Omit<PasswordChangeInput, 'confirm_new_password'>) => changePassword(data),
   })
 }

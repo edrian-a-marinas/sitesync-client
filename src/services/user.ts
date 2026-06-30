@@ -30,7 +30,7 @@ export const getUserAssignments = async (userId: number): Promise<UserAssignment
   return response.data
 }
 // --- Used in SettingsPage ---
-export const changePassword = async (data: PasswordChangeInput): Promise<{ detail: string }> => {
+export const changePassword = async (data: Omit<PasswordChangeInput, 'confirm_new_password'>): Promise<{ detail: string }> => {
   const response = await changePasswordRequest(data)
   return response.data
 }

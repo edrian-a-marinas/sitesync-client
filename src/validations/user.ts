@@ -26,6 +26,7 @@ export const RegisterSchema = z.object({
 export const PasswordChangeSchema = z.object({
   current_password: PasswordStr,
   new_password: PasswordStr,
+  confirm_new_password: PasswordStr,
 });
 
 // --- Inferred types ---
