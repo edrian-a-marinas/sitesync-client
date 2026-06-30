@@ -101,6 +101,11 @@ const aiAssistantRoute = createRoute({
   path: ROUTES.AI_ASSISTANT,
   component: HomePage,
 })
+const settingsRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: ROUTES.SETTINGS,
+  component: HomePage,
+})
 
 const analyticsRoute = createRoute({
   getParentRoute: () => protectedRoute,
@@ -127,7 +132,7 @@ const indexRoute = createRoute({
 // Route tree
 const routeTree = rootRoute.addChildren([
   publicRoute.addChildren([loginRoute, loginAdminRoute]),
-  protectedRoute.addChildren([homeRoute, indexRoute, projectsRoute, manageUsersRoute, dailyLogsRoute, reportsRoute, analyticsRoute, aiAssistantRoute]),
+  protectedRoute.addChildren([homeRoute, indexRoute, projectsRoute, manageUsersRoute, dailyLogsRoute, reportsRoute, analyticsRoute, aiAssistantRoute, settingsRoute]),
 ])
 
 function NotFound() {

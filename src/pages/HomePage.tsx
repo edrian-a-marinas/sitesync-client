@@ -11,6 +11,7 @@ import ReportsPage from '@/pages/management/ReportsPage'
 import OwnerAnalyticsPage from '@/pages/management/OwnerAnalyticsPage'
 import OwnerAiAssistantPage from '@/pages/management/OwnerAiAssistantPage'
 import WorkerPage from '@/pages/worker/WorkerPage'
+import SettingsPage from '@/pages/SettingsPage'
 import { useLocation } from '@tanstack/react-router'
 export default function HomePage() {
   const { user, sidebarCollapsed } = useAuthStore()
@@ -31,6 +32,7 @@ export default function HomePage() {
       if (path === ROUTES.REPORTS) return <ReportsPage />
       if (path === ROUTES.ANALYTICS) return <OwnerAnalyticsPage />
       if (path === ROUTES.AI_ASSISTANT) return <OwnerAiAssistantPage />
+      if (path === ROUTES.SETTINGS) return <SettingsPage />
       return <DashboardPage />
     }
     return null
