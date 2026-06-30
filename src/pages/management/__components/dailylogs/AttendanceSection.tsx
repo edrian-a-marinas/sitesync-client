@@ -16,6 +16,7 @@ import {
 } from '@/pages/_components/ui/select'
 import { Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
 
 interface Props {
   projectId: number
@@ -79,16 +80,33 @@ export default function AttendanceSection({ projectId, logId, onCountChange }: P
           {attendance && attendance.length > 0 ? `${attendance.length} worker${attendance.length !== 1 ? 's' : ''}` : ''}
         </span>
         {canEdit && !showForm && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="h-7 gap-1.5 text-xs"
-            disabled={availableWorkers.length === 0}
-            onClick={() => setShowForm(true)}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add
-          </Button>
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className={availableWorkers.length === 0 ? 'cursor-not-allowed' : ''}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1.5 text-xs"
+                    disabled={availableWorkers.length === 0}
+                    onClick={() => setShowForm(true)}
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    Add
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              {availableWorkers.length === 0 && (
+                <TooltipContent>
+                  <p>
+                    {(project?.workers?.length ?? 0) === 0
+                      ? 'No workers assigned to this project.'
+                      : 'All assigned workers already have attendance logged for this log.'}
+                  </p>
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
         )}
       </div>
       {isLoading ? (
