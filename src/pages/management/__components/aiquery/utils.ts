@@ -30,7 +30,11 @@ export function parseAnswer(answer: string | null): ParsedAnswer | null {
 export function useCountdown(until: number | null) {
   const [left, setLeft] = useState(0)
   useEffect(() => {
-    if (!until) { setLeft(0); return }
+    if (!until) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets countdown when timer target is cleared
+      setLeft(0)
+      return
+    }
     const tick = () => setLeft(Math.max(0, Math.ceil((until - Date.now()) / 1000)))
     tick()
     const interval = setInterval(tick, 1000)

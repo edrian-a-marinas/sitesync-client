@@ -23,6 +23,7 @@ export default function MLStatusBar({ status, isRetraining, onRetrain, cooldownU
 
   useEffect(() => {
     if (!cooldownUntil) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets cooldown when timer target is cleared
       setCooldownLeft(0)
       return
     }

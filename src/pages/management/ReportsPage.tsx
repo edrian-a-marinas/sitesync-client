@@ -94,6 +94,8 @@ export default function ReportsPage() {
     if (!isPolling) return
     const latest = reports?.items?.[0]
     if (latest && latest.id !== baselineReportId) {
+      // Syncing local state to external server data (poll result) — valid effect pattern per React docs
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsPolling(false)
       setNewReport(latest)
       if (generateOpen) {
@@ -144,6 +146,7 @@ export default function ReportsPage() {
           disableGenerate={existsToday}
           nextAvailableDate={
             existsToday
+              // eslint-disable-next-line react-hooks/purity -- intentional: shows "next available" date relative to now
               ? new Date(Date.now() + 86400000).toLocaleDateString('en-PH', {
                   year: 'numeric', month: 'short', day: 'numeric',
                 })
