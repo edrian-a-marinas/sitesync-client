@@ -9,6 +9,7 @@ import { Badge } from '@/pages/_components/ui/badge'
 import { ScrollArea } from '@/pages/_components/ui/scroll-area'
 import { CalendarIcon, CloudIcon, ClipboardList, StickyNote, User } from 'lucide-react'
 import SitePhotosSection from './SitePhotosSection'
+import MaterialsSection from './MaterialsSection'
 
 const WEATHER_BADGE: Record<string, string> = {
   Sunny: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
@@ -86,6 +87,11 @@ export default function LogDetailSheet({ log, onOpenChange }: Props) {
                 {log?.notes ?? '—'}
               </p>
             </div>
+            {/* Materials */}
+            {log && (
+              <MaterialsSection projectId={log.project_id} logId={log.id} />
+            )}
+
             {/* Site Photos */}
             {log && (
               <SitePhotosSection projectId={log.project_id} logId={log.id} />
