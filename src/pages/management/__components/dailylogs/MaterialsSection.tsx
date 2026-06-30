@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
-import { useMaterials, useCreateMaterial, useUpdateMaterial } from '@/hooks/useMaterial'
+import { useMaterials, useCreateMaterial, useUpdateMaterial, useDeleteMaterial } from '@/hooks/useMaterial'
 import { MaterialCreateSchema, MaterialUpdateSchema } from '@/validations/material'
 import { Button } from '@/pages/_components/ui/button'
 import { Input } from '@/pages/_components/ui/input'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
-import { Package, Plus, Pencil, X } from 'lucide-react'
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/pages/_components/ui/alert-dialog'
+import { Package, Plus, Pencil, X, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { MaterialResponse } from '@/types/material'
 
@@ -24,10 +32,35 @@ export default function MaterialsSection({ projectId, logId }: Props) {
   const { data: materials, isLoading } = useMaterials(projectId, logId, true)
   const { mutate: createMaterial, isPending: isCreating } = useCreateMaterial(projectId, logId)
   const { mutate: updateMaterial, isPending: isUpdating } = useUpdateMaterial(projectId, logId)
+  const { mutate: deleteMaterial, isPending: isDeleting } = useDeleteMaterial(projectId, logId)
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
+  const [deleteTarget, setDeleteTarget] = useState<MaterialResponse | null>(null)
+  const [confirmInput, setConfirmInput] = useState('')
+
+  const handleDeleteOpenChange = (open: boolean) => {
+    if (!open) {
+      setDeleteTarget(null)
+      setConfirmInput('')
+    }
+  }
+
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return
+    deleteMaterial(deleteTarget.id, {
+      onSuccess: () => {
+        toast.success('Material deleted.')
+        handleDeleteOpenChange(false)
+      },
+      onError: () => {
+        toast.error('Failed to delete material. Please try again.')
+      },
+    })
+  }
+
+  const isDeleteMatch = confirmInput === deleteTarget?.name
 
   const resetForm = () => {
     setForm(emptyForm)
@@ -133,9 +166,14 @@ export default function MaterialsSection({ projectId, logId }: Props) {
                 </span>
               </div>
               {canEdit && (
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => startEdit(material)}>
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => startEdit(material)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteTarget(material)}>
+                    <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                  </Button>
+                </div>
               )}
             </div>
           ))}
@@ -171,6 +209,45 @@ export default function MaterialsSection({ projectId, logId }: Props) {
           </Button>
         </div>
       )}
+
+      <AlertDialog open={deleteTarget !== null} onOpenChange={handleDeleteOpenChange}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Material</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="flex flex-col gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+                <p>
+                  This will permanently delete{' '}
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">{deleteTarget?.name}</span>{' '}
+                  ({deleteTarget?.quantity} {deleteTarget?.unit}). This action cannot be undone.
+                </p>
+                <p>
+                  To confirm, type{' '}
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">{deleteTarget?.name}</span> below:
+                </p>
+                <Input
+                  placeholder={deleteTarget?.name}
+                  value={confirmInput}
+                  onChange={(e) => setConfirmInput(e.target.value)}
+                  disabled={isDeleting}
+                />
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button variant="outline" onClick={() => handleDeleteOpenChange(false)} disabled={isDeleting}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
+              onClick={handleDeleteConfirm}
+              disabled={!isDeleteMatch || isDeleting}
+            >
+              {isDeleting ? 'Deleting...' : 'Confirm Delete'}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
