@@ -18,5 +18,11 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // TanStack Table's useReactTable() returns functions that the React Compiler
+      // cannot safely memoize. This is a confirmed library limitation, not a bug
+      // in app code — affects every table in the project, so disabled globally.
+      'react-hooks/incompatible-library': 'off',
+    },
   },
 ])
