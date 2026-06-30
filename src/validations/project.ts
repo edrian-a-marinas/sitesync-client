@@ -29,7 +29,7 @@ export const ProjectDetailResponseSchema = ProjectResponseSchema.extend({
 export const ProjectCreateSchema = z.object({
   name: z.string().min(1).max(100),
   location: z.string().min(1),
-  total_budget: z.number().min(1).max(999_999_999_999_999.99),
+  total_budget: z.number().min(1).max(999_999_999_999_999),
   start_date: z.string().min(1),
   target_end_date: z.string().min(1),
   status: z.string().min(1),
