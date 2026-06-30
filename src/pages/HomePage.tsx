@@ -24,7 +24,10 @@ export default function HomePage() {
     if (user.role_id === ROLES.SITE_WORKER) {
       return <WorkerPage />
     }
-    if (user.role_id === ROLES.OWNER || user.role_id === ROLES.PROJECT_MANAGER) {
+    if (
+      user.role_id === ROLES.OWNER ||
+      user.role_id === ROLES.PROJECT_MANAGER
+    ) {
       if (path === ROUTES.PROJECTS) return <ProjectsPage />
       if (path === ROUTES.MANAGE_USERS) return <ManageUsersPage />
       if (path === ROUTES.DAILY_LOGS) return <DailyLogsPage />
@@ -39,10 +42,21 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <Sidebar mobileOpen={mobileSidebarOpen} onMobileClose={() => setMobileSidebarOpen(false)} />
-      <div className={`flex flex-1 flex-col transition-all duration-200 ${sidebarCollapsed ? 'md:pl-[68px]' : 'md:pl-64'}`}>
+      <Sidebar
+        mobileOpen={mobileSidebarOpen}
+        onMobileClose={() => setMobileSidebarOpen(false)}
+      />
+      <div
+        className={`flex flex-1 flex-col transition-all duration-200 ${sidebarCollapsed ? 'md:pl-[68px]' : 'md:pl-64'}`}
+      >
         <TopNav onMenuClick={() => setMobileSidebarOpen(true)} />
-        <main className="flex-1 overflow-auto p-8" style={{ background: 'hsl(var(--page-bg))', transition: 'background 0.2s ease' }}>
+        <main
+          className="flex-1 overflow-auto p-8"
+          style={{
+            background: 'hsl(var(--page-bg))',
+            transition: 'background 0.2s ease',
+          }}
+        >
           {content()}
         </main>
       </div>

@@ -18,7 +18,11 @@ export default function DailyLogsPage() {
   const { user } = useAuthStore()
   const isOwner = user?.role_id === ROLES.OWNER
   const navigate = useNavigate()
-  const searchParams = useSearch({ strict: false }) as { project?: number; page?: number; search?: string }
+  const searchParams = useSearch({ strict: false }) as {
+    project?: number
+    page?: number
+    search?: string
+  }
   const selectedProjectId = searchParams.project ?? null
   const page = searchParams.page ?? 1
   const search = searchParams.search ?? ''
@@ -27,27 +31,50 @@ export default function DailyLogsPage() {
   const [editLog, setEditLog] = useState<DailyLogResponse | null>(null)
   const PAGE_SIZE = 20
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
-  const { data: logs, isLoading: logsLoading, isError } = useDailyLogs(selectedProjectId, page, PAGE_SIZE, search)
-  const handleSearchChange = useCallback((value: string) => {
-    navigate({
-      to: ROUTES.DAILY_LOGS,
-      search: (prev: Partial<DailyLogsSearch>) => ({ ...prev, search: value, page: 1 }),
-    })
-  }, [navigate])
-  const handlePageChange = useCallback((newPage: number) => {
-    navigate({
-      to: ROUTES.DAILY_LOGS,
-      search: (prev: Partial<DailyLogsSearch>) => ({ ...prev, search: prev.search ?? '', page: newPage }),
-    })
-  }, [navigate])
-  const handleProjectChange = useCallback((id: number) => {
-    setSelectedLog(null)
-    navigate({
-      to: ROUTES.DAILY_LOGS,
-      search: { project: id, page: 1, search: '' },
-    })
-  }, [navigate])
-  const totalPages = logs ? Math.max(1, Math.ceil(logs.total / logs.page_size)) : 1
+  const {
+    data: logs,
+    isLoading: logsLoading,
+    isError,
+  } = useDailyLogs(selectedProjectId, page, PAGE_SIZE, search)
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      navigate({
+        to: ROUTES.DAILY_LOGS,
+        search: (prev: Partial<DailyLogsSearch>) => ({
+          ...prev,
+          search: value,
+          page: 1,
+        }),
+      })
+    },
+    [navigate],
+  )
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      navigate({
+        to: ROUTES.DAILY_LOGS,
+        search: (prev: Partial<DailyLogsSearch>) => ({
+          ...prev,
+          search: prev.search ?? '',
+          page: newPage,
+        }),
+      })
+    },
+    [navigate],
+  )
+  const handleProjectChange = useCallback(
+    (id: number) => {
+      setSelectedLog(null)
+      navigate({
+        to: ROUTES.DAILY_LOGS,
+        search: { project: id, page: 1, search: '' },
+      })
+    },
+    [navigate],
+  )
+  const totalPages = logs
+    ? Math.max(1, Math.ceil(logs.total / logs.page_size))
+    : 1
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-10">
@@ -86,7 +113,9 @@ export default function DailyLogsPage() {
 
       {isError && (
         <Alert variant="destructive">
-          <AlertDescription>Failed to load daily logs. Please try again.</AlertDescription>
+          <AlertDescription>
+            Failed to load daily logs. Please try again.
+          </AlertDescription>
         </Alert>
       )}
 
@@ -95,21 +124,27 @@ export default function DailyLogsPage() {
           logs={logs?.items ?? []}
           isLoading={logsLoading}
           selectedLog={selectedLog}
-          onSelectLog={(log) => setSelectedLog(prev => prev?.id === log.id ? null : log)}
+          onSelectLog={(log) =>
+            setSelectedLog((prev) => (prev?.id === log.id ? null : log))
+          }
           onEditLog={setEditLog}
           page={page}
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
       )}
-    <LogDetailSheet
+      <LogDetailSheet
         log={selectedLog}
-        onOpenChange={(open) => { if (!open) setSelectedLog(null) }}
+        onOpenChange={(open) => {
+          if (!open) setSelectedLog(null)
+        }}
       />
       <EditLogDialog
         log={editLog}
         projectId={selectedProjectId ?? 0}
-        onOpenChange={(open) => { if (!open) setEditLog(null) }}
+        onOpenChange={(open) => {
+          if (!open) setEditLog(null)
+        }}
       />
       {selectedProjectId !== null && (
         <CreateLogDialog

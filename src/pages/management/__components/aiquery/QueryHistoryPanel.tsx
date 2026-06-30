@@ -24,19 +24,35 @@ interface Props {
   onDeleteAll: () => void
   isDeletingAll: boolean
 }
-export function QueryHistoryPanel({ queries, isLoading, onClose, onDeleteQuery, onDeleteAll, isDeletingAll }: Props) {
+export function QueryHistoryPanel({
+  queries,
+  isLoading,
+  onClose,
+  onDeleteQuery,
+  onDeleteAll,
+  isDeletingAll,
+}: Props) {
   return (
     <div className="flex h-full flex-col">
       <div className="border-b border-zinc-200 dark:border-zinc-800 px-4 py-3 flex items-center justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Query History</h3>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">Last 90 days</p>
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            Query History
+          </h3>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Last 90 days
+          </p>
         </div>
         <div className="flex items-center gap-2">
           {queries.length > 0 && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" disabled={isDeletingAll} className="h-7 gap-1 text-xs text-red-500 hover:text-red-600 cursor-pointer disabled:cursor-not-allowed">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={isDeletingAll}
+                  className="h-7 gap-1 text-xs text-red-500 hover:text-red-600 cursor-pointer disabled:cursor-not-allowed"
+                >
                   <Trash2 className="h-3.5 w-3.5" />
                   Clear All
                 </Button>
@@ -45,19 +61,28 @@ export function QueryHistoryPanel({ queries, isLoading, onClose, onDeleteQuery, 
                 <AlertDialogHeader>
                   <AlertDialogTitle>Delete all query history?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This permanently deletes all your AI queries and answers. This action cannot be undone.
+                    This permanently deletes all your AI queries and answers.
+                    This action cannot be undone.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={onDeleteAll} className="bg-red-600 hover:bg-red-700">
+                  <AlertDialogAction
+                    onClick={onDeleteAll}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
                     Delete All
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
           )}
-          <button onClick={onClose} className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer">✕</button>
+          <button
+            onClick={onClose}
+            className="text-xs text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 cursor-pointer"
+          >
+            ✕
+          </button>
         </div>
       </div>
       <ScrollArea className="flex-1">
@@ -88,13 +113,23 @@ export function QueryHistoryPanel({ queries, isLoading, onClose, onDeleteQuery, 
                     </p>
                     <div className="flex items-center gap-1.5 shrink-0">
                       {q.status === 'Pending' && (
-                        <Badge variant="outline" className="bg-amber-50 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                        <Badge
+                          variant="outline"
+                          className="bg-amber-50 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                        >
                           Pending
                         </Badge>
                       )}
                       {isFailed && (
-                        <Badge variant="outline" className="bg-red-50 text-xs text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                          {isRateLimit ? 'Rate Limited' : isTimeout ? 'Timeout' : 'Failed'}
+                        <Badge
+                          variant="outline"
+                          className="bg-red-50 text-xs text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        >
+                          {isRateLimit
+                            ? 'Rate Limited'
+                            : isTimeout
+                              ? 'Timeout'
+                              : 'Failed'}
                         </Badge>
                       )}
                       <button
@@ -107,13 +142,19 @@ export function QueryHistoryPanel({ queries, isLoading, onClose, onDeleteQuery, 
                     </div>
                   </div>
                   {parsed?.type === 'ok' && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">{parsed.text}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 line-clamp-2">
+                      {parsed.text}
+                    </p>
                   )}
                   {isRateLimit && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400">Rate limited by Groq API.</p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
+                      Rate limited by Groq API.
+                    </p>
                   )}
                   {(isTimeout || isErr) && (
-                    <p className="text-xs text-red-500">{isTimeout ? 'Request timed out.' : 'Query failed.'}</p>
+                    <p className="text-xs text-red-500">
+                      {isTimeout ? 'Request timed out.' : 'Query failed.'}
+                    </p>
                   )}
                 </div>
               )

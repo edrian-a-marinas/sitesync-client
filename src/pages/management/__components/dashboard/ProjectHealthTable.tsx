@@ -1,5 +1,5 @@
-import { Link } from "@tanstack/react-router";
-import { ROUTES } from "@/constants";
+import { Link } from '@tanstack/react-router'
+import { ROUTES } from '@/constants'
 import {
   useReactTable,
   getCoreRowModel,
@@ -7,9 +7,9 @@ import {
   flexRender,
   createColumnHelper,
   type SortingState,
-} from "@tanstack/react-table";
-import { useState } from "react";
-import { ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+} from '@tanstack/react-table'
+import { useState } from 'react'
+import { ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -17,49 +17,60 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/pages/_components/ui/table";
-import type { ProjectBudgetSummary } from "@/validations/dashboard";
-import { formatPHP } from "@/utils/formatPHP";
-import { Badge } from "@/pages/_components/ui/badge";
+} from '@/pages/_components/ui/table'
+import type { ProjectBudgetSummary } from '@/validations/dashboard'
+import { formatPHP } from '@/utils/formatPHP'
+import { Badge } from '@/pages/_components/ui/badge'
 
-const columnHelper = createColumnHelper<ProjectBudgetSummary>();
+const columnHelper = createColumnHelper<ProjectBudgetSummary>()
 
 const columns = [
-  columnHelper.accessor("project_name", {
-    header: "Project",
+  columnHelper.accessor('project_name', {
+    header: 'Project',
     cell: (info) => (
-      <span className="font-medium text-zinc-900 dark:text-zinc-100">{info.getValue()}</span>
+      <span className="font-medium text-zinc-900 dark:text-zinc-100">
+        {info.getValue()}
+      </span>
     ),
   }),
-  columnHelper.accessor("total_budget", {
-    header: "Budget",
-    cell: (info) => formatPHP(info.getValue(), "short"),
+  columnHelper.accessor('total_budget', {
+    header: 'Budget',
+    cell: (info) => formatPHP(info.getValue(), 'short'),
   }),
-  columnHelper.accessor("actual_spending", {
-    header: "Actual Spend",
-    cell: (info) => formatPHP(info.getValue(), "short"),
+  columnHelper.accessor('actual_spending', {
+    header: 'Actual Spend',
+    cell: (info) => formatPHP(info.getValue(), 'short'),
   }),
-  columnHelper.accessor("is_over_budget", {
-    header: "Status",
+  columnHelper.accessor('is_over_budget', {
+    header: 'Status',
     cell: (info) => {
-      const over = info.getValue();
+      const over = info.getValue()
       return (
-        <Badge variant={over ? "destructive" : "secondary"} className="rounded-full">
-          {over ? "Over Budget" : "On Track"}
+        <Badge
+          variant={over ? 'destructive' : 'secondary'}
+          className="rounded-full"
+        >
+          {over ? 'Over Budget' : 'On Track'}
         </Badge>
-      );
+      )
     },
   }),
   columnHelper.accessor(
     (row) =>
-      row.total_budget > 0 ? Math.round((row.actual_spending / row.total_budget) * 100) : 0,
+      row.total_budget > 0
+        ? Math.round((row.actual_spending / row.total_budget) * 100)
+        : 0,
     {
-      id: "percent_used",
-      header: "% Used",
+      id: 'percent_used',
+      header: '% Used',
       cell: (info) => {
-        const value = info.getValue();
+        const value = info.getValue()
         const color =
-          value >= 100 ? "bg-red-500" : value >= 75 ? "bg-amber-500" : "bg-emerald-500";
+          value >= 100
+            ? 'bg-red-500'
+            : value >= 75
+              ? 'bg-amber-500'
+              : 'bg-emerald-500'
         return (
           <div className="flex items-center gap-2">
             <div className="h-1.5 w-28 overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
@@ -68,16 +79,18 @@ const columns = [
                 style={{ width: `${Math.min(value, 100)}%` }}
               />
             </div>
-            <span className="text-xs tabular-nums text-zinc-600 dark:text-zinc-400">{value}%</span>
+            <span className="text-xs tabular-nums text-zinc-600 dark:text-zinc-400">
+              {value}%
+            </span>
           </div>
-        );
+        )
       },
-    }
+    },
   ),
-];
+]
 
 export function ProjectHealthTable({ data }: { data: ProjectBudgetSummary[] }) {
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([])
 
   const table = useReactTable({
     data,
@@ -86,14 +99,18 @@ export function ProjectHealthTable({ data }: { data: ProjectBudgetSummary[] }) {
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-  });
+  })
 
   return (
     <div className="rounded-lg border border-zinc-200 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
       <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4 dark:border-zinc-800">
         <div>
-          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Project Health</h3>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">Active projects across all sites</p>
+          <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            Project Health
+          </h3>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Active projects across all sites
+          </p>
         </div>
         <Link
           to={ROUTES.PROJECTS}
@@ -105,7 +122,10 @@ export function ProjectHealthTable({ data }: { data: ProjectBudgetSummary[] }) {
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id} className="border-zinc-100 dark:border-zinc-800">
+            <TableRow
+              key={headerGroup.id}
+              className="border-zinc-100 dark:border-zinc-800"
+            >
               {headerGroup.headers.map((header) => (
                 <TableHead
                   key={header.id}
@@ -113,10 +133,13 @@ export function ProjectHealthTable({ data }: { data: ProjectBudgetSummary[] }) {
                   onClick={header.column.getToggleSortingHandler()}
                 >
                   <span className="flex items-center gap-1">
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                    {header.column.getIsSorted() === "asc" ? (
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                    {header.column.getIsSorted() === 'asc' ? (
                       <ArrowUp className="h-3 w-3" />
-                    ) : header.column.getIsSorted() === "desc" ? (
+                    ) : header.column.getIsSorted() === 'desc' ? (
                       <ArrowDown className="h-3 w-3" />
                     ) : (
                       <ArrowUpDown className="h-3 w-3 opacity-40" />
@@ -129,9 +152,15 @@ export function ProjectHealthTable({ data }: { data: ProjectBudgetSummary[] }) {
         </TableHeader>
         <TableBody>
           {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id} className="border-zinc-50 dark:border-zinc-800/60">
+            <TableRow
+              key={row.id}
+              className="border-zinc-50 dark:border-zinc-800/60"
+            >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="px-5 py-3.5 text-sm text-zinc-600 dark:text-zinc-300">
+                <TableCell
+                  key={cell.id}
+                  className="px-5 py-3.5 text-sm text-zinc-600 dark:text-zinc-300"
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
@@ -139,7 +168,10 @@ export function ProjectHealthTable({ data }: { data: ProjectBudgetSummary[] }) {
           ))}
           {data.length === 0 && (
             <TableRow>
-              <TableCell colSpan={columns.length} className="px-5 py-6 text-center text-sm text-zinc-400">
+              <TableCell
+                colSpan={columns.length}
+                className="px-5 py-6 text-center text-sm text-zinc-400"
+              >
                 No projects found.
               </TableCell>
             </TableRow>
@@ -147,5 +179,5 @@ export function ProjectHealthTable({ data }: { data: ProjectBudgetSummary[] }) {
         </TableBody>
       </Table>
     </div>
-  );
+  )
 }

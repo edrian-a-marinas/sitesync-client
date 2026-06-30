@@ -7,7 +7,12 @@ import {
   SelectValue,
 } from '@/pages/_components/ui/select'
 import { Button } from '@/pages/_components/ui/button'
-import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@/pages/_components/ui/tooltip'
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from '@/pages/_components/ui/tooltip'
 import { RefreshCw } from 'lucide-react'
 interface Props {
   projects: ProjectResponse[]
@@ -36,7 +41,9 @@ export default function ReportFilters({
         onValueChange={(v) => onProjectChange(Number(v))}
       >
         <SelectTrigger className="w-56">
-          <SelectValue placeholder={projectsLoading ? 'Loading...' : 'Select a project'} />
+          <SelectValue
+            placeholder={projectsLoading ? 'Loading...' : 'Select a project'}
+          />
         </SelectTrigger>
         <SelectContent>
           {projects.map((p) => (
@@ -46,8 +53,8 @@ export default function ReportFilters({
           ))}
         </SelectContent>
       </Select>
-      {hasProject && (
-        disableGenerate ? (
+      {hasProject &&
+        (disableGenerate ? (
           <TooltipProvider delayDuration={200}>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -60,7 +67,9 @@ export default function ReportFilters({
               </TooltipTrigger>
               <TooltipContent>
                 A report was already generated for this project today.
-                {nextAvailableDate ? ` You can generate a new one on ${nextAvailableDate}.` : ''}
+                {nextAvailableDate
+                  ? ` You can generate a new one on ${nextAvailableDate}.`
+                  : ''}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -69,8 +78,7 @@ export default function ReportFilters({
             <RefreshCw className="mr-1.5 h-4 w-4" />
             Generate Report
           </Button>
-        )
-      )}
+        ))}
     </div>
   )
 }

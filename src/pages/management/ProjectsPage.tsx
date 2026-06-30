@@ -36,7 +36,14 @@ import {
   SelectValue,
 } from '@/pages/_components/ui/select'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
-import { MoreHorizontal, Plus, FolderOpen, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import {
+  MoreHorizontal,
+  Plus,
+  FolderOpen,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+} from 'lucide-react'
 import { formatPHP } from '@/utils/formatPHP'
 import CreateProjectDialog from './__components/projects/CreateProjectDialog'
 import EditProjectDialog from './__components/projects/EditProjectDialog'
@@ -46,9 +53,11 @@ import ProjectDetailPanel from './__components/projects/ProjectDetailPanel'
 type StatusFilter = 'all' | 'Active' | 'Completed' | 'On Hold'
 
 const STATUS_BADGE: Record<string, string> = {
-  Active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  Active:
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
   Completed: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  'On Hold': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  'On Hold':
+    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
 }
 
 const columnHelper = createColumnHelper<ProjectResponse>()
@@ -58,48 +67,63 @@ export default function ProjectsPage() {
   const isOwner = user?.role_id === ROLES.OWNER
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('Active')
   const [sorting, setSorting] = useState<SortingState>([])
-  const [selectedProject, setSelectedProject] = useState<ProjectResponse | null>(null)
+  const [selectedProject, setSelectedProject] =
+    useState<ProjectResponse | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [editProject, setEditProject] = useState<ProjectResponse | null>(null)
-  const [deleteProject, setDeleteProject] = useState<ProjectResponse | null>(null)
-
-  const { data: projects, isLoading, isError } = useProjects(
-    statusFilter === 'all' ? undefined : statusFilter
+  const [deleteProject, setDeleteProject] = useState<ProjectResponse | null>(
+    null,
   )
 
+  const {
+    data: projects,
+    isLoading,
+    isError,
+  } = useProjects(statusFilter === 'all' ? undefined : statusFilter)
+
   const handleView = (project: ProjectResponse) => {
-    setSelectedProject(prev => prev?.id === project.id ? null : project)
+    setSelectedProject((prev) => (prev?.id === project.id ? null : project))
   }
 
   const columns = [
     columnHelper.accessor('name', {
       header: 'Project Name',
       cell: (info) => (
-        <span className="font-medium text-zinc-900 dark:text-zinc-100">{info.getValue()}</span>
+        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+          {info.getValue()}
+        </span>
       ),
     }),
     columnHelper.accessor('location', {
       header: 'Location',
       cell: (info) => (
-        <span className="text-zinc-500 dark:text-zinc-400">{info.getValue()}</span>
+        <span className="text-zinc-500 dark:text-zinc-400">
+          {info.getValue()}
+        </span>
       ),
     }),
     columnHelper.accessor('total_budget', {
       header: 'Total Budget',
       cell: (info) => (
-        <span className="text-zinc-700 dark:text-zinc-300">{formatPHP(info.getValue())}</span>
+        <span className="text-zinc-700 dark:text-zinc-300">
+          {formatPHP(info.getValue())}
+        </span>
       ),
     }),
     columnHelper.accessor('start_date', {
       header: 'Start Date',
       cell: (info) => (
-        <span className="text-zinc-500 dark:text-zinc-400">{info.getValue()}</span>
+        <span className="text-zinc-500 dark:text-zinc-400">
+          {info.getValue()}
+        </span>
       ),
     }),
     columnHelper.accessor('target_end_date', {
       header: 'Target End',
       cell: (info) => (
-        <span className="text-zinc-500 dark:text-zinc-400">{info.getValue()}</span>
+        <span className="text-zinc-500 dark:text-zinc-400">
+          {info.getValue()}
+        </span>
       ),
     }),
     columnHelper.accessor('status', {
@@ -164,7 +188,9 @@ export default function ProjectsPage() {
     Array.from({ length: 5 }).map((_, i) => (
       <TableRow key={i}>
         {Array.from({ length: 7 }).map((__, j) => (
-          <TableCell key={j}><Skeleton className="h-4 w-24" /></TableCell>
+          <TableCell key={j}>
+            <Skeleton className="h-4 w-24" />
+          </TableCell>
         ))}
       </TableRow>
     ))
@@ -213,7 +239,9 @@ export default function ProjectsPage() {
       {/* Error */}
       {isError && (
         <Alert variant="destructive">
-          <AlertDescription>Failed to load projects. Please try again.</AlertDescription>
+          <AlertDescription>
+            Failed to load projects. Please try again.
+          </AlertDescription>
         </Alert>
       )}
 
@@ -226,20 +254,26 @@ export default function ProjectsPage() {
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
+                    className={
+                      header.column.getCanSort()
+                        ? 'cursor-pointer select-none'
+                        : ''
+                    }
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <span className="flex items-center gap-1">
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {header.column.getCanSort() && (
-                        header.column.getIsSorted() === 'asc' ? (
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                      {header.column.getCanSort() &&
+                        (header.column.getIsSorted() === 'asc' ? (
                           <ArrowUp className="h-3 w-3" />
                         ) : header.column.getIsSorted() === 'desc' ? (
                           <ArrowDown className="h-3 w-3" />
                         ) : (
                           <ArrowUpDown className="h-3 w-3 opacity-40" />
-                        )
-                      )}
+                        ))}
                     </span>
                   </TableHead>
                 ))}
@@ -247,13 +281,17 @@ export default function ProjectsPage() {
             ))}
           </TableHeader>
           <TableBody>
-            {isLoading ? renderSkeletonRows() : table.getRowModel().rows.length === 0 ? (
+            {isLoading ? (
+              renderSkeletonRows()
+            ) : table.getRowModel().rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="py-16 text-center">
                   <div className="flex flex-col items-center gap-2 text-zinc-400 dark:text-zinc-500">
                     <FolderOpen className="h-8 w-8" />
                     <p className="text-sm">
-                      {isOwner ? 'No projects yet. Create your first project.' : 'No assigned projects found.'}
+                      {isOwner
+                        ? 'No projects yet. Create your first project.'
+                        : 'No assigned projects found.'}
                     </p>
                   </div>
                 </TableCell>
@@ -271,7 +309,10 @@ export default function ProjectsPage() {
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -293,19 +334,20 @@ export default function ProjectsPage() {
       {/* Modals */}
       {isOwner && (
         <>
-          <CreateProjectDialog
-            open={createOpen}
-            onOpenChange={setCreateOpen}
-          />
+          <CreateProjectDialog open={createOpen} onOpenChange={setCreateOpen} />
           <EditProjectDialog
             project={editProject}
             open={!!editProject}
-            onOpenChange={(open) => { if (!open) setEditProject(null) }}
+            onOpenChange={(open) => {
+              if (!open) setEditProject(null)
+            }}
           />
           <DeleteConfirmDialog
             project={deleteProject}
             open={!!deleteProject}
-            onOpenChange={(open) => { if (!open) setDeleteProject(null) }}
+            onOpenChange={(open) => {
+              if (!open) setDeleteProject(null)
+            }}
           />
         </>
       )}

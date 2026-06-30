@@ -31,7 +31,9 @@ export default function DailyLogFilters({
         onValueChange={(v) => onProjectChange(Number(v))}
       >
         <SelectTrigger className="w-56">
-          <SelectValue placeholder={projectsLoading ? 'Loading...' : 'Select a project'} />
+          <SelectValue
+            placeholder={projectsLoading ? 'Loading...' : 'Select a project'}
+          />
         </SelectTrigger>
         <SelectContent>
           {projects.map((p) => (

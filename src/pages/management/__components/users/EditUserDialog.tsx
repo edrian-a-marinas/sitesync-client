@@ -77,8 +77,10 @@ export default function EditUserDialog({ user, onOpenChange }: Props) {
       toast.success('User updated successfully.')
       onOpenChange(false)
     } catch (err) {
-      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
-      const message = typeof detail === 'string' ? detail : 'Failed to update user.'
+      const detail = (err as { response?: { data?: { detail?: unknown } } })
+        ?.response?.data?.detail
+      const message =
+        typeof detail === 'string' ? detail : 'Failed to update user.'
       toast.error(message)
     }
   }
@@ -92,7 +94,10 @@ export default function EditUserDialog({ user, onOpenChange }: Props) {
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <div className="grid grid-cols-2 gap-3">
               <FormField
                 control={form.control}
@@ -100,7 +105,9 @@ export default function EditUserDialog({ user, onOpenChange }: Props) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -111,7 +118,9 @@ export default function EditUserDialog({ user, onOpenChange }: Props) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -122,8 +131,13 @@ export default function EditUserDialog({ user, onOpenChange }: Props) {
               name="middle_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Middle Name <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormLabel>
+                    Middle Name{' '}
+                    <span className="text-zinc-400 text-xs">(optional)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -133,13 +147,22 @@ export default function EditUserDialog({ user, onOpenChange }: Props) {
               name="phone_number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
-                  <FormControl><Input placeholder="+63 912 345 6789" {...field} /></FormControl>
+                  <FormLabel>
+                    Phone{' '}
+                    <span className="text-zinc-400 text-xs">(optional)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="+63 912 345 6789" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={updateUser.isPending} className="mt-2 w-full">
+            <Button
+              type="submit"
+              disabled={updateUser.isPending}
+              className="mt-2 w-full"
+            >
               {updateUser.isPending ? 'Saving...' : 'Save Changes'}
             </Button>
           </form>

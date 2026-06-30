@@ -2,7 +2,12 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { PhaseUpdateSchema, type PhaseUpdate, type PhaseResponse, type ProjectResponse } from '@/validations/project'
+import {
+  PhaseUpdateSchema,
+  type PhaseUpdate,
+  type PhaseResponse,
+  type ProjectResponse,
+} from '@/validations/project'
 import { useUpdatePhase } from '@/hooks/useProject'
 import {
   Dialog,
@@ -36,7 +41,12 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-export default function EditPhaseDialog({ project, phase, open, onOpenChange }: Props) {
+export default function EditPhaseDialog({
+  project,
+  phase,
+  open,
+  onOpenChange,
+}: Props) {
   const { mutate: updatePhase, isPending } = useUpdatePhase()
 
   const form = useForm<PhaseUpdate>({
@@ -79,10 +89,12 @@ export default function EditPhaseDialog({ project, phase, open, onOpenChange }: 
           onOpenChange(false)
         },
         onError: (err: unknown) => {
-          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to update phase'
+          const message =
+            (err as { response?: { data?: { detail?: string } } })?.response
+              ?.data?.detail ?? 'Failed to update phase'
           toast.error(message)
         },
-      }
+      },
     )
   }
 
@@ -99,7 +111,10 @@ export default function EditPhaseDialog({ project, phase, open, onOpenChange }: 
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -107,7 +122,10 @@ export default function EditPhaseDialog({ project, phase, open, onOpenChange }: 
                 <FormItem>
                   <FormLabel>Phase Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Foundation, Structure, Finishing" {...field} />
+                    <Input
+                      placeholder="e.g. Foundation, Structure, Finishing"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

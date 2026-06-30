@@ -1,7 +1,10 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { DailyLogCreateSchema, type DailyLogCreate } from '@/validations/dailyLog'
+import {
+  DailyLogCreateSchema,
+  type DailyLogCreate,
+} from '@/validations/dailyLog'
 import { useCreateDailyLog } from '@/hooks/useDailyLog'
 import {
   Dialog,
@@ -32,11 +35,31 @@ import { useRef, useState } from 'react'
 import { uploadSitePhoto } from '@/services/sitePhoto'
 import { SitePhotoUploadSchema } from '@/validations/sitePhoto'
 import { createMaterial } from '@/services/material'
-import { MaterialCreateSchema, type MaterialCreate } from '@/validations/material'
+import {
+  MaterialCreateSchema,
+  type MaterialCreate,
+} from '@/validations/material'
 import { useQueryClient } from '@tanstack/react-query'
 
 const WEATHER_OPTIONS = ['Sunny', 'Cloudy', 'Rainy', 'Stormy']
-const UNIT_OPTIONS = ['pc', 'bd.ft', 'kg', 'ton', 'bag', 'm', 'sq.m', 'cu.m', 'L', 'gal', 'roll', 'box', 'sack', 'set', 'lot', 'sheet']
+const UNIT_OPTIONS = [
+  'pc',
+  'bd.ft',
+  'kg',
+  'ton',
+  'bag',
+  'm',
+  'sq.m',
+  'cu.m',
+  'L',
+  'gal',
+  'roll',
+  'box',
+  'sack',
+  'set',
+  'lot',
+  'sheet',
+]
 const emptyMaterialForm = { name: '', quantity: '', unit: '', unit_cost: '' }
 
 interface Props {
@@ -46,7 +69,12 @@ interface Props {
   existingDates: string[]
 }
 
-export default function CreateLogDialog({ open, onOpenChange, projectId, existingDates }: Props) {
+export default function CreateLogDialog({
+  open,
+  onOpenChange,
+  projectId,
+  existingDates,
+}: Props) {
   const { mutate: createLog, isPending } = useCreateDailyLog()
   const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -110,7 +138,13 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
   const errors = form.formState.errors
 
   const onSubmit = (data: DailyLogCreate) => {
-    if (showMaterialForm && (materialForm.name || materialForm.quantity || materialForm.unit || materialForm.unit_cost)) {
+    if (
+      showMaterialForm &&
+      (materialForm.name ||
+        materialForm.quantity ||
+        materialForm.unit ||
+        materialForm.unit_cost)
+    ) {
       toast.error('Please finish or cancel the material you are adding.')
       return
     }
@@ -132,29 +166,37 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
             tasks.push(
               ...fileQueue.map((file) =>
                 uploadSitePhoto(projectId, newLog.id, file).catch(() =>
-                  toast.error(`Failed to upload ${file.name}`)
-                )
-              )
+                  toast.error(`Failed to upload ${file.name}`),
+                ),
+              ),
             )
           }
           if (materialQueue.length > 0) {
             tasks.push(
               ...materialQueue.map((material) =>
                 createMaterial(projectId, newLog.id, material).catch(() =>
-                  toast.error(`Failed to add material: ${material.name}`)
-                )
-              )
+                  toast.error(`Failed to add material: ${material.name}`),
+                ),
+              ),
             )
           }
           if (tasks.length > 0) {
             await Promise.allSettled(tasks)
           }
           const parts: string[] = []
-          if (fileQueue.length > 0) parts.push(`${fileQueue.length} attachment(s)`)
-          if (materialQueue.length > 0) parts.push(`${materialQueue.length} material(s)`)
-          toast.success(parts.length > 0 ? `Daily log submitted with ${parts.join(' and ')}` : 'Daily log submitted successfully')
+          if (fileQueue.length > 0)
+            parts.push(`${fileQueue.length} attachment(s)`)
+          if (materialQueue.length > 0)
+            parts.push(`${materialQueue.length} material(s)`)
+          toast.success(
+            parts.length > 0
+              ? `Daily log submitted with ${parts.join(' and ')}`
+              : 'Daily log submitted successfully',
+          )
           if (materialQueue.length > 0) {
-            queryClient.invalidateQueries({ queryKey: ['materials', projectId, newLog.id] })
+            queryClient.invalidateQueries({
+              queryKey: ['materials', projectId, newLog.id],
+            })
           }
           form.reset()
           setFileQueue([])
@@ -162,10 +204,12 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
           onOpenChange(false)
         },
         onError: (err: unknown) => {
-          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to submit log'
+          const message =
+            (err as { response?: { data?: { detail?: string } } })?.response
+              ?.data?.detail ?? 'Failed to submit log'
           toast.error(message)
         },
-      }
+      },
     )
   }
 
@@ -187,14 +231,18 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
           <DialogTitle>New Daily Log</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <FormField
               control={form.control}
               name="log_date"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Date {errors.log_date && <span className="text-red-500">*</span>}
+                    Date{' '}
+                    {errors.log_date && <span className="text-red-500">*</span>}
                   </FormLabel>
                   <FormControl>
                     <div className="relative">
@@ -206,7 +254,9 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
                       <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                     </div>
                   </FormControl>
-                  {errors.log_date && <p className="text-xs text-red-500">Required</p>}
+                  {errors.log_date && (
+                    <p className="text-xs text-red-500">Required</p>
+                  )}
                 </FormItem>
               )}
             />
@@ -224,7 +274,9 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
                     </FormControl>
                     <SelectContent>
                       {WEATHER_OPTIONS.map((w) => (
-                        <SelectItem key={w} value={w}>{w}</SelectItem>
+                        <SelectItem key={w} value={w}>
+                          {w}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -237,7 +289,10 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Work Accomplished {errors.work_accomplished && <span className="text-red-500">*</span>}
+                    Work Accomplished{' '}
+                    {errors.work_accomplished && (
+                      <span className="text-red-500">*</span>
+                    )}
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -246,7 +301,9 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
                       {...field}
                     />
                   </FormControl>
-                  {errors.work_accomplished && <p className="text-xs text-red-500">Required</p>}
+                  {errors.work_accomplished && (
+                    <p className="text-xs text-red-500">Required</p>
+                  )}
                 </FormItem>
               )}
             />
@@ -255,7 +312,10 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Notes <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
+                  <FormLabel>
+                    Notes{' '}
+                    <span className="text-zinc-400 text-xs">(optional)</span>
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Any additional notes or observations..."
@@ -270,7 +330,8 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Materials <span className="text-zinc-400 text-xs">(optional)</span>
+                  Materials{' '}
+                  <span className="text-zinc-400 text-xs">(optional)</span>
                 </span>
                 {!showMaterialForm && (
                   <Button
@@ -288,11 +349,19 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
               {materialQueue.length > 0 && (
                 <ul className="flex flex-col gap-1.5 max-h-36 overflow-y-auto">
                   {materialQueue.map((material, i) => (
-                    <li key={i} className="flex items-center justify-between rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400">
+                    <li
+                      key={i}
+                      className="flex items-center justify-between rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400"
+                    >
                       <span className="truncate">
-                        {material.name} — {material.quantity} {material.unit} × ₱{material.unit_cost}
+                        {material.name} — {material.quantity} {material.unit} ×
+                        ₱{material.unit_cost}
                       </span>
-                      <button type="button" onClick={() => removeMaterialFromQueue(i)} className="ml-2 shrink-0 text-zinc-400 hover:text-red-500 transition-colors">
+                      <button
+                        type="button"
+                        onClick={() => removeMaterialFromQueue(i)}
+                        className="ml-2 shrink-0 text-zinc-400 hover:text-red-500 transition-colors"
+                      >
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </li>
@@ -302,39 +371,97 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
               {showMaterialForm && (
                 <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 dark:border-zinc-700 p-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-zinc-500">New Material</span>
-                    <button type="button" onClick={() => { setShowMaterialForm(false); setMaterialForm(emptyMaterialForm) }} className="text-zinc-400 hover:text-red-500 transition-colors">
+                    <span className="text-xs font-medium text-zinc-500">
+                      New Material
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMaterialForm(false)
+                        setMaterialForm(emptyMaterialForm)
+                      }}
+                      className="text-zinc-400 hover:text-red-500 transition-colors"
+                    >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-zinc-500 dark:text-zinc-400">Material Name</label>
-                    <Input placeholder="e.g. Lumber" value={materialForm.name} onChange={(e) => setMaterialForm({ ...materialForm, name: e.target.value })} />
+                    <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Material Name
+                    </label>
+                    <Input
+                      placeholder="e.g. Lumber"
+                      value={materialForm.name}
+                      onChange={(e) =>
+                        setMaterialForm({
+                          ...materialForm,
+                          name: e.target.value,
+                        })
+                      }
+                    />
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-zinc-500 dark:text-zinc-400">Quantity</label>
-                      <Input placeholder="0" type="number" value={materialForm.quantity} onChange={(e) => setMaterialForm({ ...materialForm, quantity: e.target.value })} />
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Quantity
+                      </label>
+                      <Input
+                        placeholder="0"
+                        type="number"
+                        value={materialForm.quantity}
+                        onChange={(e) =>
+                          setMaterialForm({
+                            ...materialForm,
+                            quantity: e.target.value,
+                          })
+                        }
+                      />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-zinc-500 dark:text-zinc-400">Unit</label>
-                      <Select value={materialForm.unit} onValueChange={(value) => setMaterialForm({ ...materialForm, unit: value })}>
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Unit
+                      </label>
+                      <Select
+                        value={materialForm.unit}
+                        onValueChange={(value) =>
+                          setMaterialForm({ ...materialForm, unit: value })
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
                           {UNIT_OPTIONS.map((u) => (
-                            <SelectItem key={u} value={u}>{u}</SelectItem>
+                            <SelectItem key={u} value={u}>
+                              {u}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-zinc-500 dark:text-zinc-400">Unit Cost (₱)</label>
-                      <Input placeholder="0.00" type="number" value={materialForm.unit_cost} onChange={(e) => setMaterialForm({ ...materialForm, unit_cost: e.target.value })} />
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Unit Cost (₱)
+                      </label>
+                      <Input
+                        placeholder="0.00"
+                        type="number"
+                        value={materialForm.unit_cost}
+                        onChange={(e) =>
+                          setMaterialForm({
+                            ...materialForm,
+                            unit_cost: e.target.value,
+                          })
+                        }
+                      />
                     </div>
                   </div>
-                  <Button type="button" size="sm" className="h-7 text-xs" onClick={addMaterialToQueue}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={addMaterialToQueue}
+                  >
                     Add to List
                   </Button>
                 </div>
@@ -344,7 +471,10 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Attachments <span className="text-zinc-400 text-xs">(optional, max 10)</span>
+                  Attachments{' '}
+                  <span className="text-zinc-400 text-xs">
+                    (optional, max 10)
+                  </span>
                 </span>
                 <Button
                   type="button"
@@ -369,16 +499,27 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
               {fileQueue.length > 0 && (
                 <ul className="flex flex-col gap-1.5 max-h-36 overflow-y-auto">
                   {fileQueue.map((file, i) => (
-                    <li key={i} className="flex items-center justify-between rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400">
+                    <li
+                      key={i}
+                      className="flex items-center justify-between rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400"
+                    >
                       <div className="flex items-center gap-1.5 truncate">
                         {file.type.startsWith('image/') ? (
-                          <img src={URL.createObjectURL(file)} className="h-6 w-6 rounded object-cover" alt={file.name} />
+                          <img
+                            src={URL.createObjectURL(file)}
+                            className="h-6 w-6 rounded object-cover"
+                            alt={file.name}
+                          />
                         ) : (
                           <FileText className="h-4 w-4 shrink-0" />
                         )}
                         <span className="truncate">{file.name}</span>
                       </div>
-                      <button type="button" onClick={() => removeFromQueue(i)} className="ml-2 shrink-0 text-zinc-400 hover:text-red-500 transition-colors">
+                      <button
+                        type="button"
+                        onClick={() => removeFromQueue(i)}
+                        className="ml-2 shrink-0 text-zinc-400 hover:text-red-500 transition-colors"
+                      >
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </li>

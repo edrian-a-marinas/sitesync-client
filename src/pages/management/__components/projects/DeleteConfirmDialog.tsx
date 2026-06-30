@@ -19,7 +19,11 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-export default function DeleteConfirmDialog({ project, open, onOpenChange }: Props) {
+export default function DeleteConfirmDialog({
+  project,
+  open,
+  onOpenChange,
+}: Props) {
   const { mutate: deleteProject, isPending } = useDeleteProject()
   const [step, setStep] = useState<1 | 2>(1)
   const [confirmInput, setConfirmInput] = useState('')
@@ -40,7 +44,9 @@ export default function DeleteConfirmDialog({ project, open, onOpenChange }: Pro
         handleOpenChange(false)
       },
       onError: (err: unknown) => {
-        const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to delete project'
+        const message =
+          (err as { response?: { data?: { detail?: string } } })?.response?.data
+            ?.detail ?? 'Failed to delete project'
         toast.error(message)
       },
     })
@@ -60,7 +66,8 @@ export default function DeleteConfirmDialog({ project, open, onOpenChange }: Pro
                 <span className="font-semibold text-zinc-900 dark:text-zinc-100">
                   {project?.name}
                 </span>
-                ? This action cannot be undone and will remove all associated phases and assignments.
+                ? This action cannot be undone and will remove all associated
+                phases and assignments.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -83,11 +90,25 @@ export default function DeleteConfirmDialog({ project, open, onOpenChange }: Pro
                 <div className="flex flex-col gap-3 text-sm text-zinc-600 dark:text-zinc-400">
                   <p>You are about to permanently delete this project:</p>
                   <div className="rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 p-3 flex flex-col gap-1 text-zinc-800 dark:text-zinc-200">
-                    <span><span className="font-medium">Name:</span> {project?.name}</span>
-                    <span><span className="font-medium">Location:</span> {project?.location}</span>
-                    <span><span className="font-medium">Status:</span> {project?.status}</span>
-                    <span><span className="font-medium">Start:</span> {project?.start_date}</span>
-                    <span><span className="font-medium">End:</span> {project?.target_end_date}</span>
+                    <span>
+                      <span className="font-medium">Name:</span> {project?.name}
+                    </span>
+                    <span>
+                      <span className="font-medium">Location:</span>{' '}
+                      {project?.location}
+                    </span>
+                    <span>
+                      <span className="font-medium">Status:</span>{' '}
+                      {project?.status}
+                    </span>
+                    <span>
+                      <span className="font-medium">Start:</span>{' '}
+                      {project?.start_date}
+                    </span>
+                    <span>
+                      <span className="font-medium">End:</span>{' '}
+                      {project?.target_end_date}
+                    </span>
                   </div>
                   <p>
                     To confirm, type{' '}
@@ -108,7 +129,10 @@ export default function DeleteConfirmDialog({ project, open, onOpenChange }: Pro
             <AlertDialogFooter>
               <Button
                 variant="outline"
-                onClick={() => { setStep(1); setConfirmInput('') }}
+                onClick={() => {
+                  setStep(1)
+                  setConfirmInput('')
+                }}
                 disabled={isPending}
               >
                 Back

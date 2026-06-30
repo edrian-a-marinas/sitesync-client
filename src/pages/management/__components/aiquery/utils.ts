@@ -35,7 +35,8 @@ export function useCountdown(until: number | null) {
       setLeft(0)
       return
     }
-    const tick = () => setLeft(Math.max(0, Math.ceil((until - Date.now()) / 1000)))
+    const tick = () =>
+      setLeft(Math.max(0, Math.ceil((until - Date.now()) / 1000)))
     tick()
     const interval = setInterval(tick, 1000)
     return () => clearInterval(interval)

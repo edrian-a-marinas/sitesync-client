@@ -1,5 +1,16 @@
-import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { createQuery, getQuery, getQueries, deleteQuery, deleteAllQueries } from '@/services/aiQuery'
+import {
+  useQuery,
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query'
+import {
+  createQuery,
+  getQuery,
+  getQueries,
+  deleteQuery,
+  deleteAllQueries,
+} from '@/services/aiQuery'
 import type { AIQueryRequest, AIQueryResponse } from '@/types/aiQuery'
 
 const PAGE_SIZE = 10
@@ -41,17 +52,17 @@ export const useCreateQuery = () => {
   return useMutation({
     mutationFn: (data: AIQueryRequest) => createQuery(data),
     onSuccess: (newQuery) => {
-      queryClient.setQueryData<{ pages: AIQueryResponse[][], pageParams: unknown[] }>(
-        ['ai-queries'],
-        (old) => {
-          if (!old) return { pages: [[newQuery]], pageParams: [0] }
-          // Prepend to first page — backend is desc so first page = newest
-          // After reversal in sortedQueries this becomes the bottom
-          const pages = [...old.pages]
-          pages[0] = [newQuery, ...pages[0]]
-          return { ...old, pages }
-        }
-      )
+      queryClient.setQueryData<{
+        pages: AIQueryResponse[][]
+        pageParams: unknown[]
+      }>(['ai-queries'], (old) => {
+        if (!old) return { pages: [[newQuery]], pageParams: [0] }
+        // Prepend to first page — backend is desc so first page = newest
+        // After reversal in sortedQueries this becomes the bottom
+        const pages = [...old.pages]
+        pages[0] = [newQuery, ...pages[0]]
+        return { ...old, pages }
+      })
     },
   })
 }
@@ -60,16 +71,16 @@ export const useDeleteQuery = () => {
   return useMutation({
     mutationFn: (queryId: number) => deleteQuery(queryId),
     onSuccess: (_, queryId) => {
-      queryClient.setQueryData<{ pages: AIQueryResponse[][], pageParams: unknown[] }>(
-        ['ai-queries'],
-        (old) => {
-          if (!old) return old
-          return {
-            ...old,
-            pages: old.pages.map((page) => page.filter((q) => q.id !== queryId)),
-          }
+      queryClient.setQueryData<{
+        pages: AIQueryResponse[][]
+        pageParams: unknown[]
+      }>(['ai-queries'], (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          pages: old.pages.map((page) => page.filter((q) => q.id !== queryId)),
         }
-      )
+      })
     },
   })
 }
@@ -78,10 +89,10 @@ export const useDeleteAllQueries = () => {
   return useMutation({
     mutationFn: () => deleteAllQueries(),
     onSuccess: () => {
-      queryClient.setQueryData<{ pages: AIQueryResponse[][], pageParams: unknown[] }>(
-        ['ai-queries'],
-        { pages: [[]], pageParams: [0] }
-      )
+      queryClient.setQueryData<{
+        pages: AIQueryResponse[][]
+        pageParams: unknown[]
+      }>(['ai-queries'], { pages: [[]], pageParams: [0] })
     },
   })
 }

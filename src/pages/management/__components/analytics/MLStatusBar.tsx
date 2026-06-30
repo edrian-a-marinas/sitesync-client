@@ -2,7 +2,12 @@ import { useState, useEffect } from 'react'
 import type { MLStatus } from '@/types/ml'
 import { Badge } from '@/pages/_components/ui/badge'
 import { Button } from '@/pages/_components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/pages/_components/ui/tooltip'
 import { RefreshCw } from 'lucide-react'
 
 interface Props {
@@ -18,7 +23,12 @@ const MODEL_LABELS: Record<keyof MLStatus, string> = {
   material_forecast: 'Material Forecast',
 }
 
-export default function MLStatusBar({ status, isRetraining, onRetrain, cooldownUntil }: Props) {
+export default function MLStatusBar({
+  status,
+  isRetraining,
+  onRetrain,
+  cooldownUntil,
+}: Props) {
   const [cooldownLeft, setCooldownLeft] = useState(0)
 
   useEffect(() => {
@@ -28,7 +38,10 @@ export default function MLStatusBar({ status, isRetraining, onRetrain, cooldownU
       return
     }
     const tick = () => {
-      const remaining = Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 1000))
+      const remaining = Math.max(
+        0,
+        Math.ceil((cooldownUntil - Date.now()) / 1000),
+      )
       setCooldownLeft(remaining)
     }
     tick()
@@ -48,7 +61,9 @@ export default function MLStatusBar({ status, isRetraining, onRetrain, cooldownU
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white px-5 py-3 dark:border-zinc-800 dark:bg-zinc-900">
       <div className="flex flex-wrap items-center gap-3">
-        <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Model Status</span>
+        <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+          Model Status
+        </span>
         {status ? (
           <>
             {(Object.keys(status) as (keyof MLStatus)[]).map((key) => (
@@ -66,8 +81,12 @@ export default function MLStatusBar({ status, isRetraining, onRetrain, cooldownU
             ))}
             {status.budget_overrun.last_trained && (
               <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                {new Date(status.budget_overrun.last_trained).toLocaleDateString('en-PH', {
-                  month: 'short', day: 'numeric', year: 'numeric',
+                {new Date(
+                  status.budget_overrun.last_trained,
+                ).toLocaleDateString('en-PH', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
                 })}
               </span>
             )}
@@ -88,21 +107,27 @@ export default function MLStatusBar({ status, isRetraining, onRetrain, cooldownU
                 disabled={isDisabled}
                 className={isDisabled ? 'pointer-events-none' : ''}
               >
-                <RefreshCw className={`mr-1.5 h-3.5 w-3.5 ${isRetraining ? 'animate-spin' : ''}`} />
+                <RefreshCw
+                  className={`mr-1.5 h-3.5 w-3.5 ${isRetraining ? 'animate-spin' : ''}`}
+                />
                 {isCoolingDown
                   ? `Retrain in ${formatCooldown(cooldownLeft)}`
                   : isRetraining
-                  ? 'Retraining...'
-                  : 'Retrain Models'}
+                    ? 'Retraining...'
+                    : 'Retrain Models'}
               </Button>
             </span>
           </TooltipTrigger>
           {isDisabled && (
             <TooltipContent>
-              {isCoolingDown
-                ? <p>Models were recently retrained. Available again in {formatCooldown(cooldownLeft)}.</p>
-                : <p>Models are currently retraining. Please wait...</p>
-              }
+              {isCoolingDown ? (
+                <p>
+                  Models were recently retrained. Available again in{' '}
+                  {formatCooldown(cooldownLeft)}.
+                </p>
+              ) : (
+                <p>Models are currently retraining. Please wait...</p>
+              )}
             </TooltipContent>
           )}
         </Tooltip>

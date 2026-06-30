@@ -1,8 +1,12 @@
-import { z } from "zod";
+import { z } from 'zod'
 
-const PasswordStr = z.string().min(8).max(72);
-const NameStr = z.string().min(1).max(50).regex(/^[A-Za-z\s-]+$/);
-const PhoneStr = z.string().min(7).max(20);
+const PasswordStr = z.string().min(8).max(72)
+const NameStr = z
+  .string()
+  .min(1)
+  .max(50)
+  .regex(/^[A-Za-z\s-]+$/)
+const PhoneStr = z.string().min(7).max(20)
 
 // --- Used in ManageUsersPage ---
 export const UserUpdateSchema = z.object({
@@ -27,14 +31,14 @@ export const PasswordChangeSchema = z.object({
   current_password: PasswordStr,
   new_password: PasswordStr,
   confirm_new_password: PasswordStr,
-});
+})
 
 export const PasswordResetSchema = z.object({
   new_password: PasswordStr,
-});
+})
 
 // --- Inferred types ---
-export type RegisterInput = z.infer<typeof RegisterSchema>;
-export type UserUpdateInput = z.infer<typeof UserUpdateSchema>;
-export type PasswordChangeInput = z.infer<typeof PasswordChangeSchema>;
-export type PasswordResetInput = z.infer<typeof PasswordResetSchema>;
+export type RegisterInput = z.infer<typeof RegisterSchema>
+export type UserUpdateInput = z.infer<typeof UserUpdateSchema>
+export type PasswordChangeInput = z.infer<typeof PasswordChangeSchema>
+export type PasswordResetInput = z.infer<typeof PasswordResetSchema>

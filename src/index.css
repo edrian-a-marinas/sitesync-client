@@ -1,6 +1,6 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @source "../src";
-@import "tw-animate-css";
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is([data-theme="dark"], [data-theme="dark"] *));
 
@@ -97,7 +97,7 @@
   --sidebar-ring: oklch(0.76 0.16 70);
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
   --background: oklch(0.18 0.012 255);
   --foreground: oklch(0.92 0.004 255);
 

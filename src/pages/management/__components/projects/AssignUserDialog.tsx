@@ -3,7 +3,11 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import type { UserResponse } from '@/types/auth'
-import { AssignUserRequestSchema, type AssignUserRequest, type ProjectResponse } from '@/validations/project'
+import {
+  AssignUserRequestSchema,
+  type AssignUserRequest,
+  type ProjectResponse,
+} from '@/validations/project'
 import { useAssignManager, useAssignWorker } from '@/hooks/useProject'
 import { useUsers, useUsersByRole } from '@/hooks/useUser'
 import { ROLES } from '@/constants'
@@ -33,8 +37,15 @@ interface Props {
   excludeUserIds?: number[]
 }
 
-export default function AssignUserDialog({ project, type, open, onOpenChange, excludeUserIds = [] }: Props) {
-  const { mutate: assignManager, isPending: assigningManager } = useAssignManager()
+export default function AssignUserDialog({
+  project,
+  type,
+  open,
+  onOpenChange,
+  excludeUserIds = [],
+}: Props) {
+  const { mutate: assignManager, isPending: assigningManager } =
+    useAssignManager()
   const { mutate: assignWorker, isPending: assigningWorker } = useAssignWorker()
   const isPending = assigningManager || assigningWorker
   const isManager = type === 'manager'
@@ -45,14 +56,22 @@ export default function AssignUserDialog({ project, type, open, onOpenChange, ex
 
   // Managers: use existing role-filtered hook (PM list is small)
   // Workers: use all site workers system-wide with has_assignments flag
-  const { data: managers, isLoading: loadingManagers } = useUsersByRole(ROLES.PROJECT_MANAGER)
-  const { data: allWorkersData, isLoading: loadingWorkers } = useUsers('all', 1, 100)
+  const { data: managers, isLoading: loadingManagers } = useUsersByRole(
+    ROLES.PROJECT_MANAGER,
+  )
+  const { data: allWorkersData, isLoading: loadingWorkers } = useUsers(
+    'all',
+    1,
+    100,
+  )
 
   const isLoading = isManager ? loadingManagers : loadingWorkers
 
   const rawUsers = isManager
     ? (managers ?? [])
-    : (allWorkersData?.items ?? []).filter((u: UserResponse) => u.role_id === ROLES.SITE_WORKER)
+    : (allWorkersData?.items ?? []).filter(
+        (u: UserResponse) => u.role_id === ROLES.SITE_WORKER,
+      )
 
   const filteredUsers = rawUsers
     .filter((u) => !excludeUserIds.includes(u.id))
@@ -72,16 +91,21 @@ export default function AssignUserDialog({ project, type, open, onOpenChange, ex
       { projectId: project.id, data },
       {
         onSuccess: () => {
-          toast.success(isManager ? 'Manager assigned successfully' : 'Worker assigned successfully')
+          toast.success(
+            isManager
+              ? 'Manager assigned successfully'
+              : 'Worker assigned successfully',
+          )
           handleOpenChange(false)
         },
         onError: (err: unknown) => {
-          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? (isManager
-            ? 'Failed to assign manager'
-            : 'Failed to assign worker')
+          const message =
+            (err as { response?: { data?: { detail?: string } } })?.response
+              ?.data?.detail ??
+            (isManager ? 'Failed to assign manager' : 'Failed to assign worker')
           toast.error(message)
         },
-      }
+      },
     )
   }
 
@@ -109,16 +133,24 @@ export default function AssignUserDialog({ project, type, open, onOpenChange, ex
         </DialogHeader>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           Assigning to{' '}
-          <span className="font-medium text-zinc-900 dark:text-zinc-100">{project.name}</span>.
+          <span className="font-medium text-zinc-900 dark:text-zinc-100">
+            {project.name}
+          </span>
+          .
         </p>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <FormField
               control={form.control}
               name="user_id"
               render={() => (
                 <FormItem>
-                  <FormLabel>{isManager ? 'Project Manager' : 'Site Worker'}</FormLabel>
+                  <FormLabel>
+                    {isManager ? 'Project Manager' : 'Site Worker'}
+                  </FormLabel>
                   <FormControl>
                     <Input
                       placeholder={`Search ${isManager ? 'manager' : 'worker'} by name...`}
@@ -138,49 +170,61 @@ export default function AssignUserDialog({ project, type, open, onOpenChange, ex
                   {isFocused && (
                     <div className="mt-1 max-h-48 overflow-y-auto rounded-md border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
                       {isLoading ? (
-                        <p className="px-3 py-2 text-sm text-zinc-400">Loading...</p>
-                      ) : (() => {
-                        const isDefault = search.length === 0 && !isManager
-                        const listUsers = isDefault
-                          ? filteredUsers.filter((u) => !u.has_assignments).slice(0, 10)
-                          : filteredUsers
-                        return listUsers.length === 0 ? (
-                          <p className="px-3 py-2 text-sm text-zinc-400">
-                            {isDefault ? 'All workers are already assigned.' : 'No results found.'}
-                          </p>
-                        ) : (
-                          <>
-                            {isDefault && (
-                              <p className="px-3 py-2 text-xs text-zinc-400 dark:text-zinc-500 border-b border-zinc-100 dark:border-zinc-800">
-                                Not yet assigned to any project
-                              </p>
-                            )}
-                            {listUsers.map((u) => (
-                            <button
-                              key={u.id}
-                              type="button"
-                              onClick={() => {
-                                handleSelect(u.id)
-                                setSearch(`${u.first_name} ${u.last_name}`)
-                                setIsFocused(false)
-                              }}
-                              className={`w-full px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
-                                selectedId === u.id ? 'bg-zinc-100 dark:bg-zinc-800' : ''
-                              }`}
-                            >
-                              <span className="font-medium text-zinc-900 dark:text-zinc-100">
-                                {u.first_name} {u.last_name}
-                              </span>
-                              {!isManager && !u.has_assignments && search.length > 0 && (
-                                <span className="ml-2 text-xs text-zinc-400 dark:text-zinc-500">
-                                  (not yet assigned to any project)
-                                </span>
+                        <p className="px-3 py-2 text-sm text-zinc-400">
+                          Loading...
+                        </p>
+                      ) : (
+                        (() => {
+                          const isDefault = search.length === 0 && !isManager
+                          const listUsers = isDefault
+                            ? filteredUsers
+                                .filter((u) => !u.has_assignments)
+                                .slice(0, 10)
+                            : filteredUsers
+                          return listUsers.length === 0 ? (
+                            <p className="px-3 py-2 text-sm text-zinc-400">
+                              {isDefault
+                                ? 'All workers are already assigned.'
+                                : 'No results found.'}
+                            </p>
+                          ) : (
+                            <>
+                              {isDefault && (
+                                <p className="px-3 py-2 text-xs text-zinc-400 dark:text-zinc-500 border-b border-zinc-100 dark:border-zinc-800">
+                                  Not yet assigned to any project
+                                </p>
                               )}
-                            </button>
-                          ))}
-                          </>
-                        )
-                      })()}
+                              {listUsers.map((u) => (
+                                <button
+                                  key={u.id}
+                                  type="button"
+                                  onClick={() => {
+                                    handleSelect(u.id)
+                                    setSearch(`${u.first_name} ${u.last_name}`)
+                                    setIsFocused(false)
+                                  }}
+                                  className={`w-full px-3 py-2 text-left text-sm transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800 ${
+                                    selectedId === u.id
+                                      ? 'bg-zinc-100 dark:bg-zinc-800'
+                                      : ''
+                                  }`}
+                                >
+                                  <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                                    {u.first_name} {u.last_name}
+                                  </span>
+                                  {!isManager &&
+                                    !u.has_assignments &&
+                                    search.length > 0 && (
+                                      <span className="ml-2 text-xs text-zinc-400 dark:text-zinc-500">
+                                        (not yet assigned to any project)
+                                      </span>
+                                    )}
+                                </button>
+                              ))}
+                            </>
+                          )
+                        })()
+                      )}
                     </div>
                   )}
                 </FormItem>
@@ -196,7 +240,11 @@ export default function AssignUserDialog({ project, type, open, onOpenChange, ex
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending || !selectedId}>
-                {isPending ? 'Assigning...' : isManager ? 'Assign Manager' : 'Assign Worker'}
+                {isPending
+                  ? 'Assigning...'
+                  : isManager
+                    ? 'Assign Manager'
+                    : 'Assign Worker'}
               </Button>
             </DialogFooter>
           </form>

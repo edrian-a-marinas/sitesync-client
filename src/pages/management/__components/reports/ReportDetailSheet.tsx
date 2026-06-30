@@ -7,7 +7,14 @@ import {
 } from '@/pages/_components/ui/sheet'
 import { Badge } from '@/pages/_components/ui/badge'
 import { ScrollArea } from '@/pages/_components/ui/scroll-area'
-import { CalendarRange, Clock, Wallet, ClipboardList, AlertTriangle, User } from 'lucide-react'
+import {
+  CalendarRange,
+  Clock,
+  Wallet,
+  ClipboardList,
+  AlertTriangle,
+  User,
+} from 'lucide-react'
 import { formatPHP, getMoneyTooltip } from '@/utils/formatPHP'
 
 interface Props {
@@ -35,7 +42,9 @@ export default function ReportDetailSheet({ report, onOpenChange }: Props) {
               </div>
               <div className="flex items-center gap-2">
                 <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                  {report?.source === 'scheduled' ? '—' : report?.generated_by_name ?? '—'}
+                  {report?.source === 'scheduled'
+                    ? '—'
+                    : (report?.generated_by_name ?? '—')}
                 </p>
                 {report && (
                   <Badge
@@ -44,11 +53,15 @@ export default function ReportDetailSheet({ report, onOpenChange }: Props) {
                       report.source === 'scheduled'
                         ? 'bg-blue-50 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
                         : report.source === 'seeded'
-                        ? 'bg-amber-50 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                        : 'bg-zinc-100 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
+                          ? 'bg-amber-50 text-xs font-medium text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                          : 'bg-zinc-100 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
                     }
                   >
-                    {report.source === 'scheduled' ? 'Auto (Monday)' : report.source === 'seeded' ? 'Historical' : 'Manual'}
+                    {report.source === 'scheduled'
+                      ? 'Auto (Monday)'
+                      : report.source === 'seeded'
+                        ? 'Historical'
+                        : 'Manual'}
                   </Badge>
                 )}
               </div>
@@ -73,7 +86,11 @@ export default function ReportDetailSheet({ report, onOpenChange }: Props) {
               </div>
               <p
                 className="text-sm text-zinc-700 dark:text-zinc-300"
-                title={report ? getMoneyTooltip(report.total_material_cost) : undefined}
+                title={
+                  report
+                    ? getMoneyTooltip(report.total_material_cost)
+                    : undefined
+                }
               >
                 {report ? formatPHP(report.total_material_cost) : '—'}
               </p>
@@ -106,7 +123,9 @@ export default function ReportDetailSheet({ report, onOpenChange }: Props) {
                   variant="outline"
                 >
                   {report.incident_count} total
-                  {report.open_incident_count > 0 ? ` · ${report.open_incident_count} open` : ''}
+                  {report.open_incident_count > 0
+                    ? ` · ${report.open_incident_count} open`
+                    : ''}
                 </Badge>
               ) : (
                 <span className="text-sm text-zinc-400">—</span>

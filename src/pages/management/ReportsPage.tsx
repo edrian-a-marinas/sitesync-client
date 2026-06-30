@@ -18,13 +18,18 @@ export default function ReportsPage() {
   const isOwner = user?.role_id === ROLES.OWNER
 
   const navigate = useNavigate()
-  const searchParams = useSearch({ strict: false }) as { project?: number; page?: number }
+  const searchParams = useSearch({ strict: false }) as {
+    project?: number
+    page?: number
+  }
   const selectedProjectId = searchParams.project ?? null
   const page = searchParams.page ?? 1
   const PAGE_SIZE = 20
 
   const [generateOpen, setGenerateOpen] = useState(false)
-  const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(null)
+  const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(
+    null,
+  )
   const [isPolling, setIsPolling] = useState(false)
   const [newReport, setNewReport] = useState<ReportResponse | null>(null)
   const [pollStartedAt, setPollStartedAt] = useState<number | null>(null)
@@ -32,33 +37,47 @@ export default function ReportsPage() {
   const POLL_TIMEOUT_MS = 30000 // 30s real wall-clock budget, not tied to refetch count
   const COOLDOWN_MS = 30000 // 30s lockout after failure, no background requests
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
-  const { data: reports, isLoading: reportsLoading, isError } = useReports(
+  const {
+    data: reports,
+    isLoading: reportsLoading,
+    isError,
+  } = useReports(
     selectedProjectId,
     page,
     PAGE_SIZE,
     isPolling ? 3000 : undefined,
   )
   const today = new Date().toISOString().slice(0, 10)
-  const existsToday = reports?.items?.some(
-    (r) => r.generated_by === user?.id && r.created_at.slice(0, 10) === today
-  ) ?? false
-  const { mutate: generateReport, isPending: isGenerating } = useGenerateReport()
-  const handleProjectChange = useCallback((id: number) => {
-    setSelectedReport(null)
-    navigate({
-      to: ROUTES.REPORTS,
-      search: { project: id, page: 1 },
-    })
-  }, [navigate])
+  const existsToday =
+    reports?.items?.some(
+      (r) => r.generated_by === user?.id && r.created_at.slice(0, 10) === today,
+    ) ?? false
+  const { mutate: generateReport, isPending: isGenerating } =
+    useGenerateReport()
+  const handleProjectChange = useCallback(
+    (id: number) => {
+      setSelectedReport(null)
+      navigate({
+        to: ROUTES.REPORTS,
+        search: { project: id, page: 1 },
+      })
+    },
+    [navigate],
+  )
 
-  const handlePageChange = useCallback((newPage: number) => {
-    navigate({
-      to: ROUTES.REPORTS,
-      search: (prev: Partial<ReportsSearch>) => ({ ...prev, page: newPage }),
-    })
-  }, [navigate])
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      navigate({
+        to: ROUTES.REPORTS,
+        search: (prev: Partial<ReportsSearch>) => ({ ...prev, page: newPage }),
+      })
+    },
+    [navigate],
+  )
 
-  const totalPages = reports ? Math.max(1, Math.ceil(reports.total / reports.page_size)) : 1
+  const totalPages = reports
+    ? Math.max(1, Math.ceil(reports.total / reports.page_size))
+    : 1
 
   const [baselineReportId, setBaselineReportId] = useState<number | null>(null)
   const handleGenerate = () => {
@@ -78,11 +97,14 @@ export default function ReportsPage() {
         toast.info('Generating report... this may take a moment.')
       },
       onError: (error: unknown) => {
-        const status = (error as { response?: { status?: number } })?.response?.status
+        const status = (error as { response?: { status?: number } })?.response
+          ?.status
         if (status === 503) {
           setGenerateOpen(false)
           setCooldownUntil(Date.now() + COOLDOWN_MS)
-          toast.error('Report service is temporarily unavailable. Please try again in a few minutes.')
+          toast.error(
+            'Report service is temporarily unavailable. Please try again in a few minutes.',
+          )
         } else {
           toast.error('Failed to generate report. Please try again.')
         }
@@ -104,7 +126,8 @@ export default function ReportsPage() {
         toast.success('Report is ready to download.', {
           action: {
             label: 'Download',
-            onClick: () => latest.file_url && window.open(latest.file_url, '_blank'),
+            onClick: () =>
+              latest.file_url && window.open(latest.file_url, '_blank'),
           },
         })
       }
@@ -115,7 +138,9 @@ export default function ReportsPage() {
       setIsPolling(false)
       setGenerateOpen(false)
       setCooldownUntil(Date.now() + COOLDOWN_MS)
-      toast.error('Report generation timed out. The background service may be unavailable.')
+      toast.error(
+        'Report generation timed out. The background service may be unavailable.',
+      )
     }
   }, [reports, isPolling, baselineReportId, generateOpen, pollStartedAt])
 
@@ -146,9 +171,11 @@ export default function ReportsPage() {
           disableGenerate={existsToday}
           nextAvailableDate={
             existsToday
-              // eslint-disable-next-line react-hooks/purity -- intentional: shows "next available" date relative to now
-              ? new Date(Date.now() + 86400000).toLocaleDateString('en-PH', {
-                  year: 'numeric', month: 'short', day: 'numeric',
+              ? // eslint-disable-next-line react-hooks/purity -- intentional: shows "next available" date relative to now
+                new Date(Date.now() + 86400000).toLocaleDateString('en-PH', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
                 })
               : null
           }
@@ -166,7 +193,9 @@ export default function ReportsPage() {
       {/* Error */}
       {isError && (
         <Alert variant="destructive">
-          <AlertDescription>Failed to load reports. Please try again.</AlertDescription>
+          <AlertDescription>
+            Failed to load reports. Please try again.
+          </AlertDescription>
         </Alert>
       )}
 

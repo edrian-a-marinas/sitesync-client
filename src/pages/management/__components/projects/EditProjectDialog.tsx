@@ -2,7 +2,11 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { ProjectUpdateSchema, type ProjectUpdate, type ProjectResponse } from '@/validations/project'
+import {
+  ProjectUpdateSchema,
+  type ProjectUpdate,
+  type ProjectResponse,
+} from '@/validations/project'
 import { useUpdateProject } from '@/hooks/useProject'
 import {
   Dialog,
@@ -35,7 +39,11 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-export default function EditProjectDialog({ project, open, onOpenChange }: Props) {
+export default function EditProjectDialog({
+  project,
+  open,
+  onOpenChange,
+}: Props) {
   const { mutate: updateProject, isPending } = useUpdateProject()
 
   const form = useForm<ProjectUpdate>({
@@ -86,10 +94,12 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
           onOpenChange(false)
         },
         onError: (err: unknown) => {
-          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to update project'
+          const message =
+            (err as { response?: { data?: { detail?: string } } })?.response
+              ?.data?.detail ?? 'Failed to update project'
           toast.error(message)
         },
-      }
+      },
     )
   }
 
@@ -108,19 +118,28 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Project Name {errors.name && <span className="text-red-500">*</span>}
+                    Project Name{' '}
+                    {errors.name && <span className="text-red-500">*</span>}
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Makati Residential Tower" {...field} />
+                    <Input
+                      placeholder="e.g. Makati Residential Tower"
+                      {...field}
+                    />
                   </FormControl>
-                  {errors.name && <p className="text-xs text-red-500">Required</p>}
+                  {errors.name && (
+                    <p className="text-xs text-red-500">Required</p>
+                  )}
                 </FormItem>
               )}
             />
@@ -131,12 +150,18 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Location {errors.location && <span className="text-red-500">*</span>}
+                    Location{' '}
+                    {errors.location && <span className="text-red-500">*</span>}
                   </FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Makati City, Metro Manila" {...field} />
+                    <Input
+                      placeholder="e.g. Makati City, Metro Manila"
+                      {...field}
+                    />
                   </FormControl>
-                  {errors.location && <p className="text-xs text-red-500">Required</p>}
+                  {errors.location && (
+                    <p className="text-xs text-red-500">Required</p>
+                  )}
                 </FormItem>
               )}
             />
@@ -147,7 +172,10 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Total Budget (PHP) {errors.total_budget && <span className="text-red-500">*</span>}
+                    Total Budget (PHP){' '}
+                    {errors.total_budget && (
+                      <span className="text-red-500">*</span>
+                    )}
                   </FormLabel>
                   <FormControl>
                     <Input
@@ -166,7 +194,9 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                   </FormControl>
                   {errors.total_budget && (
                     <p className="text-xs text-red-500">
-                      {errors.total_budget.type === 'too_big' ? 'Budget exceeds maximum allowed value' : 'Required'}
+                      {errors.total_budget.type === 'too_big'
+                        ? 'Budget exceeds maximum allowed value'
+                        : 'Required'}
                     </p>
                   )}
                 </FormItem>
@@ -180,7 +210,10 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Start Date {errors.start_date && <span className="text-red-500">*</span>}
+                      Start Date{' '}
+                      {errors.start_date && (
+                        <span className="text-red-500">*</span>
+                      )}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
@@ -192,7 +225,9 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                         <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                       </div>
                     </FormControl>
-                    {errors.start_date && <p className="text-xs text-red-500">Required</p>}
+                    {errors.start_date && (
+                      <p className="text-xs text-red-500">Required</p>
+                    )}
                   </FormItem>
                 )}
               />
@@ -203,7 +238,10 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Target End Date {errors.target_end_date && <span className="text-red-500">*</span>}
+                      Target End Date{' '}
+                      {errors.target_end_date && (
+                        <span className="text-red-500">*</span>
+                      )}
                     </FormLabel>
                     <FormControl>
                       <div className="relative">
@@ -215,7 +253,9 @@ export default function EditProjectDialog({ project, open, onOpenChange }: Props
                         <CalendarIcon className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
                       </div>
                     </FormControl>
-                    {errors.target_end_date && <p className="text-xs text-red-500">Required</p>}
+                    {errors.target_end_date && (
+                      <p className="text-xs text-red-500">Required</p>
+                    )}
                   </FormItem>
                 )}
               />

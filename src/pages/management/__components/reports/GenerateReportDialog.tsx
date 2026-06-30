@@ -40,7 +40,10 @@ export default function GenerateReportDialog({
       return
     }
     const tick = () => {
-      const remaining = Math.max(0, Math.ceil((cooldownUntil - Date.now()) / 1000))
+      const remaining = Math.max(
+        0,
+        Math.ceil((cooldownUntil - Date.now()) / 1000),
+      )
       setCooldownLeft(remaining)
     }
     tick()

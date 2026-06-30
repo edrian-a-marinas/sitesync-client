@@ -36,8 +36,10 @@ export default function DangerZoneCard() {
         navigate({ to: ROUTES.LOGIN })
       },
       onError: (err: unknown) => {
-        const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
-        const message = typeof detail === 'string' ? detail : 'Failed to deactivate account.'
+        const detail = (err as { response?: { data?: { detail?: unknown } } })
+          ?.response?.data?.detail
+        const message =
+          typeof detail === 'string' ? detail : 'Failed to deactivate account.'
         toast.error(message)
         setConfirmOpen(false)
         setConfirmInput('')
@@ -49,8 +51,12 @@ export default function DangerZoneCard() {
     <div className="rounded-xl border border-red-500/25 bg-white shadow-sm dark:bg-zinc-900">
       <div className="flex items-center justify-between border-b border-red-500/20 bg-red-500/[0.04] px-6 py-3.5">
         <div>
-          <p className="text-sm font-bold text-red-600 dark:text-red-400">Danger Zone</p>
-          <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">Permanent and irreversible actions</p>
+          <p className="text-sm font-bold text-red-600 dark:text-red-400">
+            Danger Zone
+          </p>
+          <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+            Permanent and irreversible actions
+          </p>
         </div>
         {isOwner && (
           <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-amber-500/10 px-2.5 py-1 text-[0.68rem] font-bold text-amber-600 dark:text-amber-400">
@@ -68,10 +74,12 @@ export default function DangerZoneCard() {
         </div>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Deactivate My Account</p>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              Deactivate My Account
+            </p>
             <p className="mt-1 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Deactivates your account and signs you out. Your data is retained for record-keeping. This action
-              requires an Owner to reverse.
+              Deactivates your account and signs you out. Your data is retained
+              for record-keeping. This action requires an Owner to reverse.
             </p>
           </div>
           <Button
@@ -80,7 +88,11 @@ export default function DangerZoneCard() {
             onClick={() => setConfirmOpen(true)}
             className="flex-shrink-0 gap-1.5 border-red-500/30 bg-red-500/[0.04] text-red-600/90 hover:bg-red-500/10 hover:text-red-600 disabled:cursor-not-allowed disabled:text-red-500/35 dark:text-red-400/90 dark:hover:text-red-400"
           >
-            {isOwner ? <Lock className="h-3.5 w-3.5" /> : <Trash2 className="h-3.5 w-3.5" />}
+            {isOwner ? (
+              <Lock className="h-3.5 w-3.5" />
+            ) : (
+              <Trash2 className="h-3.5 w-3.5" />
+            )}
             Deactivate Account
             {isOwner && (
               <span className="ml-1 rounded border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[0.6rem] font-bold text-amber-600 dark:text-amber-400">
@@ -91,7 +103,15 @@ export default function DangerZoneCard() {
         </div>
       </div>
 
-      <AlertDialog open={confirmOpen} onOpenChange={(open) => { if (!open) { setConfirmOpen(false); setConfirmInput('') } }}>
+      <AlertDialog
+        open={confirmOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setConfirmOpen(false)
+            setConfirmInput('')
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Deactivate your account?</AlertDialogTitle>
@@ -99,14 +119,25 @@ export default function DangerZoneCard() {
               <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                 <p>You are about to deactivate:</p>
                 <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
-                  <p><span className="font-medium">Name:</span> {user.first_name} {user.last_name}</p>
-                  <p><span className="font-medium">Email:</span> {user.email}</p>
+                  <p>
+                    <span className="font-medium">Name:</span> {user.first_name}{' '}
+                    {user.last_name}
+                  </p>
+                  <p>
+                    <span className="font-medium">Email:</span> {user.email}
+                  </p>
                 </div>
                 <p>
-                  You will be signed out immediately and won't be able to log back in until an Owner reactivates
-                  your account.
+                  You will be signed out immediately and won't be able to log
+                  back in until an Owner reactivates your account.
                 </p>
-                <p>To confirm, type <span className="font-semibold text-zinc-900 dark:text-zinc-100">deactivate</span> below:</p>
+                <p>
+                  To confirm, type{' '}
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    deactivate
+                  </span>{' '}
+                  below:
+                </p>
                 <Input
                   placeholder="deactivate"
                   value={confirmInput}
@@ -116,7 +147,13 @@ export default function DangerZoneCard() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button variant="outline" onClick={() => { setConfirmOpen(false); setConfirmInput('') }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfirmOpen(false)
+                setConfirmInput('')
+              }}
+            >
               Cancel
             </Button>
             <Button

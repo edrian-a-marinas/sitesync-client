@@ -1,8 +1,16 @@
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
-import { useEquipment, useCreateEquipment, useUpdateEquipment, useDeleteEquipment } from '@/hooks/useEquipment'
-import { EquipmentCreateSchema, EquipmentUpdateSchema } from '@/validations/equipment'
+import {
+  useEquipment,
+  useCreateEquipment,
+  useUpdateEquipment,
+  useDeleteEquipment,
+} from '@/hooks/useEquipment'
+import {
+  EquipmentCreateSchema,
+  EquipmentUpdateSchema,
+} from '@/validations/equipment'
 import { Button } from '@/pages/_components/ui/button'
 import { Input } from '@/pages/_components/ui/input'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
@@ -43,9 +51,14 @@ const CONDITION_OPTIONS = [
   'Decommissioned',
 ]
 
-export default function EquipmentSection({ projectId, logId, onCountChange }: Props) {
+export default function EquipmentSection({
+  projectId,
+  logId,
+  onCountChange,
+}: Props) {
   const { user } = useAuthStore()
-  const canEdit = user?.role_id === ROLES.OWNER || user?.role_id === ROLES.PROJECT_MANAGER
+  const canEdit =
+    user?.role_id === ROLES.OWNER || user?.role_id === ROLES.PROJECT_MANAGER
 
   const { data: equipment, isLoading } = useEquipment(projectId, logId, true)
 
@@ -53,14 +66,25 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
     onCountChange?.(equipment?.length ?? 0)
   }, [equipment?.length, onCountChange])
 
-  const { mutate: createEquipment, isPending: isCreating } = useCreateEquipment(projectId, logId)
-  const { mutate: updateEquipment, isPending: isUpdating } = useUpdateEquipment(projectId, logId)
-  const { mutate: deleteEquipment, isPending: isDeleting } = useDeleteEquipment(projectId, logId)
+  const { mutate: createEquipment, isPending: isCreating } = useCreateEquipment(
+    projectId,
+    logId,
+  )
+  const { mutate: updateEquipment, isPending: isUpdating } = useUpdateEquipment(
+    projectId,
+    logId,
+  )
+  const { mutate: deleteEquipment, isPending: isDeleting } = useDeleteEquipment(
+    projectId,
+    logId,
+  )
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<number | null>(null)
   const [form, setForm] = useState(emptyForm)
-  const [deleteTarget, setDeleteTarget] = useState<EquipmentResponse | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<EquipmentResponse | null>(
+    null,
+  )
   const [confirmInput, setConfirmInput] = useState('')
 
   const handleDeleteOpenChange = (open: boolean) => {
@@ -131,8 +155,9 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
             toast.success('Equipment updated.')
             resetForm()
           },
-          onError: () => toast.error('Failed to update equipment. Please try again.'),
-        }
+          onError: () =>
+            toast.error('Failed to update equipment. Please try again.'),
+        },
       )
       return
     }
@@ -157,10 +182,17 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <span className="text-xs text-zinc-400 dark:text-zinc-500">
-          {equipment && equipment.length > 0 ? `${equipment.length} item${equipment.length !== 1 ? 's' : ''}` : ''}
+          {equipment && equipment.length > 0
+            ? `${equipment.length} item${equipment.length !== 1 ? 's' : ''}`
+            : ''}
         </span>
         {canEdit && !showForm && (
-          <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setShowForm(true)}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-7 gap-1.5 text-xs"
+            onClick={() => setShowForm(true)}
+          >
             <Plus className="h-3.5 w-3.5" />
             Add
           </Button>
@@ -170,7 +202,9 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
       {isLoading ? (
         <Skeleton className="h-16 w-full rounded-lg" />
       ) : !equipment || equipment.length === 0 ? (
-        <p className="text-xs text-zinc-400 dark:text-zinc-500">No equipment logged.</p>
+        <p className="text-xs text-zinc-400 dark:text-zinc-500">
+          No equipment logged.
+        </p>
       ) : (
         <div className="flex flex-col gap-2">
           {equipment.map((item) => (
@@ -179,7 +213,9 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
               className="flex items-center justify-between rounded-lg border border-zinc-200 dark:border-zinc-700 px-3 py-2 text-sm"
             >
               <div className="flex flex-col">
-                <span className="font-medium text-zinc-700 dark:text-zinc-300">{item.name}</span>
+                <span className="font-medium text-zinc-700 dark:text-zinc-300">
+                  {item.name}
+                </span>
                 <span className="text-xs text-zinc-400">
                   Qty: {item.quantity}
                   {item.condition ? ` · ${item.condition}` : ''}
@@ -187,10 +223,20 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
               </div>
               {canEdit && (
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => startEdit(item)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onClick={() => startEdit(item)}
+                  >
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setDeleteTarget(item)}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onClick={() => setDeleteTarget(item)}
+                  >
                     <Trash2 className="h-3.5 w-3.5 text-red-500" />
                   </Button>
                 </div>
@@ -203,18 +249,33 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
       {showForm && (
         <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 dark:border-zinc-700 p-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-zinc-500">{editingId !== null ? 'Edit Equipment' : 'New Equipment'}</span>
-            <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={resetForm}>
+            <span className="text-xs font-medium text-zinc-500">
+              {editingId !== null ? 'Edit Equipment' : 'New Equipment'}
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={resetForm}
+            >
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-zinc-500 dark:text-zinc-400">Equipment Name</label>
-            <Input placeholder="e.g. Excavator" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <label className="text-xs text-zinc-500 dark:text-zinc-400">
+              Equipment Name
+            </label>
+            <Input
+              placeholder="e.g. Excavator"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-zinc-500 dark:text-zinc-400">Quantity</label>
+              <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                Quantity
+              </label>
               <Input
                 placeholder="0"
                 type="number"
@@ -223,26 +284,47 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-zinc-500 dark:text-zinc-400">Condition (optional)</label>
-              <Select value={form.condition} onValueChange={(value) => setForm({ ...form, condition: value })}>
+              <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                Condition (optional)
+              </label>
+              <Select
+                value={form.condition}
+                onValueChange={(value) =>
+                  setForm({ ...form, condition: value })
+                }
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="— None —" />
                 </SelectTrigger>
                 <SelectContent>
                   {CONDITION_OPTIONS.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                    <SelectItem key={c} value={c}>
+                      {c}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
           </div>
-          <Button size="sm" className="h-7 text-xs" disabled={isPending} onClick={handleSubmit}>
-            {isPending ? 'Saving...' : editingId !== null ? 'Update' : 'Add Equipment'}
+          <Button
+            size="sm"
+            className="h-7 text-xs"
+            disabled={isPending}
+            onClick={handleSubmit}
+          >
+            {isPending
+              ? 'Saving...'
+              : editingId !== null
+                ? 'Update'
+                : 'Add Equipment'}
           </Button>
         </div>
       )}
 
-      <AlertDialog open={deleteTarget !== null} onOpenChange={handleDeleteOpenChange}>
+      <AlertDialog
+        open={deleteTarget !== null}
+        onOpenChange={handleDeleteOpenChange}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Equipment</AlertDialogTitle>
@@ -250,12 +332,17 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
               <div className="flex flex-col gap-3 text-sm text-zinc-600 dark:text-zinc-400">
                 <p>
                   This will permanently delete{' '}
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">{deleteTarget?.name}</span>{' '}
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    {deleteTarget?.name}
+                  </span>{' '}
                   (Qty: {deleteTarget?.quantity}). This action cannot be undone.
                 </p>
                 <p>
                   To confirm, type{' '}
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">{deleteTarget?.name}</span> below:
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    {deleteTarget?.name}
+                  </span>{' '}
+                  below:
                 </p>
                 <Input
                   placeholder={deleteTarget?.name}
@@ -267,7 +354,11 @@ export default function EquipmentSection({ projectId, logId, onCountChange }: Pr
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button variant="outline" onClick={() => handleDeleteOpenChange(false)} disabled={isDeleting}>
+            <Button
+              variant="outline"
+              onClick={() => handleDeleteOpenChange(false)}
+              disabled={isDeleting}
+            >
               Cancel
             </Button>
             <Button

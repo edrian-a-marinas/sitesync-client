@@ -38,7 +38,14 @@ import {
   DialogTitle,
 } from '@/pages/_components/ui/dialog'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
-import { Plus, Users, ArrowUpDown, ArrowUp, ArrowDown, Search } from 'lucide-react'
+import {
+  Plus,
+  Users,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Search,
+} from 'lucide-react'
 import { Input } from '@/pages/_components/ui/input'
 import OwnerRegisterForm from './__components/users/RegisterForm'
 import EditUserDialog from './__components/users/EditUserDialog'
@@ -49,9 +56,12 @@ import UserAssignmentsModal from './__components/users/UserAssignmentsModal'
 import ResetPasswordDialog from './__components/users/ResetPasswordDialog'
 
 const ROLE_BADGE: Record<number, string> = {
-  [ROLES.OWNER]: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-  [ROLES.PROJECT_MANAGER]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  [ROLES.SITE_WORKER]: 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
+  [ROLES.OWNER]:
+    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+  [ROLES.PROJECT_MANAGER]:
+    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  [ROLES.SITE_WORKER]:
+    'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
 }
 
 type RoleFilter = 'all' | 'owner' | 'pm' | 'worker'
@@ -68,11 +78,20 @@ export default function ManageUsersPage() {
   const [sorting, setSorting] = useState<SortingState>([])
   const [registerOpen, setRegisterOpen] = useState(false)
   const [editUser, setEditUser] = useState<UserResponse | null>(null)
-  const [statusTarget, setStatusTarget] = useState<{ user: UserResponse; action: 'activate' | 'deactivate' } | null>(null)
-  const [assignmentsUser, setAssignmentsUser] = useState<UserResponse | null>(null)
-  const [resetPasswordUser, setResetPasswordUser] = useState<UserResponse | null>(null)
+  const [statusTarget, setStatusTarget] = useState<{
+    user: UserResponse
+    action: 'activate' | 'deactivate'
+  } | null>(null)
+  const [assignmentsUser, setAssignmentsUser] = useState<UserResponse | null>(
+    null,
+  )
+  const [resetPasswordUser, setResetPasswordUser] =
+    useState<UserResponse | null>(null)
   const navigate = useNavigate()
-  const searchParams = useSearch({ strict: false }) as { page?: number; search?: string }
+  const searchParams = useSearch({ strict: false }) as {
+    page?: number
+    search?: string
+  }
   const page = searchParams.page ?? 1
   const search = searchParams.search ?? ''
   const PAGE_SIZE = 20
@@ -81,30 +100,53 @@ export default function ManageUsersPage() {
   const [workerScope, setWorkerScope] = useState<'mine' | 'all'>('mine')
   const { data: activeProjects } = useProjects('Active')
   const { data: selectedProjectDetail } = useProjectDetail(projectFilter)
-  const { data: usersData, isLoading, isError } = useUsers(!isOwner ? workerScope : undefined, page, PAGE_SIZE, search)
+  const {
+    data: usersData,
+    isLoading,
+    isError,
+  } = useUsers(!isOwner ? workerScope : undefined, page, PAGE_SIZE, search)
 
-  const handleSearchChange = useCallback((value: string) => {
-    navigate({
-      to: ROUTES.MANAGE_USERS,
-      search: (prev: Partial<UsersSearch>) => ({ ...prev, search: value, page: 1 }),
-    })
-  }, [navigate])
-  const handlePageChange = useCallback((newPage: number) => {
-    navigate({
-      to: ROUTES.MANAGE_USERS,
-      search: (prev: Partial<UsersSearch>) => ({ ...prev, search: prev.search ?? '', page: newPage }),
-    })
-  }, [navigate])
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      navigate({
+        to: ROUTES.MANAGE_USERS,
+        search: (prev: Partial<UsersSearch>) => ({
+          ...prev,
+          search: value,
+          page: 1,
+        }),
+      })
+    },
+    [navigate],
+  )
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      navigate({
+        to: ROUTES.MANAGE_USERS,
+        search: (prev: Partial<UsersSearch>) => ({
+          ...prev,
+          search: prev.search ?? '',
+          page: newPage,
+        }),
+      })
+    },
+    [navigate],
+  )
 
-  const totalPages = usersData ? Math.max(1, Math.ceil(usersData.total / usersData.page_size)) : 1
+  const totalPages = usersData
+    ? Math.max(1, Math.ceil(usersData.total / usersData.page_size))
+    : 1
 
   const handleEdit = useCallback((u: UserResponse) => {
     setEditUser(u)
   }, [])
 
-  const handleStatusChange = useCallback((u: UserResponse, action: 'activate' | 'deactivate') => {
-    setStatusTarget({ user: u, action })
-  }, [])
+  const handleStatusChange = useCallback(
+    (u: UserResponse, action: 'activate' | 'deactivate') => {
+      setStatusTarget({ user: u, action })
+    },
+    [],
+  )
   const handleResetPassword = useCallback((u: UserResponse) => {
     setResetPasswordUser(u)
   }, [])
@@ -144,73 +186,94 @@ export default function ManageUsersPage() {
       })
       .sort((a, b) => {
         if (roleFilter === 'all') {
-          const roleDiff = (ROLE_ORDER[a.role_id] ?? 99) - (ROLE_ORDER[b.role_id] ?? 99)
+          const roleDiff =
+            (ROLE_ORDER[a.role_id] ?? 99) - (ROLE_ORDER[b.role_id] ?? 99)
           if (roleDiff !== 0) return roleDiff
         }
         const nameA = `${a.first_name} ${a.last_name}`.toLowerCase()
         const nameB = `${b.first_name} ${b.last_name}`.toLowerCase()
         return nameA.localeCompare(nameB)
       })
-  }, [usersData, roleFilter, statusFilter, projectFilter, selectedProjectDetail])
+  }, [
+    usersData,
+    roleFilter,
+    statusFilter,
+    projectFilter,
+    selectedProjectDetail,
+  ])
 
-  const columns = useMemo(() => [
-    columnHelper.accessor((row) => `${row.first_name} ${row.last_name}`, {
-      id: 'name',
-      header: 'Name',
-      cell: (info) => (
-        <span className="font-medium text-zinc-900 dark:text-zinc-100">{info.getValue()}</span>
-      ),
-    }),
-    columnHelper.accessor('email', {
-      header: 'Email',
-      cell: (info) => (
-        <span className="text-zinc-500 dark:text-zinc-400">{info.getValue()}</span>
-      ),
-    }),
-    columnHelper.accessor('role_id', {
-      header: 'Role',
-      cell: (info) => (
-        <Badge
-          className={`text-xs font-medium ${ROLE_BADGE[info.getValue()] ?? 'bg-zinc-100 text-zinc-600'}`}
-          variant="outline"
-        >
-          {ROLE_LABEL[info.getValue()] ?? 'Unknown'}
-        </Badge>
-      ),
-    }),
-    columnHelper.accessor('is_active', {
-      header: 'Status',
-      cell: (info) => (
-        <Badge
-          className={
-            info.getValue()
-              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-              : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-          }
-          variant="outline"
-        >
-          {info.getValue() ? 'Active' : 'Inactive'}
-        </Badge>
-      ),
-    }),
-    columnHelper.display({
-      id: 'actions',
-      header: () => null,
-      cell: ({ row }) => (
-        <div onClick={(e) => e.stopPropagation()}>
-          <UserActionsDropdown
-            user={row.original}
-            currentUserId={user?.id}
-            isOwner={isOwner}
-            canChangeStatus={isOwner || workerScope === 'mine'}
-            onEdit={handleEdit}
-            onStatusChange={handleStatusChange}
-            onResetPassword={handleResetPassword}
-          />
-        </div>
-      ),
-    }),
-  ], [isOwner, user?.id, workerScope, handleEdit, handleStatusChange, handleResetPassword])
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor((row) => `${row.first_name} ${row.last_name}`, {
+        id: 'name',
+        header: 'Name',
+        cell: (info) => (
+          <span className="font-medium text-zinc-900 dark:text-zinc-100">
+            {info.getValue()}
+          </span>
+        ),
+      }),
+      columnHelper.accessor('email', {
+        header: 'Email',
+        cell: (info) => (
+          <span className="text-zinc-500 dark:text-zinc-400">
+            {info.getValue()}
+          </span>
+        ),
+      }),
+      columnHelper.accessor('role_id', {
+        header: 'Role',
+        cell: (info) => (
+          <Badge
+            className={`text-xs font-medium ${ROLE_BADGE[info.getValue()] ?? 'bg-zinc-100 text-zinc-600'}`}
+            variant="outline"
+          >
+            {ROLE_LABEL[info.getValue()] ?? 'Unknown'}
+          </Badge>
+        ),
+      }),
+      columnHelper.accessor('is_active', {
+        header: 'Status',
+        cell: (info) => (
+          <Badge
+            className={
+              info.getValue()
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+            }
+            variant="outline"
+          >
+            {info.getValue() ? 'Active' : 'Inactive'}
+          </Badge>
+        ),
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: () => null,
+        cell: ({ row }) => (
+          <div onClick={(e) => e.stopPropagation()}>
+            <UserActionsDropdown
+              user={row.original}
+              currentUserId={user?.id}
+              isOwner={isOwner}
+              canChangeStatus={isOwner || workerScope === 'mine'}
+              onEdit={handleEdit}
+              onStatusChange={handleStatusChange}
+              onResetPassword={handleResetPassword}
+            />
+          </div>
+        ),
+      }),
+    ],
+    [
+      isOwner,
+      user?.id,
+      workerScope,
+      handleEdit,
+      handleStatusChange,
+      handleResetPassword,
+    ],
+  )
 
   const table = useReactTable({
     data: filteredUsers,
@@ -225,7 +288,9 @@ export default function ManageUsersPage() {
     Array.from({ length: 5 }).map((_, i) => (
       <TableRow key={i}>
         {Array.from({ length: 5 }).map((__, j) => (
-          <TableCell key={j}><Skeleton className="h-4 w-24" /></TableCell>
+          <TableCell key={j}>
+            <Skeleton className="h-4 w-24" />
+          </TableCell>
         ))}
       </TableRow>
     ))
@@ -250,7 +315,9 @@ export default function ManageUsersPage() {
         <div className="flex items-center gap-3">
           <Select
             value={projectFilter !== null ? String(projectFilter) : 'all'}
-            onValueChange={(v) => setProjectFilter(v === 'all' ? null : Number(v))}
+            onValueChange={(v) =>
+              setProjectFilter(v === 'all' ? null : Number(v))
+            }
           >
             <SelectTrigger className="w-48">
               <SelectValue placeholder="Filter by Project" />
@@ -265,7 +332,10 @@ export default function ManageUsersPage() {
             </SelectContent>
           </Select>
           {!isOwner && (
-            <Select value={workerScope} onValueChange={(v) => setWorkerScope(v as 'mine' | 'all')}>
+            <Select
+              value={workerScope}
+              onValueChange={(v) => setWorkerScope(v as 'mine' | 'all')}
+            >
               <SelectTrigger className="w-44">
                 <SelectValue />
               </SelectTrigger>
@@ -275,7 +345,10 @@ export default function ManageUsersPage() {
               </SelectContent>
             </Select>
           )}
-          <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as RoleFilter)}>
+          <Select
+            value={roleFilter}
+            onValueChange={(v) => setRoleFilter(v as RoleFilter)}
+          >
             <SelectTrigger className="w-40">
               <SelectValue placeholder="Role" />
             </SelectTrigger>
@@ -286,7 +359,10 @@ export default function ManageUsersPage() {
               <SelectItem value="worker">Site Worker</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as StatusFilter)}>
+          <Select
+            value={statusFilter}
+            onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+          >
             <SelectTrigger className="w-36">
               <SelectValue placeholder="Active" />
             </SelectTrigger>
@@ -309,7 +385,10 @@ export default function ManageUsersPage() {
         <Input
           defaultValue={search}
           onChange={(e) => {
-            const timeout = setTimeout(() => handleSearchChange(e.target.value), 400)
+            const timeout = setTimeout(
+              () => handleSearchChange(e.target.value),
+              400,
+            )
             return () => clearTimeout(timeout)
           }}
           placeholder="Search name or email..."
@@ -319,7 +398,9 @@ export default function ManageUsersPage() {
       {/* Error */}
       {isError && (
         <Alert variant="destructive">
-          <AlertDescription>Failed to load users. Please try again.</AlertDescription>
+          <AlertDescription>
+            Failed to load users. Please try again.
+          </AlertDescription>
         </Alert>
       )}
 
@@ -332,20 +413,26 @@ export default function ManageUsersPage() {
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className={header.column.getCanSort() ? 'cursor-pointer select-none' : ''}
+                    className={
+                      header.column.getCanSort()
+                        ? 'cursor-pointer select-none'
+                        : ''
+                    }
                     onClick={header.column.getToggleSortingHandler()}
                   >
                     <span className="flex items-center gap-1">
-                      {flexRender(header.column.columnDef.header, header.getContext())}
-                      {header.column.getCanSort() && (
-                        header.column.getIsSorted() === 'asc' ? (
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
+                      {header.column.getCanSort() &&
+                        (header.column.getIsSorted() === 'asc' ? (
                           <ArrowUp className="h-3 w-3" />
                         ) : header.column.getIsSorted() === 'desc' ? (
                           <ArrowDown className="h-3 w-3" />
                         ) : (
                           <ArrowUpDown className="h-3 w-3 opacity-40" />
-                        )
-                      )}
+                        ))}
                     </span>
                   </TableHead>
                 ))}
@@ -353,7 +440,9 @@ export default function ManageUsersPage() {
             ))}
           </TableHeader>
           <TableBody>
-            {isLoading ? renderSkeletonRows() : table.getRowModel().rows.length === 0 ? (
+            {isLoading ? (
+              renderSkeletonRows()
+            ) : table.getRowModel().rows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="py-16 text-center">
                   <div className="flex flex-col items-center gap-2 text-zinc-400 dark:text-zinc-500">
@@ -373,7 +462,10 @@ export default function ManageUsersPage() {
                   >
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -391,10 +483,20 @@ export default function ManageUsersPage() {
             Page {page} of {totalPages}
           </p>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => handlePageChange(page - 1)} disabled={page <= 1}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page <= 1}
+            >
               Previous
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handlePageChange(page + 1)} disabled={page >= totalPages}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page >= totalPages}
+            >
               Next
             </Button>
           </div>
@@ -406,31 +508,42 @@ export default function ManageUsersPage() {
           <DialogHeader>
             <DialogTitle>Register New User</DialogTitle>
           </DialogHeader>
-          <OwnerRegisterForm onSuccess={() => setRegisterOpen(false)} isOwner={isOwner} />
+          <OwnerRegisterForm
+            onSuccess={() => setRegisterOpen(false)}
+            isOwner={isOwner}
+          />
         </DialogContent>
       </Dialog>
 
       {/* Edit Dialog */}
       <EditUserDialog
         user={editUser}
-        onOpenChange={(open) => { if (!open) setEditUser(null) }}
+        onOpenChange={(open) => {
+          if (!open) setEditUser(null)
+        }}
       />
 
       {/* Status Confirm Dialog */}
       <StatusConfirmDialog
         target={statusTarget}
-        onOpenChange={(open) => { if (!open) setStatusTarget(null) }}
+        onOpenChange={(open) => {
+          if (!open) setStatusTarget(null)
+        }}
       />
 
       {/* Assignments Modal */}
       <UserAssignmentsModal
         user={assignmentsUser}
-        onOpenChange={(open) => { if (!open) setAssignmentsUser(null) }}
+        onOpenChange={(open) => {
+          if (!open) setAssignmentsUser(null)
+        }}
       />
       {/* Reset Password Dialog */}
       <ResetPasswordDialog
         user={resetPasswordUser}
-        onOpenChange={(open) => { if (!open) setResetPasswordUser(null) }}
+        onOpenChange={(open) => {
+          if (!open) setResetPasswordUser(null)
+        }}
       />
     </div>
   )

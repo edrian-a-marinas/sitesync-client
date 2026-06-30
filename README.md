@@ -14,13 +14,13 @@
 
 ### AWS Services
 
-| AWS Service | Description |
-|------------|-------------|
-| **S3** | Stores photos, documents, and generated reports. |
-| **EC2** | Hosts the FastAPI application and background workers celery.  |
-| **RDS** | PostgreSQL database for all project, user, and site log data. |
-| **ALB** | Distributes traffic across multiple EC2 instances. |
-| **IAM** | Manages least-privilege credentials for backend S3, RDS, and EC2 access. |
+| AWS Service | Description                                                              |
+| ----------- | ------------------------------------------------------------------------ |
+| **S3**      | Stores photos, documents, and generated reports.                         |
+| **EC2**     | Hosts the FastAPI application and background workers celery.             |
+| **RDS**     | PostgreSQL database for all project, user, and site log data.            |
+| **ALB**     | Distributes traffic across multiple EC2 instances.                       |
+| **IAM**     | Manages least-privilege credentials for backend S3, RDS, and EC2 access. |
 
 ### Authentication & User Layer
 
@@ -76,29 +76,31 @@ All three roles share the same UI shell — same sidebar, same navigation struct
 Mobile support
 The sidebar collapses into a slide-out drawer on mobile, with page layouts being progressively audited for full responsiveness.
 
-### Role Based-Access Control 
+### Role Based-Access Control
 
 Owner — the construction company owner/CEO. The person who runs the business, owns all projects, sees everything, uses the AI assistant to make decisions. Not necessarily technical — just the boss.
 Project Manager — in construction this is typically the Civil Engineer or Site Engineer or Site Manager or Foreman. They manage the full project lifecycle, submit daily logs, monitor budget vs actual, assign workers. Could also be a Foreman in smaller firms.
 Site Worker — the construction workers on the ground. Masons, carpenters, electricians, laborers. They just log attendance and see their daily tasks. No management access.
 
 ### Owner & Project Manager Panel
+
 Owner and Project Manager share the same UI shell and sidebar. The backend enforces data scoping per role — Owners see all projects, Managers see only assigned ones. Analytics and AI Assistant are hidden from Project Managers since their backend endpoints are owner-only.
 
-| Menu | Description | Owner | Project Manager |
-|------|-------------|-------|-----------------|
-| **Dashboard** | KPIs scoped per role — budget, workforce, incidents, project health. | ✅ | ✅ |
-| **Projects** | Project and phase management. Managers get view-only on assigned projects. | ✅ | ✅ |
-| **Daily Logs** | Submit and manage daily site logs. | ✅ | ✅ |
-| **Reports** | Weekly PDF reports. Scoped per role. | ✅ | ✅ |
-| **Manage Users** | Register and manage PM and Worker accounts. | ✅ | ✅ |
-| **Analytics** | ML predictions — budget overrun, delay risk, material forecast. | ✅ | ❌ |
-| **AI Assistant** | Natural language query interface for cross-project insights. | ✅ | ❌ |
+| Menu             | Description                                                                | Owner | Project Manager |
+| ---------------- | -------------------------------------------------------------------------- | ----- | --------------- |
+| **Dashboard**    | KPIs scoped per role — budget, workforce, incidents, project health.       | ✅    | ✅              |
+| **Projects**     | Project and phase management. Managers get view-only on assigned projects. | ✅    | ✅              |
+| **Daily Logs**   | Submit and manage daily site logs.                                         | ✅    | ✅              |
+| **Reports**      | Weekly PDF reports. Scoped per role.                                       | ✅    | ✅              |
+| **Manage Users** | Register and manage PM and Worker accounts.                                | ✅    | ✅              |
+| **Analytics**    | ML predictions — budget overrun, delay risk, material forecast.            | ✅    | ❌              |
+| **AI Assistant** | Natural language query interface for cross-project insights.               | ✅    | ❌              |
 
 ### Site Worker Panel
+
 Separate minimal UI — same design system, different shell and nav.
 
-| Menu | Description |
-|------|-------------|
-| **My Attendance** | View personal attendance history across assigned projects. |
-| **Daily Log** | View the current shift daily log for their assigned project. |
+| Menu              | Description                                                  |
+| ----------------- | ------------------------------------------------------------ |
+| **My Attendance** | View personal attendance history across assigned projects.   |
+| **Daily Log**     | View the current shift daily log for their assigned project. |

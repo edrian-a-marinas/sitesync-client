@@ -17,37 +17,44 @@ export function ChatMessage({ query, onRateLimit }: Props) {
   const queryClient = useQueryClient()
   const isPending = query.status === 'Pending'
   // eslint-disable-next-line react-hooks/purity -- intentional: gates polling based on current time vs message age
-  const isRecent = (Date.now() - new Date(query.created_at).getTime()) < 5 * 60 * 1000
+  const isRecent =
+    Date.now() - new Date(query.created_at).getTime() < 5 * 60 * 1000
   const shouldPoll = isPending && isRecent
 
-  const { data: liveQuery } = useGetQuery(shouldPoll ? query.id : null, shouldPoll)
+  const { data: liveQuery } = useGetQuery(
+    shouldPoll ? query.id : null,
+    shouldPoll,
+  )
   const display = liveQuery ?? query
   const parsed = parseAnswer(display.answer)
 
   // Patch the queries list cache when live data resolves so chat panel updates
   useEffect(() => {
     if (!liveQuery || liveQuery.status === 'Pending') return
-    queryClient.setQueryData<{ pages: AIQueryResponse[][], pageParams: unknown[] }>(
-      ['ai-queries'],
-      (old) => {
-        if (!old) return old
-        return {
-          ...old,
-          pages: old.pages.map((page) =>
-            page.map((q) => (q.id === liveQuery.id ? liveQuery : q))
-          ),
-        }
+    queryClient.setQueryData<{
+      pages: AIQueryResponse[][]
+      pageParams: unknown[]
+    }>(['ai-queries'], (old) => {
+      if (!old) return old
+      return {
+        ...old,
+        pages: old.pages.map((page) =>
+          page.map((q) => (q.id === liveQuery.id ? liveQuery : q)),
+        ),
       }
-    )
+    })
   }, [liveQuery?.status, liveQuery?.answer])
 
-  const didJustFail = liveQuery?.status === 'Failed' && query.status === 'Pending'
+  const didJustFail =
+    liveQuery?.status === 'Failed' && query.status === 'Pending'
 
   useEffect(() => {
     if (!didJustFail) return
     if (parsed?.type === 'rate_limit') {
       onRateLimit(parsed.retryAfter)
-      toast.error(`Groq rate limit reached. Try again in ${parsed.retryAfter}s.`)
+      toast.error(
+        `Groq rate limit reached. Try again in ${parsed.retryAfter}s.`,
+      )
     } else if (parsed?.type === 'timeout') {
       toast.error('AI response timed out. Please try again.')
     } else if (parsed?.type === 'error') {
@@ -70,17 +77,32 @@ export function ChatMessage({ query, onRateLimit }: Props) {
       return (
         <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
           <Clock className="h-4 w-4 shrink-0" />
-          <p className="text-sm">Groq rate limit reached. You can try again in {parsed.retryAfter} seconds.</p>
+          <p className="text-sm">
+            Groq rate limit reached. You can try again in {parsed.retryAfter}{' '}
+            seconds.
+          </p>
         </div>
       )
     }
     if (parsed.type === 'timeout') {
-      return <p className="text-sm text-red-500">Request timed out. Please try again.</p>
+      return (
+        <p className="text-sm text-red-500">
+          Request timed out. Please try again.
+        </p>
+      )
     }
     if (parsed.type === 'error') {
-      return <p className="text-sm text-red-500">Something went wrong. Please try again.</p>
+      return (
+        <p className="text-sm text-red-500">
+          Something went wrong. Please try again.
+        </p>
+      )
     }
-    return <p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">{parsed.text}</p>
+    return (
+      <p className="text-sm text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
+        {parsed.text}
+      </p>
+    )
   }
 
   return (
@@ -88,7 +110,9 @@ export function ChatMessage({ query, onRateLimit }: Props) {
       {/* Question */}
       <div className="flex items-start gap-2.5 justify-end">
         <div className="max-w-[75%] rounded-2xl rounded-tr-sm bg-zinc-900 dark:bg-zinc-100 px-4 py-2.5">
-          <p className="text-sm text-white dark:text-zinc-900">{display.question}</p>
+          <p className="text-sm text-white dark:text-zinc-900">
+            {display.question}
+          </p>
         </div>
         <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zinc-200 dark:bg-zinc-700">
           <User className="h-3.5 w-3.5 text-zinc-600 dark:text-zinc-300" />
@@ -102,7 +126,10 @@ export function ChatMessage({ query, onRateLimit }: Props) {
         <div className="max-w-[75%] rounded-2xl rounded-tl-sm border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2.5">
           {renderAnswer()}
           {display.status === 'Pending' && (
-            <Badge variant="outline" className="mt-1.5 bg-amber-50 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+            <Badge
+              variant="outline"
+              className="mt-1.5 bg-amber-50 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+            >
               Thinking...
             </Badge>
           )}

@@ -78,11 +78,13 @@ export default function EditMyInfoDialog({ user, open, onOpenChange }: Props) {
           onOpenChange(false)
         },
         onError: (err: unknown) => {
-          const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
-          const message = typeof detail === 'string' ? detail : 'Failed to update profile.'
+          const detail = (err as { response?: { data?: { detail?: unknown } } })
+            ?.response?.data?.detail
+          const message =
+            typeof detail === 'string' ? detail : 'Failed to update profile.'
           toast.error(message)
         },
-      }
+      },
     )
   }
 
@@ -98,7 +100,10 @@ export default function EditMyInfoDialog({ user, open, onOpenChange }: Props) {
           <DialogTitle>Edit Profile Information</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <div className="grid grid-cols-2 gap-3">
               <FormField
                 control={form.control}
@@ -106,7 +111,9 @@ export default function EditMyInfoDialog({ user, open, onOpenChange }: Props) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -117,7 +124,9 @@ export default function EditMyInfoDialog({ user, open, onOpenChange }: Props) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -128,8 +137,13 @@ export default function EditMyInfoDialog({ user, open, onOpenChange }: Props) {
               name="middle_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Middle Name <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
-                  <FormControl><Input {...field} /></FormControl>
+                  <FormLabel>
+                    Middle Name{' '}
+                    <span className="text-zinc-400 text-xs">(optional)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -139,14 +153,24 @@ export default function EditMyInfoDialog({ user, open, onOpenChange }: Props) {
               name="phone_number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
-                  <FormControl><Input placeholder="+63 912 345 6789" {...field} /></FormControl>
+                  <FormLabel>
+                    Phone{' '}
+                    <span className="text-zinc-400 text-xs">(optional)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="+63 912 345 6789" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter className="mt-2">
-              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isPending}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={isPending}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>

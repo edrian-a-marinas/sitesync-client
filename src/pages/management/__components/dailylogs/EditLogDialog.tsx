@@ -2,7 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { DailyLogUpdateSchema, type DailyLogUpdate } from '@/validations/dailyLog'
+import {
+  DailyLogUpdateSchema,
+  type DailyLogUpdate,
+} from '@/validations/dailyLog'
 import type { DailyLogResponse } from '@/types/dailyLog'
 import { useUpdateDailyLog } from '@/hooks/useDailyLog'
 import {
@@ -22,12 +25,20 @@ import {
 import { Textarea } from '@/pages/_components/ui/textarea'
 import { Button } from '@/pages/_components/ui/button'
 import { UploadCloud, X, FileText, Plus } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/pages/_components/ui/tooltip'
 import { useGetSitePhotos, useUploadSitePhoto } from '@/hooks/useSitePhoto'
 import { useQueryClient } from '@tanstack/react-query'
 import { SitePhotoUploadSchema } from '@/validations/sitePhoto'
 import { createMaterial } from '@/services/material'
-import { MaterialCreateSchema, type MaterialCreate } from '@/validations/material'
+import {
+  MaterialCreateSchema,
+  type MaterialCreate,
+} from '@/validations/material'
 import { Input } from '@/pages/_components/ui/input'
 import {
   Select,
@@ -38,7 +49,24 @@ import {
 } from '@/pages/_components/ui/select'
 
 const WEATHER_OPTIONS = ['Sunny', 'Cloudy', 'Rainy', 'Stormy']
-const UNIT_OPTIONS = ['pc', 'bd.ft', 'kg', 'ton', 'bag', 'm', 'sq.m', 'cu.m', 'L', 'gal', 'roll', 'box', 'sack', 'set', 'lot', 'sheet']
+const UNIT_OPTIONS = [
+  'pc',
+  'bd.ft',
+  'kg',
+  'ton',
+  'bag',
+  'm',
+  'sq.m',
+  'cu.m',
+  'L',
+  'gal',
+  'roll',
+  'box',
+  'sack',
+  'set',
+  'lot',
+  'sheet',
+]
 const emptyMaterialForm = { name: '', quantity: '', unit: '', unit_cost: '' }
 
 interface Props {
@@ -49,8 +77,15 @@ interface Props {
 
 export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
   const { mutate: updateLog, isPending } = useUpdateDailyLog()
-  const { mutate: uploadPhoto } = useUploadSitePhoto(log?.project_id ?? 0, log?.id ?? 0)
-  const { data: existingPhotos } = useGetSitePhotos(log?.project_id ?? 0, log?.id ?? 0, !!log)
+  const { mutate: uploadPhoto } = useUploadSitePhoto(
+    log?.project_id ?? 0,
+    log?.id ?? 0,
+  )
+  const { data: existingPhotos } = useGetSitePhotos(
+    log?.project_id ?? 0,
+    log?.id ?? 0,
+    !!log,
+  )
   const existingCount = existingPhotos?.length ?? 0
   const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -123,7 +158,13 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
 
   const onSubmit = (data: DailyLogUpdate) => {
     if (!log) return
-    if (showMaterialForm && (materialForm.name || materialForm.quantity || materialForm.unit || materialForm.unit_cost)) {
+    if (
+      showMaterialForm &&
+      (materialForm.name ||
+        materialForm.quantity ||
+        materialForm.unit ||
+        materialForm.unit_cost)
+    ) {
       toast.error('Please finish or cancel the material you are adding.')
       return
     }
@@ -147,36 +188,48 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
             fileQueue.forEach((file) =>
               uploadPhoto(file, {
                 onSuccess: () => {
-                  queryClient.invalidateQueries({ queryKey: ['site-photos', log!.project_id, log!.id] })
+                  queryClient.invalidateQueries({
+                    queryKey: ['site-photos', log!.project_id, log!.id],
+                  })
                 },
                 onError: () => toast.error(`Failed to upload ${file.name}`),
-              })
+              }),
             )
           }
           if (materialQueue.length > 0) {
             Promise.allSettled(
               materialQueue.map((material) =>
                 createMaterial(log!.project_id, log!.id, material).catch(() =>
-                  toast.error(`Failed to add material: ${material.name}`)
-                )
-              )
+                  toast.error(`Failed to add material: ${material.name}`),
+                ),
+              ),
             ).then(() => {
-              queryClient.invalidateQueries({ queryKey: ['materials', log!.project_id, log!.id] })
+              queryClient.invalidateQueries({
+                queryKey: ['materials', log!.project_id, log!.id],
+              })
             })
           }
           const parts: string[] = []
-          if (fileQueue.length > 0) parts.push(`${fileQueue.length} attachment(s)`)
-          if (materialQueue.length > 0) parts.push(`${materialQueue.length} material(s)`)
-          toast.success(parts.length > 0 ? `Log updated with ${parts.join(' and ')}` : 'Daily log updated successfully')
+          if (fileQueue.length > 0)
+            parts.push(`${fileQueue.length} attachment(s)`)
+          if (materialQueue.length > 0)
+            parts.push(`${materialQueue.length} material(s)`)
+          toast.success(
+            parts.length > 0
+              ? `Log updated with ${parts.join(' and ')}`
+              : 'Daily log updated successfully',
+          )
           setFileQueue([])
           setMaterialQueue([])
           onOpenChange(false)
         },
         onError: (err: unknown) => {
-          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to update log'
+          const message =
+            (err as { response?: { data?: { detail?: string } } })?.response
+              ?.data?.detail ?? 'Failed to update log'
           toast.error(message)
         },
-      }
+      },
     )
   }
 
@@ -199,11 +252,16 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
         <DialogHeader>
           <DialogTitle>
             Edit Log —{' '}
-            <span className="text-zinc-400 dark:text-zinc-500 font-normal">{log?.log_date}</span>
+            <span className="text-zinc-400 dark:text-zinc-500 font-normal">
+              {log?.log_date}
+            </span>
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <FormField
               control={form.control}
               name="weather_condition"
@@ -218,7 +276,9 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
                     </FormControl>
                     <SelectContent>
                       {WEATHER_OPTIONS.map((w) => (
-                        <SelectItem key={w} value={w}>{w}</SelectItem>
+                        <SelectItem key={w} value={w}>
+                          {w}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -231,7 +291,10 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    Work Accomplished {errors.work_accomplished && <span className="text-red-500">*</span>}
+                    Work Accomplished{' '}
+                    {errors.work_accomplished && (
+                      <span className="text-red-500">*</span>
+                    )}
                   </FormLabel>
                   <FormControl>
                     <Textarea
@@ -240,7 +303,9 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
                       {...field}
                     />
                   </FormControl>
-                  {errors.work_accomplished && <p className="text-xs text-red-500">Required</p>}
+                  {errors.work_accomplished && (
+                    <p className="text-xs text-red-500">Required</p>
+                  )}
                 </FormItem>
               )}
             />
@@ -264,7 +329,8 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Materials <span className="text-zinc-400 text-xs">(optional)</span>
+                  Materials{' '}
+                  <span className="text-zinc-400 text-xs">(optional)</span>
                 </span>
                 {!showMaterialForm && (
                   <Button
@@ -282,11 +348,19 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
               {materialQueue.length > 0 && (
                 <ul className="flex flex-col gap-1.5 max-h-36 overflow-y-auto">
                   {materialQueue.map((material, i) => (
-                    <li key={i} className="flex items-center justify-between rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400">
+                    <li
+                      key={i}
+                      className="flex items-center justify-between rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400"
+                    >
                       <span className="truncate">
-                        {material.name} — {material.quantity} {material.unit} × ₱{material.unit_cost}
+                        {material.name} — {material.quantity} {material.unit} ×
+                        ₱{material.unit_cost}
                       </span>
-                      <button type="button" onClick={() => removeMaterialFromQueue(i)} className="ml-2 shrink-0 text-zinc-400 hover:text-red-500 transition-colors">
+                      <button
+                        type="button"
+                        onClick={() => removeMaterialFromQueue(i)}
+                        className="ml-2 shrink-0 text-zinc-400 hover:text-red-500 transition-colors"
+                      >
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </li>
@@ -296,39 +370,97 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
               {showMaterialForm && (
                 <div className="flex flex-col gap-2 rounded-lg border border-zinc-200 dark:border-zinc-700 p-3">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-zinc-500">New Material</span>
-                    <button type="button" onClick={() => { setShowMaterialForm(false); setMaterialForm(emptyMaterialForm) }} className="text-zinc-400 hover:text-red-500 transition-colors">
+                    <span className="text-xs font-medium text-zinc-500">
+                      New Material
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowMaterialForm(false)
+                        setMaterialForm(emptyMaterialForm)
+                      }}
+                      className="text-zinc-400 hover:text-red-500 transition-colors"
+                    >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs text-zinc-500 dark:text-zinc-400">Material Name</label>
-                    <Input placeholder="e.g. Lumber" value={materialForm.name} onChange={(e) => setMaterialForm({ ...materialForm, name: e.target.value })} />
+                    <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                      Material Name
+                    </label>
+                    <Input
+                      placeholder="e.g. Lumber"
+                      value={materialForm.name}
+                      onChange={(e) =>
+                        setMaterialForm({
+                          ...materialForm,
+                          name: e.target.value,
+                        })
+                      }
+                    />
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-zinc-500 dark:text-zinc-400">Quantity</label>
-                      <Input placeholder="0" type="number" value={materialForm.quantity} onChange={(e) => setMaterialForm({ ...materialForm, quantity: e.target.value })} />
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Quantity
+                      </label>
+                      <Input
+                        placeholder="0"
+                        type="number"
+                        value={materialForm.quantity}
+                        onChange={(e) =>
+                          setMaterialForm({
+                            ...materialForm,
+                            quantity: e.target.value,
+                          })
+                        }
+                      />
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-zinc-500 dark:text-zinc-400">Unit</label>
-                      <Select value={materialForm.unit} onValueChange={(value) => setMaterialForm({ ...materialForm, unit: value })}>
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Unit
+                      </label>
+                      <Select
+                        value={materialForm.unit}
+                        onValueChange={(value) =>
+                          setMaterialForm({ ...materialForm, unit: value })
+                        }
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select" />
                         </SelectTrigger>
                         <SelectContent>
                           {UNIT_OPTIONS.map((u) => (
-                            <SelectItem key={u} value={u}>{u}</SelectItem>
+                            <SelectItem key={u} value={u}>
+                              {u}
+                            </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
                     </div>
                     <div className="flex flex-col gap-1">
-                      <label className="text-xs text-zinc-500 dark:text-zinc-400">Unit Cost (₱)</label>
-                      <Input placeholder="0.00" type="number" value={materialForm.unit_cost} onChange={(e) => setMaterialForm({ ...materialForm, unit_cost: e.target.value })} />
+                      <label className="text-xs text-zinc-500 dark:text-zinc-400">
+                        Unit Cost (₱)
+                      </label>
+                      <Input
+                        placeholder="0.00"
+                        type="number"
+                        value={materialForm.unit_cost}
+                        onChange={(e) =>
+                          setMaterialForm({
+                            ...materialForm,
+                            unit_cost: e.target.value,
+                          })
+                        }
+                      />
                     </div>
                   </div>
-                  <Button type="button" size="sm" className="h-7 text-xs" onClick={addMaterialToQueue}>
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={addMaterialToQueue}
+                  >
                     Add to List
                   </Button>
                 </div>
@@ -338,12 +470,17 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  Attachments <span className="text-zinc-400 text-xs">({totalCount}/10)</span>
+                  Attachments{' '}
+                  <span className="text-zinc-400 text-xs">
+                    ({totalCount}/10)
+                  </span>
                 </span>
                 <TooltipProvider delayDuration={200}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className={totalCount >= 10 ? 'cursor-not-allowed' : ''}>
+                      <span
+                        className={totalCount >= 10 ? 'cursor-not-allowed' : ''}
+                      >
                         <Button
                           type="button"
                           variant="outline"
@@ -359,7 +496,10 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
                     </TooltipTrigger>
                     {totalCount >= 10 && (
                       <TooltipContent>
-                        <p>Max attachments reached. To add more, delete existing ones from the log detail.</p>
+                        <p>
+                          Max attachments reached. To add more, delete existing
+                          ones from the log detail.
+                        </p>
                       </TooltipContent>
                     )}
                   </Tooltip>
@@ -376,16 +516,27 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
               {fileQueue.length > 0 && (
                 <ul className="flex flex-col gap-1.5 max-h-36 overflow-y-auto">
                   {fileQueue.map((file, i) => (
-                    <li key={i} className="flex items-center justify-between rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400">
+                    <li
+                      key={i}
+                      className="flex items-center justify-between rounded-md border border-zinc-200 dark:border-zinc-700 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400"
+                    >
                       <div className="flex items-center gap-1.5 truncate">
                         {file.type.startsWith('image/') ? (
-                          <img src={URL.createObjectURL(file)} className="h-6 w-6 rounded object-cover" alt={file.name} />
+                          <img
+                            src={URL.createObjectURL(file)}
+                            className="h-6 w-6 rounded object-cover"
+                            alt={file.name}
+                          />
                         ) : (
                           <FileText className="h-4 w-4 shrink-0" />
                         )}
                         <span className="truncate">{file.name}</span>
                       </div>
-                      <button type="button" onClick={() => removeFromQueue(i)} className="ml-2 shrink-0 text-zinc-400 hover:text-red-500 transition-colors">
+                      <button
+                        type="button"
+                        onClick={() => removeFromQueue(i)}
+                        className="ml-2 shrink-0 text-zinc-400 hover:text-red-500 transition-colors"
+                      >
                         <X className="h-3.5 w-3.5" />
                       </button>
                     </li>

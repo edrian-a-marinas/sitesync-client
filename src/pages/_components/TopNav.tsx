@@ -1,7 +1,7 @@
-import { Bell, Menu } from "lucide-react"
-import { useAuthStore } from "@/store/auth"
-import { ThemeToggle } from "@/pages/_components/ThemeToggle"
-import { Button } from "@/pages/_components/ui/button"
+import { Bell, Menu } from 'lucide-react'
+import { useAuthStore } from '@/store/auth'
+import { ThemeToggle } from '@/pages/_components/ThemeToggle'
+import { Button } from '@/pages/_components/ui/button'
 export function TopNav({ onMenuClick }: { onMenuClick: () => void }) {
   const { user } = useAuthStore()
   if (!user) return null

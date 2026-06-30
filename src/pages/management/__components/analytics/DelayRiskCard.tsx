@@ -1,8 +1,20 @@
 import type { DelayRiskResult } from '@/types/ml'
 import { Badge } from '@/pages/_components/ui/badge'
 import { Card, CardContent } from '@/pages/_components/ui/card'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/pages/_components/ui/table'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/pages/_components/ui/tooltip'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/pages/_components/ui/table'
 import {
   BarChart,
   Bar,
@@ -42,9 +54,14 @@ export default function DelayRiskCard({ results }: Props) {
       {/* Chart */}
       <Card>
         <CardContent className="pt-5">
-          <p className="mb-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">Delay Risk Score per Project (%)</p>
+          <p className="mb-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Delay Risk Score per Project (%)
+          </p>
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={chartData} margin={{ top: 0, right: 16, left: 8, bottom: 80 }}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 0, right: 16, left: 8, bottom: 80 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis
                 dataKey="name"
@@ -52,9 +69,15 @@ export default function DelayRiskCard({ results }: Props) {
                 angle={-40}
                 textAnchor="end"
                 interval={0}
-                tickFormatter={(v: string) => v.split(' ').slice(0, 2).join(' ')}
+                tickFormatter={(v: string) =>
+                  v.split(' ').slice(0, 2).join(' ')
+                }
               />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}%`} domain={[0, 100]} />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickFormatter={(v) => `${v}%`}
+                domain={[0, 100]}
+              />
               <RechartsTooltip
                 contentStyle={{
                   background: '#18181b',
@@ -92,7 +115,9 @@ export default function DelayRiskCard({ results }: Props) {
               <TableBody>
                 {results.map((r) => (
                   <TableRow key={r.project_id}>
-                    <TableCell className="font-medium">{r.project_name}</TableCell>
+                    <TableCell className="font-medium">
+                      {r.project_name}
+                    </TableCell>
                     <TableCell>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -112,12 +137,18 @@ export default function DelayRiskCard({ results }: Props) {
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Delay risk score: {Math.round(r.delay_risk_score * 100)}%</p>
+                          <p>
+                            Delay risk score:{' '}
+                            {Math.round(r.delay_risk_score * 100)}%
+                          </p>
                         </TooltipContent>
                       </Tooltip>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={`text-xs ${RISK_BADGE[r.risk_level]}`}>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${RISK_BADGE[r.risk_level]}`}
+                      >
                         {r.risk_level}
                       </Badge>
                     </TableCell>

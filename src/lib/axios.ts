@@ -1,15 +1,15 @@
-import axios from "axios";
-import { getToken, clearToken } from "@/lib/token";
+import axios from 'axios'
+import { getToken, clearToken } from '@/lib/token'
 
 const api = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`
-});
+  baseURL: `${import.meta.env.VITE_API_URL}/api/v1`,
+})
 
 api.interceptors.request.use((config) => {
-  const token = getToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+  const token = getToken()
+  if (token) config.headers.Authorization = `Bearer ${token}`
+  return config
+})
 
 api.interceptors.response.use(
   (response) => response,
@@ -22,8 +22,8 @@ api.interceptors.response.use(
         window.location.href = '/login'
       }
     }
-    return Promise.reject(error);
-  }
-);
+    return Promise.reject(error)
+  },
+)
 
-export default api;
+export default api

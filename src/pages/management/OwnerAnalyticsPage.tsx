@@ -1,10 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
-import { useBudgetOverrun, useDelayRisk, useMaterialForecast, useMLStatus, useRetrainML } from '@/hooks/useML'
+import {
+  useBudgetOverrun,
+  useDelayRisk,
+  useMaterialForecast,
+  useMLStatus,
+  useRetrainML,
+} from '@/hooks/useML'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/pages/_components/ui/tabs'
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  TabsContent,
+} from '@/pages/_components/ui/tabs'
 import { BarChart2 } from 'lucide-react'
 import { toast } from 'sonner'
 import BudgetOverrunCard from './__components/analytics/BudgetOverrunCard'
@@ -13,13 +24,16 @@ import MaterialForecastCard from './__components/analytics/MaterialForecastCard'
 import MLStatusBar from './__components/analytics/MLStatusBar'
 
 const COOLDOWN_MS = 15 * 60 * 1000 // 15 minutes
-const STATUS_POLL_INTERVAL = 2000   // poll every 2s while retraining
+const STATUS_POLL_INTERVAL = 2000 // poll every 2s while retraining
 
 function AnalyticsSkeleton() {
   return (
     <div className="flex flex-col gap-4">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="rounded-lg border border-zinc-200 p-5 dark:border-zinc-800">
+        <div
+          key={i}
+          className="rounded-lg border border-zinc-200 p-5 dark:border-zinc-800"
+        >
           <Skeleton className="mb-3 h-4 w-40" />
           <Skeleton className="mb-2 h-3 w-64" />
           {Array.from({ length: 4 }).map((__, j) => (
@@ -43,15 +57,32 @@ export default function OwnerAnalyticsPage() {
   const preRetrainTimestampRef = useRef<string | null>(null)
 
   const { data: status, refetch: refetchStatus } = useMLStatus()
-  const { data: budgetData, isLoading: budgetLoading, isError: budgetError, refetch: refetchBudget } = useBudgetOverrun()
-  const { data: delayData, isLoading: delayLoading, isError: delayError, refetch: refetchDelay } = useDelayRisk()
-  const { data: forecastData, isLoading: forecastLoading, isError: forecastError, refetch: refetchForecast } = useMaterialForecast()
+  const {
+    data: budgetData,
+    isLoading: budgetLoading,
+    isError: budgetError,
+    refetch: refetchBudget,
+  } = useBudgetOverrun()
+  const {
+    data: delayData,
+    isLoading: delayLoading,
+    isError: delayError,
+    refetch: refetchDelay,
+  } = useDelayRisk()
+  const {
+    data: forecastData,
+    isLoading: forecastLoading,
+    isError: forecastError,
+    refetch: refetchForecast,
+  } = useMaterialForecast()
   const { mutate: retrain, isPending: isRetraining } = useRetrainML()
 
   const isLoading = budgetLoading || delayLoading || forecastLoading
   const isError = budgetError || delayError || forecastError
   const modelsReady = status
-    ? status.budget_overrun.ready && status.delay_risk.ready && status.material_forecast.ready
+    ? status.budget_overrun.ready &&
+      status.delay_risk.ready &&
+      status.material_forecast.ready
     : false
 
   // Poll status while retraining — stop when last_trained changes
@@ -64,7 +95,11 @@ export default function OwnerAnalyticsPage() {
         setIsPollingStatus(false)
         // Wait 2 extra seconds before notifying and refreshing predictions
         setTimeout(async () => {
-          await Promise.all([refetchBudget(), refetchDelay(), refetchForecast()])
+          await Promise.all([
+            refetchBudget(),
+            refetchDelay(),
+            refetchForecast(),
+          ])
           toast.success('Models updated — predictions refreshed.')
         }, 2000)
       }
@@ -83,7 +118,8 @@ export default function OwnerAnalyticsPage() {
         localStorage.setItem('ml_retrain_cooldown', String(until))
         setIsPollingStatus(true)
       },
-      onError: () => toast.error('Failed to trigger retraining. Please try again.'),
+      onError: () =>
+        toast.error('Failed to trigger retraining. Please try again.'),
     })
   }
   if (user?.role_id !== ROLES.OWNER) return null
@@ -93,7 +129,9 @@ export default function OwnerAnalyticsPage() {
         <div>
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
             Analytics{' '}
-            <span className="text-zinc-400 dark:text-zinc-500">— Owner View</span>
+            <span className="text-zinc-400 dark:text-zinc-500">
+              — Owner View
+            </span>
           </h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             ML-powered predictive insights across all projects
@@ -111,14 +149,17 @@ export default function OwnerAnalyticsPage() {
       {!modelsReady && !isLoading && (
         <Alert>
           <AlertDescription>
-            Models are not yet trained. Click "Retrain Models" to generate predictions.
+            Models are not yet trained. Click "Retrain Models" to generate
+            predictions.
           </AlertDescription>
         </Alert>
       )}
 
       {isError && (
         <Alert variant="destructive">
-          <AlertDescription>Failed to load predictions. Please try again.</AlertDescription>
+          <AlertDescription>
+            Failed to load predictions. Please try again.
+          </AlertDescription>
         </Alert>
       )}
       {isLoading ? (

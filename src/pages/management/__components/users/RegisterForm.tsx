@@ -17,7 +17,12 @@ import { Input } from '@/pages/_components/ui/input'
 import { Button } from '@/pages/_components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/pages/_components/ui/radio-group'
 import { Label } from '@/pages/_components/ui/label'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/pages/_components/ui/tooltip'
 
 interface OwnerRegisterFormProps {
   onSuccess?: () => void
@@ -25,7 +30,10 @@ interface OwnerRegisterFormProps {
 }
 
 // --- Used in ManageUsersPage ---
-export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerRegisterFormProps) {
+export default function OwnerRegisterForm({
+  onSuccess,
+  isOwner = false,
+}: OwnerRegisterFormProps) {
   const queryClient = useQueryClient()
 
   const form = useForm<RegisterInput>({
@@ -56,18 +64,22 @@ export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerR
       form.reset()
       onSuccess?.()
     } catch (err: unknown) {
-      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
-      const message = typeof detail === 'string'
-        ? detail
-        : 'Failed to register user. Please try again.'
+      const detail = (err as { response?: { data?: { detail?: unknown } } })
+        ?.response?.data?.detail
+      const message =
+        typeof detail === 'string'
+          ? detail
+          : 'Failed to register user. Please try again.'
       toast.error(message)
     }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+      >
         {/* Role Selection */}
         <FormField
           control={form.control}
@@ -80,20 +92,26 @@ export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerR
                   <RadioGroup
                     value={String(field.value)}
                     onValueChange={(v) => {
-                      if (!isOwner && Number(v) === ROLES.PROJECT_MANAGER) return
+                      if (!isOwner && Number(v) === ROLES.PROJECT_MANAGER)
+                        return
                       field.onChange(Number(v))
                     }}
                     className="flex gap-6"
                   >
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <div className={`flex items-center gap-2 ${!isOwner ? 'cursor-not-allowed opacity-40' : ''}`}>
+                        <div
+                          className={`flex items-center gap-2 ${!isOwner ? 'cursor-not-allowed opacity-40' : ''}`}
+                        >
                           <RadioGroupItem
                             value={String(ROLES.PROJECT_MANAGER)}
                             id="role-pm"
                             disabled={!isOwner}
                           />
-                          <Label htmlFor="role-pm" className={!isOwner ? 'cursor-not-allowed' : ''}>
+                          <Label
+                            htmlFor="role-pm"
+                            className={!isOwner ? 'cursor-not-allowed' : ''}
+                          >
                             Project Manager
                           </Label>
                         </div>
@@ -105,7 +123,10 @@ export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerR
                       )}
                     </Tooltip>
                     <div className="flex items-center gap-2">
-                      <RadioGroupItem value={String(ROLES.SITE_WORKER)} id="role-worker" />
+                      <RadioGroupItem
+                        value={String(ROLES.SITE_WORKER)}
+                        id="role-worker"
+                      />
                       <Label htmlFor="role-worker">Site Worker</Label>
                     </div>
                   </RadioGroup>
@@ -136,7 +157,10 @@ export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerR
             name="middle_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Middle Name <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
+                <FormLabel>
+                  Middle Name{' '}
+                  <span className="text-zinc-400 text-xs">(optional)</span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="Cruz" {...field} />
                 </FormControl>
@@ -167,7 +191,11 @@ export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerR
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="juan@sitesync.com" {...field} />
+                <Input
+                  type="email"
+                  placeholder="juan@sitesync.com"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -182,7 +210,11 @@ export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerR
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input type="password" placeholder="Min. 8 characters" {...field} />
+                <Input
+                  type="password"
+                  placeholder="Min. 8 characters"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -195,7 +227,9 @@ export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerR
           name="phone_number"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone <span className="text-zinc-400 text-xs">(optional)</span></FormLabel>
+              <FormLabel>
+                Phone <span className="text-zinc-400 text-xs">(optional)</span>
+              </FormLabel>
               <FormControl>
                 <Input placeholder="+63 912 345 6789" {...field} />
               </FormControl>
@@ -207,7 +241,6 @@ export default function OwnerRegisterForm({ onSuccess, isOwner = false }: OwnerR
         <Button type="submit" disabled={isSubmitting} className="mt-2 w-full">
           {isSubmitting ? 'Registering...' : 'Register User'}
         </Button>
-
       </form>
     </Form>
   )

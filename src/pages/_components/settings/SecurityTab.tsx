@@ -17,7 +17,9 @@ export default function SecurityTab() {
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle>Security</CardTitle>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Manage your account password</p>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            Manage your account password
+          </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
           Change Password
@@ -28,7 +30,9 @@ export default function SecurityTab() {
           <Lock className="h-4 w-4 text-zinc-400" />
           <div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">Password</p>
-            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">••••••••</p>
+            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+              ••••••••
+            </p>
           </div>
         </div>
       </CardContent>

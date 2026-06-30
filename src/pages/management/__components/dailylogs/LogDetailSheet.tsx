@@ -8,7 +8,18 @@ import {
 import { Badge } from '@/pages/_components/ui/badge'
 import { ScrollArea } from '@/pages/_components/ui/scroll-area'
 import { useState } from 'react'
-import { CalendarIcon, CloudIcon, ClipboardList, StickyNote, User, Package, ImageIcon, Users, Wrench, AlertTriangle } from 'lucide-react'
+import {
+  CalendarIcon,
+  CloudIcon,
+  ClipboardList,
+  StickyNote,
+  User,
+  Package,
+  ImageIcon,
+  Users,
+  Wrench,
+  AlertTriangle,
+} from 'lucide-react'
 import SitePhotosSection from './SitePhotosSection'
 import MaterialsSection from './MaterialsSection'
 import AttendanceSection from './AttendanceSection'
@@ -34,14 +45,29 @@ interface Props {
 }
 
 export default function LogDetailSheet({ log, onOpenChange }: Props) {
-  const [materialCount, setMaterialCount] = useState<number | undefined>(undefined)
+  const [materialCount, setMaterialCount] = useState<number | undefined>(
+    undefined,
+  )
   const [photoCount, setPhotoCount] = useState<number | undefined>(undefined)
-  const [attendanceCount, setAttendanceCount] = useState<number | undefined>(undefined)
-  const [equipmentCount, setEquipmentCount] = useState<number | undefined>(undefined)
-  const [incidentCount, setIncidentCount] = useState<number | undefined>(undefined)
+  const [attendanceCount, setAttendanceCount] = useState<number | undefined>(
+    undefined,
+  )
+  const [equipmentCount, setEquipmentCount] = useState<number | undefined>(
+    undefined,
+  )
+  const [incidentCount, setIncidentCount] = useState<number | undefined>(
+    undefined,
+  )
   const [openSections, setOpenSections] = useState<string[]>([])
   return (
-    <Sheet open={!!log} onOpenChange={(open) => { if (!open && !document.querySelector('[data-sonner-toast]:hover')) onOpenChange(open) }} modal={false}>
+    <Sheet
+      open={!!log}
+      onOpenChange={(open) => {
+        if (!open && !document.querySelector('[data-sonner-toast]:hover'))
+          onOpenChange(open)
+      }}
+      modal={false}
+    >
       <SheetContent className="w-full sm:max-w-md">
         <SheetHeader className="mb-4">
           <SheetTitle className="flex items-center gap-2">
@@ -52,7 +78,6 @@ export default function LogDetailSheet({ log, onOpenChange }: Props) {
 
         <ScrollArea className="h-[calc(100vh-8rem)] pr-4">
           <div className="flex flex-col gap-6">
-
             {/* Submitted By */}
             <div className="flex flex-col gap-1.5">
               <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
@@ -106,107 +131,179 @@ export default function LogDetailSheet({ log, onOpenChange }: Props) {
             {/* Prefetch — mounts immediately so counts are available before accordion is opened */}
             {log && (
               <div className="hidden">
-                <MaterialsSection projectId={log.project_id} logId={log.id} onCountChange={setMaterialCount} />
-                <SitePhotosSection projectId={log.project_id} logId={log.id} onCountChange={setPhotoCount} />
-                <AttendanceSection projectId={log.project_id} logId={log.id} onCountChange={setAttendanceCount} />
-                <EquipmentSection projectId={log.project_id} logId={log.id} onCountChange={setEquipmentCount} />
-                <IncidentSection projectId={log.project_id} logId={log.id} onCountChange={setIncidentCount} />
+                <MaterialsSection
+                  projectId={log.project_id}
+                  logId={log.id}
+                  onCountChange={setMaterialCount}
+                />
+                <SitePhotosSection
+                  projectId={log.project_id}
+                  logId={log.id}
+                  onCountChange={setPhotoCount}
+                />
+                <AttendanceSection
+                  projectId={log.project_id}
+                  logId={log.id}
+                  onCountChange={setAttendanceCount}
+                />
+                <EquipmentSection
+                  projectId={log.project_id}
+                  logId={log.id}
+                  onCountChange={setEquipmentCount}
+                />
+                <IncidentSection
+                  projectId={log.project_id}
+                  logId={log.id}
+                  onCountChange={setIncidentCount}
+                />
               </div>
             )}
-             
-            {log && (
-              <Accordion type="multiple" className="flex flex-col gap-0" value={openSections} onValueChange={setOpenSections}>
 
+            {log && (
+              <Accordion
+                type="multiple"
+                className="flex flex-col gap-0"
+                value={openSections}
+                onValueChange={setOpenSections}
+              >
                 {/* Attendance */}
-                <AccordionItem value="attendance" className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 mb-2">
+                <AccordionItem
+                  value="attendance"
+                  className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 mb-2"
+                >
                   <AccordionTrigger className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500 hover:no-underline py-3 [&>svg]:text-zinc-400">
                     <span className="flex items-center gap-1.5">
                       <Users className="h-3.5 w-3.5" />
                       Attendance
-                      {attendanceCount !== undefined && attendanceCount > 0 && !openSections.includes('attendance') && (
-                        <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
-                          · {attendanceCount} worker{attendanceCount !== 1 ? 's' : ''}
-                        </span>
-                      )}
+                      {attendanceCount !== undefined &&
+                        attendanceCount > 0 &&
+                        !openSections.includes('attendance') && (
+                          <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
+                            · {attendanceCount} worker
+                            {attendanceCount !== 1 ? 's' : ''}
+                          </span>
+                        )}
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <AttendanceSection projectId={log.project_id} logId={log.id} onCountChange={setAttendanceCount} />
+                    <AttendanceSection
+                      projectId={log.project_id}
+                      logId={log.id}
+                      onCountChange={setAttendanceCount}
+                    />
                   </AccordionContent>
                 </AccordionItem>
 
                 {/* Materials */}
-                <AccordionItem value="materials" className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 mb-2">
+                <AccordionItem
+                  value="materials"
+                  className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 mb-2"
+                >
                   <AccordionTrigger className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500 hover:no-underline py-3 [&>svg]:text-zinc-400">
                     <span className="flex items-center gap-1.5">
                       <Package className="h-3.5 w-3.5" />
                       Materials
-                      {materialCount !== undefined && materialCount > 0 && !openSections.includes('materials') && (
-                        <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
-                          · {materialCount} item{materialCount !== 1 ? 's' : ''}
-                        </span>
-                      )}
+                      {materialCount !== undefined &&
+                        materialCount > 0 &&
+                        !openSections.includes('materials') && (
+                          <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
+                            · {materialCount} item
+                            {materialCount !== 1 ? 's' : ''}
+                          </span>
+                        )}
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <MaterialsSection projectId={log.project_id} logId={log.id} onCountChange={setMaterialCount} />
+                    <MaterialsSection
+                      projectId={log.project_id}
+                      logId={log.id}
+                      onCountChange={setMaterialCount}
+                    />
                   </AccordionContent>
                 </AccordionItem>
 
                 {/* Equipment */}
-                <AccordionItem value="equipment" className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 mb-2">
+                <AccordionItem
+                  value="equipment"
+                  className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 mb-2"
+                >
                   <AccordionTrigger className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500 hover:no-underline py-3 [&>svg]:text-zinc-400">
                     <span className="flex items-center gap-1.5">
                       <Wrench className="h-3.5 w-3.5" />
                       Equipment
-                      {equipmentCount !== undefined && equipmentCount > 0 && !openSections.includes('equipment') && (
-                        <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
-                          · {equipmentCount} item{equipmentCount !== 1 ? 's' : ''}
-                        </span>
-                      )}
+                      {equipmentCount !== undefined &&
+                        equipmentCount > 0 &&
+                        !openSections.includes('equipment') && (
+                          <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
+                            · {equipmentCount} item
+                            {equipmentCount !== 1 ? 's' : ''}
+                          </span>
+                        )}
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <EquipmentSection projectId={log.project_id} logId={log.id} onCountChange={setEquipmentCount} />
+                    <EquipmentSection
+                      projectId={log.project_id}
+                      logId={log.id}
+                      onCountChange={setEquipmentCount}
+                    />
                   </AccordionContent>
                 </AccordionItem>
 
                 {/* Incidents */}
-                <AccordionItem value="incidents" className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 mb-2">
+                <AccordionItem
+                  value="incidents"
+                  className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 mb-2"
+                >
                   <AccordionTrigger className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500 hover:no-underline py-3 [&>svg]:text-zinc-400">
                     <span className="flex items-center gap-1.5">
                       <AlertTriangle className="h-3.5 w-3.5" />
                       Incidents
-                      {incidentCount !== undefined && incidentCount > 0 && !openSections.includes('incidents') && (
-                        <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
-                          · {incidentCount} incident{incidentCount !== 1 ? 's' : ''}
-                        </span>
-                      )}
+                      {incidentCount !== undefined &&
+                        incidentCount > 0 &&
+                        !openSections.includes('incidents') && (
+                          <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
+                            · {incidentCount} incident
+                            {incidentCount !== 1 ? 's' : ''}
+                          </span>
+                        )}
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <IncidentSection projectId={log.project_id} logId={log.id} onCountChange={setIncidentCount} />
+                    <IncidentSection
+                      projectId={log.project_id}
+                      logId={log.id}
+                      onCountChange={setIncidentCount}
+                    />
                   </AccordionContent>
                 </AccordionItem>
 
                 {/* Site Photos */}
-                <AccordionItem value="site-photos" className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3">
+                <AccordionItem
+                  value="site-photos"
+                  className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3"
+                >
                   <AccordionTrigger className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500 hover:no-underline py-3 [&>svg]:text-zinc-400">
                     <span className="flex items-center gap-1.5">
                       <ImageIcon className="h-3.5 w-3.5" />
                       Site Photos & Documents
-                      {photoCount !== undefined && photoCount > 0 && !openSections.includes('site-photos') && (
-                        <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
-                          · {photoCount}/10
-                        </span>
-                      )}
+                      {photoCount !== undefined &&
+                        photoCount > 0 &&
+                        !openSections.includes('site-photos') && (
+                          <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
+                            · {photoCount}/10
+                          </span>
+                        )}
                     </span>
                   </AccordionTrigger>
                   <AccordionContent>
-                    <SitePhotosSection projectId={log.project_id} logId={log.id} onCountChange={setPhotoCount} />
+                    <SitePhotosSection
+                      projectId={log.project_id}
+                      logId={log.id}
+                      onCountChange={setPhotoCount}
+                    />
                   </AccordionContent>
                 </AccordionItem>
-                
               </Accordion>
             )}
           </div>

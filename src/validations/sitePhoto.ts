@@ -1,14 +1,22 @@
 import { z } from 'zod'
 
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'] as const
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/pdf',
+] as const
 const MAX_FILE_SIZE = 10 * 1024 * 1024 // 10MB
 
 export const SitePhotoUploadSchema = z.object({
   file: z
     .instanceof(File)
-    .refine((f) => ALLOWED_TYPES.includes(f.type as typeof ALLOWED_TYPES[number]), {
-      message: 'Only JPEG, PNG, WebP, and PDF files are allowed.',
-    })
+    .refine(
+      (f) => ALLOWED_TYPES.includes(f.type as (typeof ALLOWED_TYPES)[number]),
+      {
+        message: 'Only JPEG, PNG, WebP, and PDF files are allowed.',
+      },
+    )
     .refine((f) => f.size <= MAX_FILE_SIZE, {
       message: 'File must not exceed 10MB.',
     }),

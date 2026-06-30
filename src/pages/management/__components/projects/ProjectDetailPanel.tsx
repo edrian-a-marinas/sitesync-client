@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import type { ProjectResponse } from '@/validations/project'
 import { useProject } from '@/hooks/useProject'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/pages/_components/ui/tabs'
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/pages/_components/ui/tabs'
 import { Badge } from '@/pages/_components/ui/badge'
 import { Button } from '@/pages/_components/ui/button'
 import { Progress } from '@/pages/_components/ui/progress'
@@ -37,13 +42,21 @@ interface Props {
 }
 
 const PHASE_STATUS_BADGE: Record<string, string> = {
-  'Not Started': 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
-  'In Progress': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  'Completed': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-  'On Hold': 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+  'Not Started':
+    'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
+  'In Progress':
+    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  Completed:
+    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+  'On Hold':
+    'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
 }
 
-export default function ProjectDetailPanel({ project, isOwner, onClose }: Props) {
+export default function ProjectDetailPanel({
+  project,
+  isOwner,
+  onClose,
+}: Props) {
   const { data: detail, isLoading, isError } = useProject(project.id)
 
   const [createPhaseOpen, setCreatePhaseOpen] = useState(false)
@@ -51,32 +64,44 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
   const [assignManagerOpen, setAssignManagerOpen] = useState(false)
   const [assignWorkerOpen, setAssignWorkerOpen] = useState(false)
   const { mutate: unassignUser, isPending: unassigning } = useUnassignUser()
-  const [unassignTarget, setUnassignTarget] = useState<{ user: AssignedUser; type: 'manager' | 'worker' } | null>(null)
+  const [unassignTarget, setUnassignTarget] = useState<{
+    user: AssignedUser
+    type: 'manager' | 'worker'
+  } | null>(null)
   const [unassignInput, setUnassignInput] = useState('')
 
   const handleUnassignConfirm = () => {
     if (!unassignTarget) return
     unassignUser(
-      { projectId: project.id, userId: unassignTarget.user.id, type: unassignTarget.type },
+      {
+        projectId: project.id,
+        userId: unassignTarget.user.id,
+        type: unassignTarget.type,
+      },
       {
         onSuccess: () => {
-          toast.success(`${unassignTarget.user.first_name} ${unassignTarget.user.last_name} unassigned successfully`)
+          toast.success(
+            `${unassignTarget.user.first_name} ${unassignTarget.user.last_name} unassigned successfully`,
+          )
           setUnassignTarget(null)
           setUnassignInput('')
         },
         onError: (err: unknown) => {
-          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to unassign'
+          const message =
+            (err as { response?: { data?: { detail?: string } } })?.response
+              ?.data?.detail ?? 'Failed to unassign'
           toast.error(message)
         },
-      }
+      },
     )
   }
 
   const renderPhaseProgress = (phase: PhaseResponse) => {
     // No actual spending per phase from backend yet — show allocated vs project total_budget ratio
-    const ratio = project.total_budget > 0
-      ? Math.min((phase.allocated_budget / project.total_budget) * 100, 100)
-      : 0
+    const ratio =
+      project.total_budget > 0
+        ? Math.min((phase.allocated_budget / project.total_budget) * 100, 100)
+        : 0
     return Math.round(ratio)
   }
 
@@ -92,7 +117,12 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
             {project.location} · {formatPHP(project.total_budget)}
           </p>
         </div>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={onClose}
+        >
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -112,7 +142,11 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
             </p>
             {/* Owner can create phases, PM cannot */}
             {isOwner && (
-              <Button size="sm" variant="outline" onClick={() => setCreatePhaseOpen(true)}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setCreatePhaseOpen(true)}
+              >
                 <Plus className="mr-1.5 h-4 w-4" />
                 Add Phase
               </Button>
@@ -122,7 +156,10 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
           {isLoading && (
             <div className="flex flex-col gap-3">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="rounded-md border border-zinc-100 p-4 dark:border-zinc-800">
+                <div
+                  key={i}
+                  className="rounded-md border border-zinc-100 p-4 dark:border-zinc-800"
+                >
                   <div className="flex items-center justify-between mb-2">
                     <Skeleton className="h-4 w-32" />
                     <Skeleton className="h-5 w-20 rounded-full" />
@@ -135,12 +172,14 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
           )}
 
           {isError && (
-            <p className="text-sm text-red-600">Failed to load project details.</p>
+            <p className="text-sm text-red-600">
+              Failed to load project details.
+            </p>
           )}
 
           {!isLoading && !isError && detail && (
             <>
-              {(!detail.phases || detail.phases.length === 0) ? (
+              {!detail.phases || detail.phases.length === 0 ? (
                 <p className="text-sm text-zinc-400 dark:text-zinc-500 py-6 text-center">
                   No phases yet.{isOwner ? ' Add the first phase.' : ''}
                 </p>
@@ -168,12 +207,18 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
                           {/* Owner: full edit. PM: can also edit phase (backend allows it) */}
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-7 w-7">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7"
+                              >
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => setEditPhase(phase)}>
+                              <DropdownMenuItem
+                                onClick={() => setEditPhase(phase)}
+                              >
                                 Edit Phase
                               </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -181,7 +226,8 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
                         </div>
                         <Progress value={progress} className="h-2" />
                         <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">
-                          {formatPHP(phase.allocated_budget)} allocated · {progress}% of project budget
+                          {formatPHP(phase.allocated_budget)} allocated ·{' '}
+                          {progress}% of project budget
                         </p>
                       </div>
                     )
@@ -198,9 +244,15 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
             {/* Project Managers */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Project Manager</p>
+                <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Project Manager
+                </p>
                 {isOwner && (
-                  <Button size="sm" variant="outline" onClick={() => setAssignManagerOpen(true)}>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setAssignManagerOpen(true)}
+                  >
                     <Plus className="mr-1.5 h-4 w-4" />
                     Assign Manager
                   </Button>
@@ -209,14 +261,21 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
               {isLoading ? (
                 <Skeleton className="h-4 w-40" />
               ) : !detail?.managers || detail.managers.length === 0 ? (
-                <p className="text-xs text-zinc-400 dark:text-zinc-500">No manager assigned.</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                  No manager assigned.
+                </p>
               ) : (
                 <div className="flex flex-col gap-1">
                   {detail.managers.map((m: AssignedUser) => (
-                    <div key={m.id} className="flex items-center justify-between">
+                    <div
+                      key={m.id}
+                      className="flex items-center justify-between"
+                    >
                       <p className="text-sm text-zinc-700 dark:text-zinc-300">
                         {m.first_name} {m.last_name}
-                        <span className="ml-2 text-xs text-zinc-400">({m.email})</span>
+                        <span className="ml-2 text-xs text-zinc-400">
+                          ({m.email})
+                        </span>
                       </p>
                       {isOwner && (
                         <Button
@@ -224,7 +283,9 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
                           variant="ghost"
                           className="text-red-500 hover:text-red-600 h-7 px-2 text-xs"
                           disabled={unassigning}
-                          onClick={() => setUnassignTarget({ user: m, type: 'manager' })}
+                          onClick={() =>
+                            setUnassignTarget({ user: m, type: 'manager' })
+                          }
                         >
                           Unassign
                         </Button>
@@ -237,8 +298,14 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
             {/* Site Workers */}
             <div className="flex flex-col gap-2">
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Site Workers</p>
-                <Button size="sm" variant="outline" onClick={() => setAssignWorkerOpen(true)}>
+                <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  Site Workers
+                </p>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setAssignWorkerOpen(true)}
+                >
                   <Plus className="mr-1.5 h-4 w-4" />
                   Assign Worker
                 </Button>
@@ -246,26 +313,35 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
               {isLoading ? (
                 <Skeleton className="h-4 w-40" />
               ) : !detail?.workers || detail.workers.length === 0 ? (
-                <p className="text-xs text-zinc-400 dark:text-zinc-500">No workers assigned.</p>
+                <p className="text-xs text-zinc-400 dark:text-zinc-500">
+                  No workers assigned.
+                </p>
               ) : (
                 <div className="flex flex-col gap-1">
-                    {detail.workers.map((w: AssignedUser) => (
-                      <div key={w.id} className="flex items-center justify-between">
-                        <p className="text-sm text-zinc-700 dark:text-zinc-300">
-                          {w.first_name} {w.last_name}
-                          <span className="ml-2 text-xs text-zinc-400">({w.email})</span>
-                        </p>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="text-red-500 hover:text-red-600 h-7 px-2 text-xs"
-                          disabled={unassigning}
-                          onClick={() => setUnassignTarget({ user: w, type: 'worker' })}
-                        >
-                          Unassign
-                        </Button>
-                      </div>
-                    ))}
+                  {detail.workers.map((w: AssignedUser) => (
+                    <div
+                      key={w.id}
+                      className="flex items-center justify-between"
+                    >
+                      <p className="text-sm text-zinc-700 dark:text-zinc-300">
+                        {w.first_name} {w.last_name}
+                        <span className="ml-2 text-xs text-zinc-400">
+                          ({w.email})
+                        </span>
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-red-500 hover:text-red-600 h-7 px-2 text-xs"
+                        disabled={unassigning}
+                        onClick={() =>
+                          setUnassignTarget({ user: w, type: 'worker' })
+                        }
+                      >
+                        Unassign
+                      </Button>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -283,7 +359,9 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
         project={project}
         phase={editPhase}
         open={!!editPhase}
-        onOpenChange={(open) => { if (!open) setEditPhase(null) }}
+        onOpenChange={(open) => {
+          if (!open) setEditPhase(null)
+        }}
       />
 
       {/* Assignment Modals */}
@@ -302,20 +380,57 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
         excludeUserIds={detail?.workers?.map((w) => w.id) ?? []}
       />
       {/* Unassign Confirm Dialog */}
-      <AlertDialog open={!!unassignTarget} onOpenChange={(open) => { if (!open) { setUnassignTarget(null); setUnassignInput('') } }}>
+      <AlertDialog
+        open={!!unassignTarget}
+        onOpenChange={(open) => {
+          if (!open) {
+            setUnassignTarget(null)
+            setUnassignInput('')
+          }
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unassign {unassignTarget?.type === 'manager' ? 'Project Manager' : 'Site Worker'}</AlertDialogTitle>
+            <AlertDialogTitle>
+              Unassign{' '}
+              {unassignTarget?.type === 'manager'
+                ? 'Project Manager'
+                : 'Site Worker'}
+            </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
                 <p>You are about to unassign:</p>
                 <div className="rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 p-3 text-zinc-800 dark:text-zinc-200">
-                  <p><span className="font-medium">Name:</span> {unassignTarget?.user.first_name} {unassignTarget?.user.last_name}</p>
-                  <p><span className="font-medium">Email:</span> {unassignTarget?.user.email}</p>
-                  <p><span className="font-medium">Role:</span> {unassignTarget?.type === 'manager' ? 'Project Manager' : 'Site Worker'}</p>
+                  <p>
+                    <span className="font-medium">Name:</span>{' '}
+                    {unassignTarget?.user.first_name}{' '}
+                    {unassignTarget?.user.last_name}
+                  </p>
+                  <p>
+                    <span className="font-medium">Email:</span>{' '}
+                    {unassignTarget?.user.email}
+                  </p>
+                  <p>
+                    <span className="font-medium">Role:</span>{' '}
+                    {unassignTarget?.type === 'manager'
+                      ? 'Project Manager'
+                      : 'Site Worker'}
+                  </p>
                 </div>
-                <p>This will remove their access to <span className="font-semibold text-zinc-900 dark:text-zinc-100">{project.name}</span>.</p>
-                <p>To confirm, type <span className="font-semibold text-zinc-900 dark:text-zinc-100">unassign</span> below:</p>
+                <p>
+                  This will remove their access to{' '}
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    {project.name}
+                  </span>
+                  .
+                </p>
+                <p>
+                  To confirm, type{' '}
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    unassign
+                  </span>{' '}
+                  below:
+                </p>
                 <Input
                   placeholder="unassign"
                   value={unassignInput}
@@ -326,7 +441,11 @@ export default function ProjectDetailPanel({ project, isOwner, onClose }: Props)
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button variant="outline" onClick={() => setUnassignTarget(null)} disabled={unassigning}>
+            <Button
+              variant="outline"
+              onClick={() => setUnassignTarget(null)}
+              disabled={unassigning}
+            >
               Cancel
             </Button>
             <Button

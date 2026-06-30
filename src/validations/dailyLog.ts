@@ -32,4 +32,6 @@ export const DailyLogListResponseSchema = z.object({
 // --- Inferred types ---
 export type DailyLogCreate = z.infer<typeof DailyLogCreateSchema>
 export type DailyLogUpdate = z.infer<typeof DailyLogUpdateSchema>
-export type DailyLogListResponseValidated = z.infer<typeof DailyLogListResponseSchema>
+export type DailyLogListResponseValidated = z.infer<
+  typeof DailyLogListResponseSchema
+>

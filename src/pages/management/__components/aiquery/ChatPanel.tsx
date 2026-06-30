@@ -2,10 +2,28 @@ import { useRef, useEffect, useMemo } from 'react'
 import { Button } from '@/pages/_components/ui/button'
 import { Textarea } from '@/pages/_components/ui/textarea'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/pages/_components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/pages/_components/ui/select'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
-import { Bot, Send, History, ChevronUp, FolderKanban, Loader2 } from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/pages/_components/ui/tooltip'
+import {
+  Bot,
+  Send,
+  History,
+  ChevronUp,
+  FolderKanban,
+  Loader2,
+} from 'lucide-react'
 import { ChatMessage } from './ChatMessage'
 import { SUGGESTED_QUESTIONS, formatCooldown } from './utils'
 import type { AIQueryResponse } from '@/types/aiQuery'
@@ -78,7 +96,9 @@ export function ChatPanel({
       timestamp: m.timestamp,
       marker: m,
     }))
-    return [...queryItems, ...markerItems].sort((a, b) => a.timestamp - b.timestamp)
+    return [...queryItems, ...markerItems].sort(
+      (a, b) => a.timestamp - b.timestamp,
+    )
   }, [queries, scopeMarkers])
   useEffect(() => {
     const el = scrollRef.current
@@ -113,7 +133,10 @@ export function ChatPanel({
 
   return (
     <div className="flex h-full flex-col bg-white dark:bg-zinc-900">
-      <div ref={scrollRef} className="flex-1 px-5 py-4 overflow-y-auto [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:border [&::-webkit-scrollbar-thumb]:border-transparent">
+      <div
+        ref={scrollRef}
+        className="flex-1 px-5 py-4 overflow-y-auto [scrollbar-width:thin] [&::-webkit-scrollbar]:w-2.5 [&::-webkit-scrollbar-track]:transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-thumb]:border [&::-webkit-scrollbar-thumb]:border-transparent"
+      >
         {isLoading ? (
           <div className="flex flex-col gap-4">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -125,12 +148,16 @@ export function ChatPanel({
           </div>
         ) : isError ? (
           <Alert variant="destructive">
-            <AlertDescription>Failed to load conversation history. Please refresh.</AlertDescription>
+            <AlertDescription>
+              Failed to load conversation history. Please refresh.
+            </AlertDescription>
           </Alert>
         ) : timeline.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center gap-4 py-24 text-zinc-400 dark:text-zinc-500">
             <Bot className="h-10 w-10" />
-            <p className="text-sm">Ask anything about your construction projects.</p>
+            <p className="text-sm">
+              Ask anything about your construction projects.
+            </p>
             <div className="flex flex-col gap-2 w-full max-w-sm">
               {SUGGESTED_QUESTIONS.map((q) => (
                 <button
@@ -169,8 +196,12 @@ export function ChatPanel({
                   </div>
                 </div>
               ) : (
-                <ChatMessage key={item.key} query={item.query} onRateLimit={onRateLimit} />
-              )
+                <ChatMessage
+                  key={item.key}
+                  query={item.query}
+                  onRateLimit={onRateLimit}
+                />
+              ),
             )}
             <div ref={bottomRef} />
           </div>
@@ -180,8 +211,12 @@ export function ChatPanel({
       <div className="border-t border-zinc-200 dark:border-zinc-800 px-4 py-3">
         <div className="flex items-center gap-2">
           <Select
-            value={selectedProjectId !== null ? String(selectedProjectId) : 'all'}
-            onValueChange={(v) => onProjectChange(v === 'all' ? null : Number(v))}
+            value={
+              selectedProjectId !== null ? String(selectedProjectId) : 'all'
+            }
+            onValueChange={(v) =>
+              onProjectChange(v === 'all' ? null : Number(v))
+            }
           >
             <SelectTrigger className="w-44 shrink-0 h-10">
               <SelectValue placeholder="All projects" />
@@ -224,7 +259,9 @@ export function ChatPanel({
               </TooltipTrigger>
               {isRateLimited && (
                 <TooltipContent>
-                  <p>Rate limited. Available in {formatCooldown(cooldownLeft)}.</p>
+                  <p>
+                    Rate limited. Available in {formatCooldown(cooldownLeft)}.
+                  </p>
                 </TooltipContent>
               )}
             </Tooltip>

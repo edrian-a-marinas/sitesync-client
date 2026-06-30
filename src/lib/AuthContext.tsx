@@ -32,15 +32,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         clearAuth()
       })
       .finally(() => setIsLoading(false))
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   if (isLoading) return null
 
   return (
-    <AuthContext.Provider value={{ logout }}>
-      {children}
-    </AuthContext.Provider>
+    <AuthContext.Provider value={{ logout }}>{children}</AuthContext.Provider>
   )
 }
 

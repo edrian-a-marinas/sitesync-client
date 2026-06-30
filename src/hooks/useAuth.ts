@@ -15,7 +15,10 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (data: LoginInput) => loginUser(data),
     onSuccess: (user) => {
-      if (!isAdminRoute && (user.role_id === ROLES.OWNER || user.role_id === ROLES.PROJECT_MANAGER)) {
+      if (
+        !isAdminRoute &&
+        (user.role_id === ROLES.OWNER || user.role_id === ROLES.PROJECT_MANAGER)
+      ) {
         logoutUser()
         throw new Error('ACCESS_DENIED')
       }

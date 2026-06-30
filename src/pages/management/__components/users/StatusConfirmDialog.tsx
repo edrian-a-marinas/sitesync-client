@@ -26,7 +26,8 @@ export default function StatusConfirmDialog({ target, onOpenChange }: Props) {
   const [confirmInput, setConfirmInput] = useState('')
 
   const isPending = activateUser.isPending || deactivateUser.isPending
-  const confirmWord = target?.action === 'deactivate' ? 'deactivate' : 'activate'
+  const confirmWord =
+    target?.action === 'deactivate' ? 'deactivate' : 'activate'
 
   const handleConfirm = async () => {
     if (!target || confirmInput !== confirmWord) return
@@ -61,17 +62,49 @@ export default function StatusConfirmDialog({ target, onOpenChange }: Props) {
             <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
               <p>You are about to {target?.action}:</p>
               <div className="rounded-md border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 p-3 text-zinc-800 dark:text-zinc-200">
-                <p><span className="font-medium">Name:</span> {target?.user.first_name} {target?.user.last_name}</p>
-                <p><span className="font-medium">Email:</span> {target?.user.email}</p>
-                <p><span className="font-medium">Role:</span> {target?.user.role_id !== undefined ? ROLE_LABEL[target.user.role_id] : '—'}</p>
-                <p><span className="font-medium">Status:</span> {target?.user.is_active ? 'Active' : 'Inactive'}</p>
+                <p>
+                  <span className="font-medium">Name:</span>{' '}
+                  {target?.user.first_name} {target?.user.last_name}
+                </p>
+                <p>
+                  <span className="font-medium">Email:</span>{' '}
+                  {target?.user.email}
+                </p>
+                <p>
+                  <span className="font-medium">Role:</span>{' '}
+                  {target?.user.role_id !== undefined
+                    ? ROLE_LABEL[target.user.role_id]
+                    : '—'}
+                </p>
+                <p>
+                  <span className="font-medium">Status:</span>{' '}
+                  {target?.user.is_active ? 'Active' : 'Inactive'}
+                </p>
               </div>
               {target?.action === 'deactivate' ? (
-                <p>This will prevent <span className="font-semibold text-zinc-900 dark:text-zinc-100">{target?.user.first_name}</span> from logging in. You can reactivate them anytime.</p>
+                <p>
+                  This will prevent{' '}
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    {target?.user.first_name}
+                  </span>{' '}
+                  from logging in. You can reactivate them anytime.
+                </p>
               ) : (
-                <p>This will restore <span className="font-semibold text-zinc-900 dark:text-zinc-100">{target?.user.first_name}</span>'s access to the system.</p>
+                <p>
+                  This will restore{' '}
+                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                    {target?.user.first_name}
+                  </span>
+                  's access to the system.
+                </p>
               )}
-              <p>To confirm, type <span className="font-semibold text-zinc-900 dark:text-zinc-100">{confirmWord}</span> below:</p>
+              <p>
+                To confirm, type{' '}
+                <span className="font-semibold text-zinc-900 dark:text-zinc-100">
+                  {confirmWord}
+                </span>{' '}
+                below:
+              </p>
               <Input
                 placeholder={confirmWord}
                 value={confirmInput}
@@ -99,8 +132,12 @@ export default function StatusConfirmDialog({ target, onOpenChange }: Props) {
             }
           >
             {isPending
-              ? target?.action === 'deactivate' ? 'Deactivating...' : 'Activating...'
-              : target?.action === 'deactivate' ? 'Deactivate' : 'Activate'}
+              ? target?.action === 'deactivate'
+                ? 'Deactivating...'
+                : 'Activating...'
+              : target?.action === 'deactivate'
+                ? 'Deactivate'
+                : 'Activate'}
           </Button>
         </AlertDialogFooter>
       </AlertDialogContent>

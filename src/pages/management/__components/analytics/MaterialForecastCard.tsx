@@ -1,6 +1,13 @@
 import type { MaterialForecastResult } from '@/types/ml'
 import { Card, CardContent } from '@/pages/_components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/pages/_components/ui/table'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/pages/_components/ui/table'
 import { formatPHP } from '@/utils/formatPHP'
 import {
   BarChart,
@@ -13,8 +20,19 @@ import {
 } from 'recharts'
 
 const MONTH_NAMES = [
-  '', 'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
+  '',
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
 ]
 
 interface Props {
@@ -34,10 +52,14 @@ export default function MaterialForecastCard({ results }: Props) {
       <Card>
         <CardContent className="pt-5">
           <p className="mb-4 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            Predicted Material Cost per Project — {MONTH_NAMES[results[0]?.forecast_month] ?? ''}
+            Predicted Material Cost per Project —{' '}
+            {MONTH_NAMES[results[0]?.forecast_month] ?? ''}
           </p>
           <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={chartData} margin={{ top: 0, right: 16, left: 8, bottom: 80 }}>
+            <BarChart
+              data={chartData}
+              margin={{ top: 0, right: 16, left: 8, bottom: 80 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis
                 dataKey="name"
@@ -45,9 +67,14 @@ export default function MaterialForecastCard({ results }: Props) {
                 angle={-40}
                 textAnchor="end"
                 interval={0}
-                tickFormatter={(v: string) => v.split(' ').slice(0, 2).join(' ')}
+                tickFormatter={(v: string) =>
+                  v.split(' ').slice(0, 2).join(' ')
+                }
               />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `₱${(v / 1000).toFixed(0)}k`} />
+              <YAxis
+                tick={{ fontSize: 11 }}
+                tickFormatter={(v) => `₱${(v / 1000).toFixed(0)}k`}
+              />
               <RechartsTooltip
                 contentStyle={{
                   background: '#18181b',
@@ -58,9 +85,16 @@ export default function MaterialForecastCard({ results }: Props) {
                 }}
                 labelStyle={{ color: '#a1a1aa' }}
                 itemStyle={{ color: '#fafafa' }}
-                formatter={(value) => [formatPHP(Number(value)), 'Predicted Cost']}
+                formatter={(value) => [
+                  formatPHP(Number(value)),
+                  'Predicted Cost',
+                ]}
               />
-              <Bar dataKey="predicted_cost" fill="#6366f1" radius={[4, 4, 0, 0]} />
+              <Bar
+                dataKey="predicted_cost"
+                fill="#6366f1"
+                radius={[4, 4, 0, 0]}
+              />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
@@ -80,7 +114,9 @@ export default function MaterialForecastCard({ results }: Props) {
             <TableBody>
               {results.map((r) => (
                 <TableRow key={r.project_id}>
-                  <TableCell className="font-medium">{r.project_name}</TableCell>
+                  <TableCell className="font-medium">
+                    {r.project_name}
+                  </TableCell>
                   <TableCell className="text-xs text-zinc-500 dark:text-zinc-400">
                     {MONTH_NAMES[r.forecast_month]}
                   </TableCell>

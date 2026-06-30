@@ -15,11 +15,21 @@ interface Props {
   isOwner: boolean
   canChangeStatus?: boolean
   onEdit: (user: UserResponse) => void
-  onStatusChange: (user: UserResponse, action: 'activate' | 'deactivate') => void
+  onStatusChange: (
+    user: UserResponse,
+    action: 'activate' | 'deactivate',
+  ) => void
   onResetPassword: (user: UserResponse) => void
 }
 // --- Used in ManageUsersPage ---
-export default function UserActionsDropdown({ user, currentUserId, canChangeStatus = true, onEdit, onStatusChange, onResetPassword }: Props) {
+export default function UserActionsDropdown({
+  user,
+  currentUserId,
+  canChangeStatus = true,
+  onEdit,
+  onStatusChange,
+  onResetPassword,
+}: Props) {
   // Owner accounts are never editable or deactivatable
   if (user.role_id === ROLES.OWNER) return null
 
@@ -33,16 +43,15 @@ export default function UserActionsDropdown({ user, currentUserId, canChangeStat
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => onEdit(user)}>
-          Edit
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => onEdit(user)}>Edit</DropdownMenuItem>
         {!isSelf && canChangeStatus && (
           <DropdownMenuItem onClick={() => onResetPassword(user)}>
             Reset Password
           </DropdownMenuItem>
         )}
-        {!isSelf && canChangeStatus && (
-          user.is_active ? (
+        {!isSelf &&
+          canChangeStatus &&
+          (user.is_active ? (
             <DropdownMenuItem
               className="text-red-600 dark:text-red-400"
               onClick={() => onStatusChange(user, 'deactivate')}
@@ -56,8 +65,7 @@ export default function UserActionsDropdown({ user, currentUserId, canChangeStat
             >
               Activate
             </DropdownMenuItem>
-          )
-        )}
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   )

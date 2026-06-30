@@ -7,5 +7,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
   sidebarCollapsed: false,
   setAuth: (user) => set({ user, isAuthenticated: true }),
   clearAuth: () => set({ user: null, isAuthenticated: false }),
-  toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
+  toggleSidebar: () =>
+    set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
 }))

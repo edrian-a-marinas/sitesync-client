@@ -3,7 +3,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 import { Eye, EyeOff } from 'lucide-react'
-import { PasswordResetSchema, type PasswordResetInput } from '@/validations/user'
+import {
+  PasswordResetSchema,
+  type PasswordResetInput,
+} from '@/validations/user'
 import type { UserResponse } from '@/validations/auth'
 import { useResetPassword } from '@/hooks/useUser'
 import {
@@ -51,15 +54,19 @@ export default function ResetPasswordDialog({ user, onOpenChange }: Props) {
       { userId: user.id, data },
       {
         onSuccess: () => {
-          toast.success(`Password reset for ${user.first_name} ${user.last_name}.`)
+          toast.success(
+            `Password reset for ${user.first_name} ${user.last_name}.`,
+          )
           onOpenChange(false)
         },
         onError: (err: unknown) => {
-          const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
-          const message = typeof detail === 'string' ? detail : 'Failed to reset password.'
+          const detail = (err as { response?: { data?: { detail?: unknown } } })
+            ?.response?.data?.detail
+          const message =
+            typeof detail === 'string' ? detail : 'Failed to reset password.'
           toast.error(message)
         },
-      }
+      },
     )
   }
 
@@ -77,7 +84,10 @@ export default function ResetPasswordDialog({ user, onOpenChange }: Props) {
           </DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <FormField
               control={form.control}
               name="new_password"
@@ -86,14 +96,23 @@ export default function ResetPasswordDialog({ user, onOpenChange }: Props) {
                   <FormLabel>New Password</FormLabel>
                   <FormControl>
                     <div className="relative">
-                      <Input type={visible ? 'text' : 'password'} placeholder="At least 8 characters" className="pr-10" {...field} />
+                      <Input
+                        type={visible ? 'text' : 'password'}
+                        placeholder="At least 8 characters"
+                        className="pr-10"
+                        {...field}
+                      />
                       <button
                         type="button"
                         onClick={() => setVisible((v) => !v)}
                         className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
                         tabIndex={-1}
                       >
-                        {visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                        {visible ? (
+                          <Eye className="h-4 w-4" />
+                        ) : (
+                          <EyeOff className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </FormControl>
@@ -102,10 +121,16 @@ export default function ResetPasswordDialog({ user, onOpenChange }: Props) {
               )}
             />
             <p className="text-xs text-zinc-400 dark:text-zinc-500">
-              This sets the user's password directly. They will need to log in with this new password.
+              This sets the user's password directly. They will need to log in
+              with this new password.
             </p>
             <DialogFooter className="mt-2">
-              <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={isPending}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => handleOpenChange(false)}
+                disabled={isPending}
+              >
                 Cancel
               </Button>
               <Button type="submit" disabled={isPending}>

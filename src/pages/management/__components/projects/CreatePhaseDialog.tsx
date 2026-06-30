@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
-import { PhaseCreateSchema} from '@/validations/project'
+import { PhaseCreateSchema } from '@/validations/project'
 import type { ProjectResponse, PhaseCreate } from '@/validations/project'
 
 import { useCreatePhase } from '@/hooks/useProject'
@@ -36,7 +36,11 @@ interface Props {
   onOpenChange: (open: boolean) => void
 }
 
-export default function CreatePhaseDialog({ project, open, onOpenChange }: Props) {
+export default function CreatePhaseDialog({
+  project,
+  open,
+  onOpenChange,
+}: Props) {
   const { mutate: createPhase, isPending } = useCreatePhase()
 
   const form = useForm<PhaseCreate>({
@@ -58,10 +62,12 @@ export default function CreatePhaseDialog({ project, open, onOpenChange }: Props
           onOpenChange(false)
         },
         onError: (err: unknown) => {
-          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to create phase'
+          const message =
+            (err as { response?: { data?: { detail?: string } } })?.response
+              ?.data?.detail ?? 'Failed to create phase'
           toast.error(message)
         },
-      }
+      },
     )
   }
 
@@ -78,7 +84,10 @@ export default function CreatePhaseDialog({ project, open, onOpenChange }: Props
         </DialogHeader>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col gap-4"
+          >
             <FormField
               control={form.control}
               name="name"
@@ -86,7 +95,10 @@ export default function CreatePhaseDialog({ project, open, onOpenChange }: Props
                 <FormItem>
                   <FormLabel>Phase Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Foundation, Structure, Finishing" {...field} />
+                    <Input
+                      placeholder="e.g. Foundation, Structure, Finishing"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -119,7 +131,10 @@ export default function CreatePhaseDialog({ project, open, onOpenChange }: Props
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
