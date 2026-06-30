@@ -1,4 +1,6 @@
 import { Briefcase, Wallet, Users, AlertTriangle, ClipboardList, Clock, TrendingUp, TrendingDown, Minus, type LucideIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ROUTES } from "@/constants";
 import type { OwnerDashboard, ProjectManagerDashboard, ProjectManagerAggregateDashboard, ProjectBudgetSummary } from "@/validations/dashboard";
 import { formatPHP, getMoneyTooltip } from "@/utils/formatPHP";
 type KPI = {
@@ -10,6 +12,7 @@ type KPI = {
   deltaLabel?: string;
   deltaInvertedColor?: boolean;
   rawAmount?: number;
+  route?: string;
 };
 
 function Delta({ value, label, inverted }: { value: number; label?: string; inverted?: boolean }) {
@@ -34,8 +37,8 @@ function Delta({ value, label, inverted }: { value: number; label?: string; inve
 function KPICard({ kpi }: { kpi: KPI }) {
   const Icon = kpi.icon;
   const tooltip = kpi.rawAmount ? getMoneyTooltip(kpi.rawAmount) : undefined;
-  return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none">
+  const content = (
+    <>
       <div className="flex items-start justify-between">
         <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
           {kpi.label}
@@ -53,8 +56,19 @@ function KPICard({ kpi }: { kpi: KPI }) {
       {kpi.delta != null && (
         <Delta value={kpi.delta} label={kpi.deltaLabel} inverted={kpi.deltaInvertedColor} />
       )}
-    </div>
+    </>
   );
+  const className = `rounded-lg border border-zinc-200 bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04)] dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-none${
+    kpi.route ? " transition-colors hover:border-zinc-300 dark:hover:border-zinc-700 cursor-pointer" : ""
+  }`;
+  if (kpi.route) {
+    return (
+      <Link to={kpi.route} className={`${className} block`}>
+        {content}
+      </Link>
+    );
+  }
+  return <div className={className}>{content}</div>;
 }
 
 export function OwnerKPICards({ data, filteredProjects, year }: { data: OwnerDashboard; filteredProjects?: ProjectBudgetSummary[]; year?: number | "all" }) {
@@ -86,6 +100,7 @@ export function OwnerKPICards({ data, filteredProjects, year }: { data: OwnerDas
       icon: Briefcase,
       delta: showDeltas && !isSingleProject ? data.total_active_projects_delta : null,
       deltaLabel: "vs last month",
+      route: ROUTES.PROJECTS,
     },
     {
       label: "Budget vs Actual Spend",
@@ -96,6 +111,7 @@ export function OwnerKPICards({ data, filteredProjects, year }: { data: OwnerDas
       deltaLabel: "% burn rate vs last week",
       deltaInvertedColor: true,
       rawAmount: totalSpending,
+      route: ROUTES.PROJECTS,
     },
     {
       label: isSingleProject ? "Workers on Project" : "Total Workers Active",
@@ -131,6 +147,7 @@ export function ManagerKPICards({ data }: { data: ProjectManagerDashboard }) {
       icon: ClipboardList,
       delta: data.logs_submitted_delta,
       deltaLabel: "vs last week",
+      route: ROUTES.DAILY_LOGS,
     },
     {
       label: "Budget vs Actual Spend",
@@ -176,6 +193,7 @@ export function ManagerAggregateKPICards({ data }: { data: ProjectManagerAggrega
       icon: ClipboardList,
       delta: data.total_logs_submitted_delta,
       deltaLabel: "vs last week",
+      route: ROUTES.DAILY_LOGS,
     },
     {
       label: "Budget vs Actual Spend",
