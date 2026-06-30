@@ -1,7 +1,11 @@
 import { useState } from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { Lock, ShieldAlert, Trash2 } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAuthStore } from '@/store/auth'
-import { ROLES } from '@/constants'
+import { useAuthContext } from '@/lib/AuthContext'
+import { useDeactivateUser } from '@/hooks/useUser'
+import { ROLES, ROUTES } from '@/constants'
 import {
   AlertDialog,
   AlertDialogContent,
@@ -15,11 +19,31 @@ import { Input } from '@/pages/_components/ui/input'
 
 export default function DangerZoneCard() {
   const { user } = useAuthStore()
+  const { logout } = useAuthContext()
+  const navigate = useNavigate()
+  const { mutate: deactivateUser, isPending } = useDeactivateUser()
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [confirmInput, setConfirmInput] = useState('')
   if (!user) return null
 
   const isOwner = user.role_id === ROLES.OWNER
+
+  const handleDeactivate = () => {
+    deactivateUser(user.id, {
+      onSuccess: () => {
+        toast.success('Account deactivated. You have been signed out.')
+        logout()
+        navigate({ to: ROUTES.LOGIN })
+      },
+      onError: (err: any) => {
+        const detail = err?.response?.data?.detail
+        const message = typeof detail === 'string' ? detail : 'Failed to deactivate account.'
+        toast.error(message)
+        setConfirmOpen(false)
+        setConfirmInput('')
+      },
+    })
+  }
 
   return (
     <div className="rounded-xl border border-red-500/25 bg-white shadow-sm dark:bg-zinc-900">
@@ -97,9 +121,10 @@ export default function DangerZoneCard() {
             </Button>
             <Button
               className="bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800"
-              disabled={confirmInput !== 'deactivate'}
+              disabled={confirmInput !== 'deactivate' || isPending}
+              onClick={handleDeactivate}
             >
-              Deactivate Account
+              {isPending ? 'Deactivating...' : 'Deactivate Account'}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
