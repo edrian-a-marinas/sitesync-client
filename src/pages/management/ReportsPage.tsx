@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useSearch, useNavigate } from '@tanstack/react-router'
-import type { ReportResponse } from '@/types/report'
+import type { ReportResponse, ReportsSearch } from '@/types/report'
 import { useAuthStore } from '@/store/auth'
 import { ROLES, ROUTES } from '@/constants'
 import { useProjects } from '@/hooks/useProject'
@@ -54,7 +54,7 @@ export default function ReportsPage() {
   const handlePageChange = useCallback((newPage: number) => {
     navigate({
       to: ROUTES.REPORTS,
-      search: (prev: any) => ({ ...prev, page: newPage }),
+      search: (prev: Partial<ReportsSearch>) => ({ ...prev, page: newPage }),
     })
   }, [navigate])
 
@@ -77,8 +77,8 @@ export default function ReportsPage() {
         setIsPolling(true)
         toast.info('Generating report... this may take a moment.')
       },
-      onError: (error: any) => {
-        const status = error?.response?.status
+      onError: (error: unknown) => {
+        const status = (error as { response?: { status?: number } })?.response?.status
         if (status === 503) {
           setGenerateOpen(false)
           setCooldownUntil(Date.now() + COOLDOWN_MS)

@@ -4,6 +4,7 @@ import { useAuthStore } from '@/store/auth'
 import { ROLES, ROLE_LABEL, ROUTES } from '@/constants'
 import { useUsers } from '@/hooks/useUser'
 import type { UserResponse } from '@/validations/auth'
+import type { UsersSearch } from '@/types/user'
 import {
   useReactTable,
   getCoreRowModel,
@@ -85,14 +86,13 @@ export default function ManageUsersPage() {
   const handleSearchChange = useCallback((value: string) => {
     navigate({
       to: ROUTES.MANAGE_USERS,
-      search: (prev: any) => ({ ...prev, search: value, page: 1 }),
+      search: (prev: Partial<UsersSearch>) => ({ ...prev, search: value, page: 1 }),
     })
   }, [navigate])
-
   const handlePageChange = useCallback((newPage: number) => {
     navigate({
       to: ROUTES.MANAGE_USERS,
-      search: (prev: any) => ({ ...prev, page: newPage }),
+      search: (prev: Partial<UsersSearch>) => ({ ...prev, search: prev.search ?? '', page: newPage }),
     })
   }, [navigate])
 

@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/auth'
 import { ROLES, ROUTES } from '@/constants'
 import { useProjects } from '@/hooks/useProject'
 import { useDailyLogs } from '@/hooks/useDailyLog'
-import type { DailyLogResponse } from '@/types/dailyLog'
+import type { DailyLogResponse, DailyLogsSearch } from '@/types/dailyLog'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
 import { ClipboardList } from 'lucide-react'
 import DailyLogFilters from './__components/dailylogs/DailyLogFilters'
@@ -31,13 +31,13 @@ export default function DailyLogsPage() {
   const handleSearchChange = useCallback((value: string) => {
     navigate({
       to: ROUTES.DAILY_LOGS,
-      search: (prev: any) => ({ ...prev, search: value, page: 1 }),
+      search: (prev: Partial<DailyLogsSearch>) => ({ ...prev, search: value, page: 1 }),
     })
   }, [navigate])
   const handlePageChange = useCallback((newPage: number) => {
     navigate({
       to: ROUTES.DAILY_LOGS,
-      search: (prev: any) => ({ ...prev, page: newPage }),
+      search: (prev: Partial<DailyLogsSearch>) => ({ ...prev, search: prev.search ?? '', page: newPage }),
     })
   }, [navigate])
   const handleProjectChange = useCallback((id: number) => {
