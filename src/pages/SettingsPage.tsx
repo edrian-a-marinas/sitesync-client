@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
 import MyInfoCard from '@/pages/_components/settings/MyInfoCard'
-import ChangePasswordCard from '@/pages/_components/settings/SecurityTab'
+import SecurityTab  from '@/pages/_components/settings/SecurityTab'
 
 export default function SettingsPage() {
   const { user } = useAuthStore()
@@ -20,7 +20,7 @@ export default function SettingsPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         {canEditOwnName && <MyInfoCard user={user} />}
-        <ChangePasswordCard />
+        <SecurityTab />
       </div>
     </div>
   )

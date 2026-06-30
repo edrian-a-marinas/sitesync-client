@@ -9,7 +9,7 @@ import {
 import { Button } from '@/pages/_components/ui/button'
 import ChangePasswordDialog from './ChangePasswordDialog'
 
-export default function ChangePasswordCard() {
+export default function SecurityTab() {
   const [open, setOpen] = useState(false)
 
   return (
