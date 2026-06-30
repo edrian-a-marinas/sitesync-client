@@ -14,6 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/pages/_components/ui/alert-dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/pages/_components/ui/select'
 import { Package, Plus, Pencil, X, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { MaterialResponse } from '@/types/material'
@@ -24,6 +31,8 @@ interface Props {
 }
 
 const emptyForm = { name: '', quantity: '', unit: '', unit_cost: '' }
+
+const UNIT_OPTIONS = ['pc', 'bd.ft', 'kg', 'ton', 'bag', 'm', 'sq.m', 'cu.m', 'L', 'gal', 'roll', 'box', 'sack', 'set', 'lot']
 
 export default function MaterialsSection({ projectId, logId }: Props) {
   const { user } = useAuthStore()
@@ -188,21 +197,42 @@ export default function MaterialsSection({ projectId, logId }: Props) {
               <X className="h-3.5 w-3.5" />
             </Button>
           </div>
-          <Input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-zinc-500 dark:text-zinc-400">Material Name</label>
+            <Input placeholder="e.g. Lumber" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          </div>
           <div className="grid grid-cols-3 gap-2">
-            <Input
-              placeholder="Quantity"
-              type="number"
-              value={form.quantity}
-              onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-            />
-            <Input placeholder="Unit" value={form.unit} onChange={(e) => setForm({ ...form, unit: e.target.value })} />
-            <Input
-              placeholder="Unit Cost"
-              type="number"
-              value={form.unit_cost}
-              onChange={(e) => setForm({ ...form, unit_cost: e.target.value })}
-            />
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-zinc-500 dark:text-zinc-400">Quantity</label>
+              <Input
+                placeholder="0"
+                type="number"
+                value={form.quantity}
+                onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-zinc-500 dark:text-zinc-400">Unit</label>
+              <Select value={form.unit} onValueChange={(value) => setForm({ ...form, unit: value })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  {UNIT_OPTIONS.map((u) => (
+                    <SelectItem key={u} value={u}>{u}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-zinc-500 dark:text-zinc-400">Unit Cost (₱)</label>
+              <Input
+                placeholder="0.00"
+                type="number"
+                value={form.unit_cost}
+                onChange={(e) => setForm({ ...form, unit_cost: e.target.value })}
+              />
+            </div>
           </div>
           <Button size="sm" className="h-7 text-xs" disabled={isPending} onClick={handleSubmit}>
             {isPending ? 'Saving...' : editingId !== null ? 'Update' : 'Add Material'}
