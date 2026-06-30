@@ -14,6 +14,31 @@ interface Props {
   projectId: number
   logId: number
 }
+function NavBar({ index, total, onPrev, onNext }: { index: number; total: number; onPrev: () => void; onNext: () => void }) {
+  return (
+    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-black/60 rounded-full px-6 py-2 z-[60]">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onPrev}
+        disabled={index === 0}
+        className="text-zinc-300 hover:text-white disabled:opacity-30"
+      >
+        <ChevronLeft className="h-5 w-5" />
+      </Button>
+      <span className="text-sm text-zinc-300">{index + 1} of {total}</span>
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={onNext}
+        disabled={index === total - 1}
+        className="text-zinc-300 hover:text-white disabled:opacity-30"
+      >
+        <ChevronRight className="h-5 w-5" />
+      </Button>
+    </div>
+  )
+}
 
 export default function SitePhotosSection({ projectId, logId }: Props) {
   const { user } = useAuthStore()
@@ -90,30 +115,6 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
     })
     e.target.value = ''
   }
-
-  const NavBar = ({ index, onPrev, onNext }: { index: number; onPrev: () => void; onNext: () => void }) => (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-6 bg-black/60 rounded-full px-6 py-2 z-[60]">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onPrev}
-        disabled={index === 0}
-        className="text-zinc-300 hover:text-white disabled:opacity-30"
-      >
-        <ChevronLeft className="h-5 w-5" />
-      </Button>
-      <span className="text-sm text-zinc-300">{index + 1} of {total}</span>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={onNext}
-        disabled={index === total - 1}
-        className="text-zinc-300 hover:text-white disabled:opacity-30"
-      >
-        <ChevronRight className="h-5 w-5" />
-      </Button>
-    </div>
-  )
 
   return (
     <div className="flex flex-col gap-3">
@@ -242,7 +243,7 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
             />
           )}
           {/* Nav */}
-          <NavBar index={activeIndex} onPrev={goPrev} onNext={goNext} />
+          <NavBar index={activeIndex} total={total} onPrev={goPrev} onNext={goNext} />
         </div>,
         document.body
       )}
