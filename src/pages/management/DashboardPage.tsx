@@ -5,15 +5,14 @@ import { useOwnerDashboard, useManagerDashboard, useManagerAggregateDashboard } 
 import { OwnerKPICards, ManagerKPICards, ManagerAggregateKPICards } from './__components/dashboard/KPICards'
 import { BudgetVsActualChart, MaterialConsumptionChart } from './__components/dashboard/Charts'
 import { ProjectHealthTable } from './__components/dashboard/ProjectHealthTable'
+import { OwnerFilterBar, ProjectScopeToggle } from './__components/dashboard/DashboardFilter'
 import {
-  OwnerFilterBar,
-  ProjectScopeToggle,
   DEFAULT_FILTERS,
   filterProjects,
   filterMaterialTrends,
   type DashboardFilters,
   type ScopeSelection,
-} from './__components/dashboard/DashboardFilter'
+} from './__components/dashboard/utils'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/pages/_components/ui/accordion'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 

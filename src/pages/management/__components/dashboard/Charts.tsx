@@ -12,7 +12,7 @@ import {
 } from "recharts";
 import type { ProjectBudgetSummary, MaterialWeeklyTrend } from "@/validations/dashboard";
 import { formatPHP } from "@/utils/formatPHP";
-import type { ScopeSelection } from "@/pages/management/__components/dashboard/DashboardFilter";
+import type { ScopeSelection } from "@/pages/management/__components/dashboard/utils";
 
 const axisTick = { fill: "#71717a", fontSize: 11 };
 const tooltipStyle = {
