@@ -35,6 +35,7 @@ export default function GenerateReportDialog({
   const [cooldownLeft, setCooldownLeft] = useState(0)
   useEffect(() => {
     if (!cooldownUntil) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- resets cooldown when timer target is cleared
       setCooldownLeft(0)
       return
     }
