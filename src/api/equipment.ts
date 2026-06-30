@@ -10,3 +10,6 @@ export const createEquipmentRequest = (projectId: number, logId: number, data: E
 
 export const updateEquipmentRequest = (projectId: number, logId: number, equipmentId: number, data: EquipmentUpdate) =>
   api.patch(`/projects/${projectId}/daily-logs/${logId}/equipment/${equipmentId}`, data)
+
+export const deleteEquipmentRequest = (projectId: number, logId: number, equipmentId: number) =>
+  api.delete(`/projects/${projectId}/daily-logs/${logId}/equipment/${equipmentId}`)

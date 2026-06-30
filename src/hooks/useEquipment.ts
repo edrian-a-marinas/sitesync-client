@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { getEquipment, createEquipment, updateEquipment } from '@/services/equipment'
+import { getEquipment, createEquipment, updateEquipment, deleteEquipment } from '@/services/equipment'
 import type { EquipmentCreate, EquipmentUpdate } from '@/validations/equipment'
 
 // --- Used in DailyLog Attendance ---
@@ -26,6 +26,16 @@ export const useUpdateEquipment = (projectId: number, logId: number) => {
   return useMutation({
     mutationFn: ({ equipmentId, data }: { equipmentId: number; data: EquipmentUpdate }) =>
       updateEquipment(projectId, logId, equipmentId, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['equipment', projectId, logId] })
+    },
+  })
+}
+
+export const useDeleteEquipment = (projectId: number, logId: number) => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (equipmentId: number) => deleteEquipment(projectId, logId, equipmentId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['equipment', projectId, logId] })
     },

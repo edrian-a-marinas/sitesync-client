@@ -1,4 +1,4 @@
-import { getEquipmentRequest, createEquipmentRequest, updateEquipmentRequest } from '@/api/equipment'
+import { getEquipmentRequest, createEquipmentRequest, updateEquipmentRequest, deleteEquipmentRequest } from '@/api/equipment'
 import type { EquipmentCreate, EquipmentUpdate } from '@/validations/equipment'
 import type { EquipmentResponse } from '@/types/equipment'
 
@@ -15,5 +15,10 @@ export const createEquipment = async (projectId: number, logId: number, data: Eq
 
 export const updateEquipment = async (projectId: number, logId: number, equipmentId: number, data: EquipmentUpdate): Promise<EquipmentResponse> => {
   const response = await updateEquipmentRequest(projectId, logId, equipmentId, data)
+  return response.data
+}
+
+export const deleteEquipment = async (projectId: number, logId: number, equipmentId: number): Promise<void> => {
+  const response = await deleteEquipmentRequest(projectId, logId, equipmentId)
   return response.data
 }
