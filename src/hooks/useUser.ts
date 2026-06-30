@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getUsers, updateUser, activateUser, deactivateUser, getUserAssignments, changePassword } from "@/services/user";
+import { getUsers, updateUser, activateUser, deactivateUser, getUserAssignments, changePassword, resetPassword } from "@/services/user";
 import { getUsersRequest } from "@/api/user";
 import type { UserAssignment, UserListResponse } from "@/types/user";
 import type { UserUpdateInput, PasswordChangeInput } from "@/validations/user";
@@ -18,6 +18,14 @@ export const useUsersByRole = (roleId: number) => {
 };
 
 // --- Used in ManageUsersPage ---
+export const useUserAssignments = (userId: number | null) => {
+  return useQuery<UserAssignment[]>({
+    queryKey: ["user-assignments", userId],
+    queryFn: () => getUserAssignments(userId!),
+    enabled: !!userId,
+  })
+}
+
 export const useUsers = (scope?: 'mine' | 'all', page: number = 1, pageSize: number = 20, search: string = '') => {
   return useQuery<UserListResponse>({
     queryKey: ["users", scope ?? 'all', page, pageSize, search],
@@ -62,13 +70,12 @@ export const useDeactivateUser = () => {
   });
 };
 
-export const useUserAssignments = (userId: number | null) => {
-  return useQuery<UserAssignment[]>({
-    queryKey: ["user-assignments", userId],
-    queryFn: () => getUserAssignments(userId!),
-    enabled: !!userId,
+export const useResetPassword = () => {
+  return useMutation({
+    mutationFn: ({ userId, data }: { userId: number; data: { new_password: string } }) => resetPassword(userId, data),
   })
 }
+
 // --- Used in SettingsPage ---
 export const useChangePassword = () => {
   return useMutation({

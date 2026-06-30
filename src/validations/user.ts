@@ -29,7 +29,12 @@ export const PasswordChangeSchema = z.object({
   confirm_new_password: PasswordStr,
 });
 
+export const PasswordResetSchema = z.object({
+  new_password: PasswordStr,
+});
+
 // --- Inferred types ---
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type UserUpdateInput = z.infer<typeof UserUpdateSchema>;
 export type PasswordChangeInput = z.infer<typeof PasswordChangeSchema>;
+export type PasswordResetInput = z.infer<typeof PasswordResetSchema>;
