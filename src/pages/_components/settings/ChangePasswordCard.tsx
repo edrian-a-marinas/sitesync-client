@@ -1,87 +1,38 @@
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { toast } from 'sonner'
-import { PasswordChangeSchema, type PasswordChangeInput } from '@/validations/user'
-import { useChangePassword } from '@/hooks/useUser'
+import { useState } from 'react'
+import { Lock } from 'lucide-react'
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from '@/pages/_components/ui/card'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/pages/_components/ui/form'
-import { Input } from '@/pages/_components/ui/input'
 import { Button } from '@/pages/_components/ui/button'
+import ChangePasswordDialog from './ChangePasswordDialog'
 
 export default function ChangePasswordCard() {
-  const changePassword = useChangePassword()
-  const form = useForm<PasswordChangeInput>({
-    resolver: zodResolver(PasswordChangeSchema),
-    defaultValues: {
-      current_password: '',
-      new_password: '',
-    },
-  })
-
-  const onSubmit = async (data: PasswordChangeInput) => {
-    if (data.new_password === data.current_password) {
-      toast.error('New password must be different from current password.')
-      return
-    }
-    try {
-      await changePassword.mutateAsync(data)
-      toast.success('Password updated successfully.')
-      form.reset()
-    } catch (err) {
-      const detail = (err as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail
-      const message = typeof detail === 'string' ? detail : 'Failed to update password.'
-      toast.error(message)
-    }
-  }
+  const [open, setOpen] = useState(false)
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Change Password</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>Security</CardTitle>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Manage your account password</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+          Change Password
+        </Button>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <FormField
-              control={form.control}
-              name="current_password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Current Password</FormLabel>
-                  <FormControl><Input type="password" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="new_password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>New Password</FormLabel>
-                  <FormControl><Input type="password" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" disabled={changePassword.isPending} className="mt-2 w-fit">
-              {changePassword.isPending ? 'Updating...' : 'Update Password'}
-            </Button>
-          </form>
-        </Form>
+        <div className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-800/50">
+          <Lock className="h-4 w-4 text-zinc-400" />
+          <div>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Password</p>
+            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">••••••••</p>
+          </div>
+        </div>
       </CardContent>
+      <ChangePasswordDialog open={open} onOpenChange={setOpen} />
     </Card>
   )
 }
