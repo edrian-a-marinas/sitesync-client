@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getUsers, updateUser, activateUser, deactivateUser, getUserAssignments } from "@/services/user";
+import { getUsers, updateUser, activateUser, deactivateUser, getUserAssignments, changePassword } from "@/services/user";
 import { getUsersRequest } from "@/api/user";
 import type { UserAssignment, UserListResponse } from "@/types/user";
-import type { UserUpdateInput } from "@/validations/user";
+import type { UserUpdateInput, PasswordChangeInput } from "@/validations/user";
 import type { UserResponse } from "@/validations/auth";
 
 // --- Used in ProjectsPage ---
@@ -67,5 +67,11 @@ export const useUserAssignments = (userId: number | null) => {
     queryKey: ["user-assignments", userId],
     queryFn: () => getUserAssignments(userId!),
     enabled: !!userId,
+  })
+}
+// --- Used in SettingsPage ---
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: (data: PasswordChangeInput) => changePassword(data),
   })
 }

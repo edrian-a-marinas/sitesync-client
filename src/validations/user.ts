@@ -22,5 +22,13 @@ export const RegisterSchema = z.object({
   role_id: z.number().int().positive(),
 })
 
+// --- Used in SettingsPage ---
+export const PasswordChangeSchema = z.object({
+  current_password: PasswordStr,
+  new_password: PasswordStr,
+});
+
+// --- Inferred types ---
 export type RegisterInput = z.infer<typeof RegisterSchema>;
 export type UserUpdateInput = z.infer<typeof UserUpdateSchema>;
+export type PasswordChangeInput = z.infer<typeof PasswordChangeSchema>;

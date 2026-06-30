@@ -16,3 +16,7 @@ export const deactivateUserRequest = (userId: number) =>
 
 export const getUserAssignmentsRequest = (userId: number) =>
   api.get(`/users/${userId}/assignments`);
+
+// --- Used in SettingsPage ---
+export const changePasswordRequest = (data: { current_password: string; new_password: string }) =>
+  api.patch("/users/me/password", data);
