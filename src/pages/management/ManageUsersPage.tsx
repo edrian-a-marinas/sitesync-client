@@ -45,6 +45,7 @@ import { useProjects, useProjectDetail } from '@/hooks/useProject'
 import StatusConfirmDialog from './__components/users/StatusConfirmDialog'
 import UserActionsDropdown from './__components/users/UserActionsDropdown'
 import UserAssignmentsModal from './__components/users/UserAssignmentsModal'
+import ResetPasswordDialog from './__components/users/ResetPasswordDialog'
 
 const ROLE_BADGE: Record<number, string> = {
   [ROLES.OWNER]: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
@@ -68,6 +69,7 @@ export default function ManageUsersPage() {
   const [editUser, setEditUser] = useState<UserResponse | null>(null)
   const [statusTarget, setStatusTarget] = useState<{ user: UserResponse; action: 'activate' | 'deactivate' } | null>(null)
   const [assignmentsUser, setAssignmentsUser] = useState<UserResponse | null>(null)
+  const [resetPasswordUser, setResetPasswordUser] = useState<UserResponse | null>(null)
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as { page?: number; search?: string }
   const page = searchParams.page ?? 1
@@ -102,6 +104,9 @@ export default function ManageUsersPage() {
 
   const handleStatusChange = useCallback((u: UserResponse, action: 'activate' | 'deactivate') => {
     setStatusTarget({ user: u, action })
+  }, [])
+  const handleResetPassword = useCallback((u: UserResponse) => {
+    setResetPasswordUser(u)
   }, [])
 
   const handleRowClick = useCallback((u: UserResponse) => {
@@ -200,11 +205,12 @@ export default function ManageUsersPage() {
             canChangeStatus={isOwner || workerScope === 'mine'}
             onEdit={handleEdit}
             onStatusChange={handleStatusChange}
+            onResetPassword={handleResetPassword}
           />
         </div>
       ),
     }),
-  ], [isOwner, user?.id, workerScope, handleEdit, handleStatusChange])
+  ], [isOwner, user?.id, workerScope, handleEdit, handleStatusChange, handleResetPassword])
 
   const table = useReactTable({
     data: filteredUsers,
@@ -420,6 +426,11 @@ export default function ManageUsersPage() {
       <UserAssignmentsModal
         user={assignmentsUser}
         onOpenChange={(open) => { if (!open) setAssignmentsUser(null) }}
+      />
+      {/* Reset Password Dialog */}
+      <ResetPasswordDialog
+        user={resetPasswordUser}
+        onOpenChange={(open) => { if (!open) setResetPasswordUser(null) }}
       />
     </div>
   )

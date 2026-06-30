@@ -16,10 +16,10 @@ interface Props {
   canChangeStatus?: boolean
   onEdit: (user: UserResponse) => void
   onStatusChange: (user: UserResponse, action: 'activate' | 'deactivate') => void
+  onResetPassword: (user: UserResponse) => void
 }
-
 // --- Used in ManageUsersPage ---
-export default function UserActionsDropdown({ user, currentUserId, canChangeStatus = true, onEdit, onStatusChange }: Props) {
+export default function UserActionsDropdown({ user, currentUserId, canChangeStatus = true, onEdit, onStatusChange, onResetPassword }: Props) {
   // Owner accounts are never editable or deactivatable
   if (user.role_id === ROLES.OWNER) return null
 
@@ -36,6 +36,11 @@ export default function UserActionsDropdown({ user, currentUserId, canChangeStat
         <DropdownMenuItem onClick={() => onEdit(user)}>
           Edit
         </DropdownMenuItem>
+        {!isSelf && canChangeStatus && (
+          <DropdownMenuItem onClick={() => onResetPassword(user)}>
+            Reset Password
+          </DropdownMenuItem>
+        )}
         {!isSelf && canChangeStatus && (
           user.is_active ? (
             <DropdownMenuItem
