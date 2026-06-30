@@ -1,4 +1,4 @@
-import { getMaterialsRequest, createMaterialRequest, updateMaterialRequest } from '@/api/material'
+import { getMaterialsRequest, createMaterialRequest, updateMaterialRequest, deleteMaterialRequest } from '@/api/material'
 import type { MaterialCreate, MaterialUpdate } from '@/validations/material'
 import type { MaterialResponse } from '@/types/material'
 
@@ -16,4 +16,8 @@ export const createMaterial = async (projectId: number, logId: number, data: Mat
 export const updateMaterial = async (projectId: number, logId: number, materialId: number, data: MaterialUpdate): Promise<MaterialResponse> => {
   const response = await updateMaterialRequest(projectId, logId, materialId, data)
   return response.data
+}
+
+export const deleteMaterial = async (projectId: number, logId: number, materialId: number): Promise<void> => {
+  await deleteMaterialRequest(projectId, logId, materialId)
 }
