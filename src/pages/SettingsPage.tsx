@@ -1,7 +1,7 @@
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
 import MyInfoCard from '@/pages/_components/settings/MyInfoCard'
-import ChangePasswordCard from '@/pages/_components/settings/ChangePasswordCard'
+import ChangePasswordCard from '@/pages/_components/settings/SecurityTab'
 
 export default function SettingsPage() {
   const { user } = useAuthStore()
