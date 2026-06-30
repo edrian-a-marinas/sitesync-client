@@ -13,8 +13,6 @@ import type { ScopeMarker } from './__components/aiquery/utils'
 
 export default function OwnerAiAssistantPage() {
   const { user } = useAuthStore()
-  if (user?.role_id !== ROLES.OWNER) return null
-
   const [question, setQuestion] = useState('')
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null)
   const [rateLimitUntil, setRateLimitUntil] = useState<number | null>(() => {
@@ -80,7 +78,7 @@ export default function OwnerAiAssistantPage() {
     )
   }
   const isDisabled = isSubmitting || isRateLimited || isWaitingForResponse
-
+  if (user?.role_id !== ROLES.OWNER) return null
   return (
     <div className="flex h-[calc(100vh-128px)] flex-col gap-0 px-0 pb-0 pt-0">
       {/* Header */}

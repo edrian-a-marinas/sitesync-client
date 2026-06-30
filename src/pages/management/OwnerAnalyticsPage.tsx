@@ -33,8 +33,6 @@ function AnalyticsSkeleton() {
 
 export default function OwnerAnalyticsPage() {
   const { user } = useAuthStore()
-  if (user?.role_id !== ROLES.OWNER) return null
-
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(() => {
     const stored = localStorage.getItem('ml_retrain_cooldown')
     if (!stored) return null
@@ -88,7 +86,7 @@ export default function OwnerAnalyticsPage() {
       onError: () => toast.error('Failed to trigger retraining. Please try again.'),
     })
   }
-
+  if (user?.role_id !== ROLES.OWNER) return null
   return (
     <div className="flex flex-col gap-6 px-6 pb-10">
       <div className="flex flex-wrap items-start justify-between gap-4">

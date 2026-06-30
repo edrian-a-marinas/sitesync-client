@@ -16,10 +16,9 @@ import { useLocation } from '@tanstack/react-router'
 export default function HomePage() {
   const { user, sidebarCollapsed } = useAuthStore()
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
-  if (!user) return null
-
   const location = useLocation()
   const path = location.pathname
+  if (!user) return null
 
   const content = () => {
     if (user.role_id === ROLES.SITE_WORKER) {
