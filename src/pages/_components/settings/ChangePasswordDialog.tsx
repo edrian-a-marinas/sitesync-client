@@ -50,7 +50,7 @@ function PasswordField({
             className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300"
             tabIndex={-1}
           >
-            {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
           </button>
         </div>
       </FormControl>
