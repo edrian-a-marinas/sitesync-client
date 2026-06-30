@@ -84,7 +84,10 @@ export default function ChangePasswordDialog({ open, onOpenChange }: Props) {
       toast.error('New password must be different from current password.')
       return
     }
-    const { confirm_new_password: _confirmNewPassword, ...payload } = data
+    const payload = {
+      current_password: data.current_password,
+      new_password: data.new_password,
+    }
     changePassword(payload, {
       onSuccess: () => {
         toast.success('Password changed successfully.')
