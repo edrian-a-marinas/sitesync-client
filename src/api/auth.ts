@@ -1,5 +1,6 @@
 import api from "@/lib/axios";
-import type { LoginInput, RegisterInput, TokenResponse, UserResponse } from "@/validations/auth";
+import type { LoginInput, TokenResponse, UserResponse } from "@/validations/auth";
+import type { RegisterInput } from "@/validations/user"
 
 export const loginRequest = (data: LoginInput) =>
   api.post<TokenResponse>("/auth/login", data);
