@@ -8,6 +8,7 @@ import {
 } from '@/pages/_components/ui/card'
 import { Button } from '@/pages/_components/ui/button'
 import ChangePasswordDialog from './ChangePasswordDialog'
+import DangerZoneCard from './DangerZoneCard'
 
 export default function SecurityTab() {
   const [open, setOpen] = useState(false)
