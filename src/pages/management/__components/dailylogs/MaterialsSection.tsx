@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/pages/_components/ui/select'
-import { Package, Plus, Pencil, X, Trash2 } from 'lucide-react'
+import { Plus, Pencil, X, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { MaterialResponse } from '@/types/material'
 
@@ -33,7 +33,7 @@ interface Props {
 
 const emptyForm = { name: '', quantity: '', unit: '', unit_cost: '' }
 
-const UNIT_OPTIONS = ['pc', 'bd.ft', 'kg', 'ton', 'bag', 'm', 'sq.m', 'cu.m', 'L', 'gal', 'roll', 'box', 'sack', 'set', 'lot']
+const UNIT_OPTIONS = ['pc', 'bd.ft', 'kg', 'ton', 'bag', 'm', 'sq.m', 'cu.m', 'L', 'gal', 'roll', 'box', 'sack', 'set', 'lot', 'sheet']
 
 export default function MaterialsSection({ projectId, logId, onCountChange }: Props) {
   const { user } = useAuthStore()
