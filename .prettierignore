@@ -1,0 +1,4 @@
+dist
+build
+.vite
+node_modules
