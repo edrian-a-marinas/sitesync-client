@@ -8,11 +8,12 @@ import {
 import { Badge } from '@/pages/_components/ui/badge'
 import { ScrollArea } from '@/pages/_components/ui/scroll-area'
 import { useState } from 'react'
-import { CalendarIcon, CloudIcon, ClipboardList, StickyNote, User, Package, ImageIcon, Users, Wrench } from 'lucide-react'
+import { CalendarIcon, CloudIcon, ClipboardList, StickyNote, User, Package, ImageIcon, Users, Wrench, AlertTriangle } from 'lucide-react'
 import SitePhotosSection from './SitePhotosSection'
 import MaterialsSection from './MaterialsSection'
 import AttendanceSection from './AttendanceSection'
 import EquipmentSection from './EquipmentSection'
+import IncidentSection from './IncidentSection'
 import {
   Accordion,
   AccordionItem,
@@ -37,6 +38,7 @@ export default function LogDetailSheet({ log, onOpenChange }: Props) {
   const [photoCount, setPhotoCount] = useState<number | undefined>(undefined)
   const [attendanceCount, setAttendanceCount] = useState<number | undefined>(undefined)
   const [equipmentCount, setEquipmentCount] = useState<number | undefined>(undefined)
+  const [incidentCount, setIncidentCount] = useState<number | undefined>(undefined)
   const [openSections, setOpenSections] = useState<string[]>([])
   return (
     <Sheet open={!!log} onOpenChange={(open) => { if (!open && !document.querySelector('[data-sonner-toast]:hover')) onOpenChange(open) }} modal={false}>
@@ -108,6 +110,7 @@ export default function LogDetailSheet({ log, onOpenChange }: Props) {
                 <SitePhotosSection projectId={log.project_id} logId={log.id} onCountChange={setPhotoCount} />
                 <AttendanceSection projectId={log.project_id} logId={log.id} onCountChange={setAttendanceCount} />
                 <EquipmentSection projectId={log.project_id} logId={log.id} onCountChange={setEquipmentCount} />
+                <IncidentSection projectId={log.project_id} logId={log.id} onCountChange={setIncidentCount} />
               </div>
             )}
              
@@ -168,6 +171,24 @@ export default function LogDetailSheet({ log, onOpenChange }: Props) {
                   </AccordionContent>
                 </AccordionItem>
 
+                {/* Incidents */}
+                <AccordionItem value="incidents" className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3 mb-2">
+                  <AccordionTrigger className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500 hover:no-underline py-3 [&>svg]:text-zinc-400">
+                    <span className="flex items-center gap-1.5">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      Incidents
+                      {incidentCount !== undefined && incidentCount > 0 && !openSections.includes('incidents') && (
+                        <span className="text-zinc-300 dark:text-zinc-600 font-normal normal-case tracking-normal">
+                          · {incidentCount} incident{incidentCount !== 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <IncidentSection projectId={log.project_id} logId={log.id} onCountChange={setIncidentCount} />
+                  </AccordionContent>
+                </AccordionItem>
+
                 {/* Site Photos */}
                 <AccordionItem value="site-photos" className="border border-zinc-200 dark:border-zinc-700 rounded-lg px-3">
                   <AccordionTrigger className="text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500 hover:no-underline py-3 [&>svg]:text-zinc-400">
@@ -185,6 +206,7 @@ export default function LogDetailSheet({ log, onOpenChange }: Props) {
                     <SitePhotosSection projectId={log.project_id} logId={log.id} onCountChange={setPhotoCount} />
                   </AccordionContent>
                 </AccordionItem>
+                
               </Accordion>
             )}
           </div>
