@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
 import { useMaterials, useCreateMaterial, useUpdateMaterial, useDeleteMaterial } from '@/hooks/useMaterial'
@@ -28,17 +28,22 @@ import type { MaterialResponse } from '@/types/material'
 interface Props {
   projectId: number
   logId: number
+  onCountChange?: (count: number) => void
 }
 
 const emptyForm = { name: '', quantity: '', unit: '', unit_cost: '' }
 
 const UNIT_OPTIONS = ['pc', 'bd.ft', 'kg', 'ton', 'bag', 'm', 'sq.m', 'cu.m', 'L', 'gal', 'roll', 'box', 'sack', 'set', 'lot']
 
-export default function MaterialsSection({ projectId, logId }: Props) {
+export default function MaterialsSection({ projectId, logId, onCountChange }: Props) {
   const { user } = useAuthStore()
   const canEdit = user?.role_id === ROLES.OWNER || user?.role_id === ROLES.PROJECT_MANAGER
 
   const { data: materials, isLoading } = useMaterials(projectId, logId, true)
+  useEffect(() => {
+    console.log('[MaterialsSection] onCountChange fired:', materials?.length)
+    onCountChange?.(materials?.length ?? 0)
+  }, [materials?.length, onCountChange])
   const { mutate: createMaterial, isPending: isCreating } = useCreateMaterial(projectId, logId)
   const { mutate: updateMaterial, isPending: isUpdating } = useUpdateMaterial(projectId, logId)
   const { mutate: deleteMaterial, isPending: isDeleting } = useDeleteMaterial(projectId, logId)
@@ -145,10 +150,9 @@ export default function MaterialsSection({ projectId, logId }: Props) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
-          <Package className="h-3.5 w-3.5" />
-          Materials
-        </div>
+        <span className="text-xs text-zinc-400 dark:text-zinc-500">
+          {materials && materials.length > 0 ? `${materials.length} item${materials.length !== 1 ? 's' : ''}` : ''}
+        </span>
         {canEdit && !showForm && (
           <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => setShowForm(true)}>
             <Plus className="h-3.5 w-3.5" />

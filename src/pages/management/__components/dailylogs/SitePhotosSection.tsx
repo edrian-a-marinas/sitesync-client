@@ -6,13 +6,14 @@ import { SitePhotoUploadSchema } from '@/validations/sitePhoto'
 import { Button } from '@/pages/_components/ui/button'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 import { createPortal } from 'react-dom'
-import { ImageIcon, UploadCloud, ChevronLeft, ChevronRight, FileText, Trash2 } from 'lucide-react'
+import { UploadCloud, ChevronLeft, ChevronRight, FileText, Trash2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/pages/_components/ui/tooltip'
 import { toast } from 'sonner'
 
 interface Props {
   projectId: number
   logId: number
+  onCountChange?: (count: number) => void
 }
 function NavBar({ index, total, onPrev, onNext }: { index: number; total: number; onPrev: () => void; onNext: () => void }) {
   return (
@@ -40,7 +41,7 @@ function NavBar({ index, total, onPrev, onNext }: { index: number; total: number
   )
 }
 
-export default function SitePhotosSection({ projectId, logId }: Props) {
+export default function SitePhotosSection({ projectId, logId, onCountChange }: Props) {
   const { user } = useAuthStore()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const canUpload = user?.role_id === ROLES.OWNER || user?.role_id === ROLES.PROJECT_MANAGER
@@ -48,6 +49,7 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
   const [pendingUrl, setPendingUrl] = useState<string | null>(null)
 
   const { data: photos, isLoading } = useGetSitePhotos(projectId, logId, true)
+  useEffect(() => { onCountChange?.(photos?.length ?? 0) }, [photos?.length])
   const { mutate: upload, isPending } = useUploadSitePhoto(projectId, logId)
   const { mutate: deletePhoto, isPending: isDeleting } = useDeleteSitePhoto(projectId, logId)
   const [deleteTarget, setDeleteTarget] = useState<number | null>(null)
@@ -123,11 +125,9 @@ export default function SitePhotosSection({ projectId, logId }: Props) {
         <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-zinc-400 dark:text-zinc-500 cursor-default">
-                <ImageIcon className="h-3.5 w-3.5" />
-                Site Photos & Documents
-                <span className="ml-1 text-zinc-300 dark:text-zinc-600">({total}/10)</span>
-              </div>
+              <span className="text-xs text-zinc-400 dark:text-zinc-500 cursor-default">
+                {total}/10 attachments
+              </span>
             </TooltipTrigger>
             <TooltipContent>
               <p>{total >= 10 ? 'Maximum of 10 attachments reached.' : `${total} of 10 attachments used.`}</p>
