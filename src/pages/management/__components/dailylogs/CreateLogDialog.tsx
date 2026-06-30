@@ -111,8 +111,8 @@ export default function CreateLogDialog({ open, onOpenChange, projectId, existin
           setFileQueue([])
           onOpenChange(false)
         },
-        onError: (err: any) => {
-          const message = err?.response?.data?.detail ?? 'Failed to submit log'
+        onError: (err: unknown) => {
+          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to submit log'
           toast.error(message)
         },
       }

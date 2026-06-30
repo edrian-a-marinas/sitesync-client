@@ -127,8 +127,8 @@ export default function EditLogDialog({ log, projectId, onOpenChange }: Props) {
           setFileQueue([])
           onOpenChange(false)
         },
-        onError: (err: any) => {
-          const message = err?.response?.data?.detail ?? 'Failed to update log'
+        onError: (err: unknown) => {
+          const message = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? 'Failed to update log'
           toast.error(message)
         },
       }
