@@ -11,6 +11,8 @@ import {
 import type { ReportResponse } from '@/types/report'
 import { useState, useEffect } from 'react'
 import { Loader2, Download } from 'lucide-react'
+import { downloadReport } from '@/services/report'
+import { toast } from 'sonner'
 
 interface Props {
   open: boolean
@@ -47,9 +49,13 @@ export default function GenerateReportDialog({
   const isCoolingDown = cooldownLeft > 0
   const isBusy = isPending || isPolling || isCoolingDown
 
-  const handleDownload = () => {
-    if (newReport?.file_url) {
-      window.open(newReport.file_url, '_blank')
+  const handleDownload = async () => {
+    if (newReport) {
+      try {
+        await downloadReport(newReport.project_id, newReport.id)
+      } catch {
+        toast.error('Failed to download report. Please try again.')
+      }
     }
     onOpenChange(false)
   }

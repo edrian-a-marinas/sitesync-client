@@ -22,6 +22,7 @@ import { FileText, Download, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-reac
 import { Badge } from '@/pages/_components/ui/badge'
 import { toast } from 'sonner'
 import { formatPHP, getMoneyTooltip } from '@/utils/formatPHP'
+import { downloadReport } from '@/services/report'
 
 const columnHelper = createColumnHelper<ReportResponse>()
 
@@ -37,12 +38,12 @@ interface Props {
 export default function ReportTable({ reports, isLoading, selectedReport, onSelectReport, page, totalPages, onPageChange }: Props) {
   const [sorting, setSorting] = useState<SortingState>([{ id: 'created_at', desc: true }])
 
-  const handleDownload = (report: ReportResponse) => {
-    if (!report.file_url) {
-      toast.error('Download link unavailable. Please try again.')
-      return
+  const handleDownload = async (report: ReportResponse) => {
+    try {
+      await downloadReport(report.project_id, report.id)
+    } catch {
+      toast.error('Failed to download report. Please try again.')
     }
-    window.open(report.file_url, '_blank')
   }
 
   const columns = useMemo(() => [
