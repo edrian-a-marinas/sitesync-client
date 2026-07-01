@@ -12,6 +12,7 @@ import ReportTable from './__components/reports/ReportTable'
 import ReportDetailSheet from './__components/reports/ReportDetailSheet'
 import GenerateReportDialog from './__components/reports/GenerateReportDialog'
 import { toast } from 'sonner'
+import { downloadReport } from '@/services/report'
 
 export default function ReportsPage() {
   const { user } = useAuthStore()
@@ -126,8 +127,11 @@ export default function ReportsPage() {
         toast.success('Report is ready to download.', {
           action: {
             label: 'Download',
-            onClick: () =>
-              latest.file_url && window.open(latest.file_url, '_blank'),
+            onClick: () => {
+              downloadReport(latest.project_id, latest.id).catch(() =>
+                toast.error('Failed to download report. Please try again.'),
+              )
+            },
           },
         })
       }
