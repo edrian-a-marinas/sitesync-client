@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuthStore } from '@/store/auth'
 import { ROLES, ROUTES } from '@/constants'
 import { Sidebar } from '@/pages/_components/Sidebar'
@@ -13,11 +13,27 @@ import OwnerAiAssistantPage from '@/pages/management/OwnerAiAssistantPage'
 import WorkerPage from '@/pages/worker/WorkerPage'
 import SettingsPage from '@/pages/SettingsPage'
 import { useLocation } from '@tanstack/react-router'
+const PAGE_TITLES: Record<string, string> = {
+  [ROUTES.PROJECTS]: 'Projects',
+  [ROUTES.MANAGE_USERS]: 'Manage Users',
+  [ROUTES.DAILY_LOGS]: 'Daily Logs',
+  [ROUTES.REPORTS]: 'Reports',
+  [ROUTES.ANALYTICS]: 'Analytics',
+  [ROUTES.AI_ASSISTANT]: 'AI Assistant',
+  [ROUTES.SETTINGS]: 'Settings',
+  [ROUTES.ATTENDANCE]: 'Attendance',
+  [ROUTES.WORKER_DAILY_LOG]: 'Daily Log',
+}
+
 export default function HomePage() {
   const { user, sidebarCollapsed } = useAuthStore()
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
   const location = useLocation()
   const path = location.pathname
+  useEffect(() => {
+    const label = PAGE_TITLES[path] ?? 'Dashboard'
+    document.title = `${label}`
+  }, [path])
   if (!user) return null
 
   const content = () => {
