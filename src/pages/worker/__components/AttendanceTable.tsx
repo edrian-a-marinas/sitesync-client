@@ -25,7 +25,7 @@ import type { AttendanceHistoryResponse } from '@/types/attendance'
 
 const columnHelper = createColumnHelper<AttendanceHistoryResponse>()
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 10
 
 interface Props {
   projectId: number
