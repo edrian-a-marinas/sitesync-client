@@ -1,18 +1,42 @@
-import { useAuthStore } from '@/store/auth'
+import { useLocation } from '@tanstack/react-router'
+import { ROUTES } from '@/constants'
+import { useMyProjects } from '@/hooks/useWorker'
+import WorkerProjectBanner from './__components/WorkerProjectBanner'
+import AttendanceTab from './__components/AttendanceTab'
+import DailyLogTab from './__components/DailyLogTab'
+import { Skeleton } from '@/pages/_components/ui/skeleton'
 
 export default function WorkerPage() {
-  const { user } = useAuthStore()
+  const location = useLocation()
+  const path = location.pathname
+  const { data: projects, isLoading } = useMyProjects()
+  const project = projects?.[0] ?? null
 
-  if (!user) return null
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-6 px-6 pb-10">
+        <Skeleton className="h-24 w-full rounded-xl" />
+        <Skeleton className="h-64 w-full rounded-xl" />
+      </div>
+    )
+  }
+
+  if (!project) {
+    return (
+      <div className="flex flex-col items-center gap-2 py-24 text-zinc-400 dark:text-zinc-500">
+        <p className="text-sm">You are not assigned to any project yet.</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50">
-      <div className="text-center">
-        <h1 className="text-3xl font-semibold text-zinc-900">
-          Hello, {user.first_name} {user.last_name}!
-        </h1>
-        <p className="mt-2 text-zinc-500">Site Worker — Welcome to SiteSync</p>
-      </div>
+    <div className="flex flex-col gap-6 px-6 pb-10">
+      <WorkerProjectBanner project={project} />
+      {path === ROUTES.WORKER_DAILY_LOG ? (
+        <DailyLogTab projectId={project.id} />
+      ) : (
+        <AttendanceTab projectId={project.id} />
+      )}
     </div>
   )
 }

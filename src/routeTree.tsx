@@ -89,6 +89,18 @@ const settingsRoute = createRoute({
   component: HomePage,
 })
 
+const workerAttendanceRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: ROUTES.ATTENDANCE,
+  component: HomePage,
+})
+
+const workerDailyLogRoute = createRoute({
+  getParentRoute: () => protectedRoute,
+  path: ROUTES.WORKER_DAILY_LOG,
+  component: HomePage,
+})
+
 const analyticsRoute = createRoute({
   getParentRoute: () => protectedRoute,
   path: ROUTES.ANALYTICS,
@@ -124,6 +136,8 @@ const routeTree = rootRoute.addChildren([
     analyticsRoute,
     aiAssistantRoute,
     settingsRoute,
+    workerAttendanceRoute,
+    workerDailyLogRoute,
   ]),
 ])
 

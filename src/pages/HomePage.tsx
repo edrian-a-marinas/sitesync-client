@@ -22,8 +22,10 @@ export default function HomePage() {
 
   const content = () => {
     if (user.role_id === ROLES.SITE_WORKER) {
+      if (path === ROUTES.SETTINGS) return <SettingsPage />
       return <WorkerPage />
     }
+    if (path === ROUTES.SETTINGS) return <SettingsPage />
     if (
       user.role_id === ROLES.OWNER ||
       user.role_id === ROLES.PROJECT_MANAGER

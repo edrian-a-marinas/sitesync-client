@@ -3,6 +3,8 @@ export const ROUTES = {
   LOGIN: '/login',
   LOGIN_ADMIN: '/login/admin',
   REGISTER: '/register',
+
+  // Owner and PM Pages
   HOME: '/home',
   DASHBOARD: '/dashboard',
   PROJECTS: '/projects',
@@ -14,6 +16,9 @@ export const ROUTES = {
   MANAGE_USERS: '/manage-users',
   ANALYTICS: '/analytics',
   ATTENDANCE: '/attendance',
+
+  // Worker Pages
+  WORKER_DAILY_LOG: '/worker-daily-log',
 } as const
 
 // --- Used in ManageUsersPage ---

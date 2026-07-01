@@ -58,6 +58,18 @@ const NAV: NavItem[] = [
     path: ROUTES.ATTENDANCE,
     workerOnly: true,
   },
+  {
+    label: 'Daily Log',
+    icon: ClipboardList,
+    path: ROUTES.WORKER_DAILY_LOG,
+    workerOnly: true,
+  },
+  {
+    label: 'Settings',
+    icon: Settings,
+    path: ROUTES.SETTINGS,
+    workerOnly: true,
+  },
 ]
 
 export function Sidebar({
