@@ -56,7 +56,7 @@ export default function ManageUsersPage() {
   }
   const page = searchParams.page ?? 1
   const search = searchParams.search ?? ''
-  const PAGE_SIZE = 20
+  const PAGE_SIZE = 10
 
   const [projectFilter, setProjectFilter] = useState<number | null>(null)
   const [workerScope, setWorkerScope] = useState<'mine' | 'all'>('mine')

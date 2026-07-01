@@ -25,7 +25,7 @@ export default function ReportsPage() {
   }
   const selectedProjectId = searchParams.project ?? null
   const page = searchParams.page ?? 1
-  const PAGE_SIZE = 20
+  const PAGE_SIZE = 10
 
   const [generateOpen, setGenerateOpen] = useState(false)
   const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(

@@ -30,7 +30,7 @@ export default function DailyLogsPage() {
   const [selectedLog, setSelectedLog] = useState<DailyLogResponse | null>(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [editLog, setEditLog] = useState<DailyLogResponse | null>(null)
-  const PAGE_SIZE = 20
+  const PAGE_SIZE = 10
   const { data: projects, isLoading: projectsLoading } = useProjects('Active')
   const {
     data: logs,
