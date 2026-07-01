@@ -100,7 +100,7 @@ Owner and Project Manager share the same UI shell and sidebar. The backend enfor
 
 Separate minimal UI — same design system, different shell and nav.
 
-| Menu              | Description                                                                  |
-| ----------------- | ----------------------------------------------------------------------------- |
-| **My Attendance** | View personal attendance history for their assigned project.                  |
-| **Daily Log**     | View the current shift daily log for their assigned project, read-only.       |
+| Menu              | Description                                                             |
+| ----------------- | ----------------------------------------------------------------------- |
+| **My Attendance** | View personal attendance history for their assigned project.            |
+| **Daily Log**     | View the current shift daily log for their assigned project, read-only. |
