@@ -9,7 +9,7 @@ export default function SettingsPage() {
   if (!user) return null
 
   const canEditOwnName =
-    user.role_id === ROLES.OWNER || user.role_id === ROLES.PROJECT_MANAGER
+    user.role_id === ROLES.OWNER || user.role_id === ROLES.PROJECT_MANAGER // intentional to not include edit profile in workers
 
   return (
     <div className="flex flex-col gap-6 px-6 pb-10">
