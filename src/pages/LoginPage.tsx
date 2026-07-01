@@ -1,12 +1,14 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import axios from 'axios'
 import { useLogin } from '@/hooks/useAuth'
 import { LoginSchema } from '@/validations/auth'
 import type { LoginInput } from '@/validations/auth'
-
 export default function LoginPage() {
   const { mutate: login, isPending, isError, error } = useLogin()
   const isAccessDenied = (error as Error)?.message === 'ACCESS_DENIED'
+  const isNetworkError =
+    axios.isAxiosError(error) && !error.response
   const {
     register,
     handleSubmit,
@@ -51,7 +53,13 @@ export default function LoginPage() {
               <p className="text-xs text-red-500">{errors.password.message}</p>
             )}
           </div>
-          {isError && !isAccessDenied && (
+          {isError && !isAccessDenied && isNetworkError && (
+            <p className="text-xs text-red-500">
+              Unable to reach the server. Please check your connection or try
+              again later.
+            </p>
+          )}
+          {isError && !isAccessDenied && !isNetworkError && (
             <p className="text-xs text-red-500">Invalid email or password.</p>
           )}
           {isAccessDenied && (
