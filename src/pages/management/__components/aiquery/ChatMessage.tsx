@@ -16,9 +16,10 @@ interface Props {
 export function ChatMessage({ query, onRateLimit }: Props) {
   const queryClient = useQueryClient()
   const isPending = query.status === 'Pending'
-  // eslint-disable-next-line react-hooks/purity -- intentional: gates polling based on current time vs message age
+  /* eslint-disable react-hooks/purity -- intentional: gates polling based on current time vs message age */
   const isRecent =
     Date.now() - new Date(query.created_at).getTime() < 5 * 60 * 1000
+  /* eslint-enable react-hooks/purity */
   const shouldPoll = isPending && isRecent
 
   const { data: liveQuery } = useGetQuery(
