@@ -17,6 +17,7 @@ import LogDetailSheet from './__components/dailylogs/LogDetailSheet'
 export default function DailyLogsPage() {
   const { user } = useAuthStore()
   const isOwner = user?.role_id === ROLES.OWNER
+  const isDemo = user?.is_demo ?? false // DEMO FEATURE: remove this line if demo mode is retired
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as {
     project?: number
@@ -91,6 +92,13 @@ export default function DailyLogsPage() {
               ? 'View daily site logs across all projects'
               : 'Submit and manage daily site logs for your assigned projects'}
           </p>
+          {/*  DEMO FEATURE: remove this line if demo mode is retired */}
+          {isDemo && (
+            <p className="mt-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+              Note: demo data includes future-dated logs for ongoing demo
+              purposes.
+            </p>
+          )}
         </div>
         <DailyLogFilters
           projects={projects ?? []}
