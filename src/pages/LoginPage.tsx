@@ -13,6 +13,10 @@ export default function LoginPage() {
   const { mutate: login, isPending, isError, error } = useLogin()
   const isAccessDenied = (error as Error)?.message === 'ACCESS_DENIED'
   const isNetworkError = axios.isAxiosError(error) && !error.response
+  const isServerConfigError =
+    axios.isAxiosError(error) &&
+    !!error.response &&
+    error.response.status !== 401
   const {
     register,
     handleSubmit,
@@ -102,9 +106,19 @@ export default function LoginPage() {
                 again later.
               </p>
             )}
-            {isError && !isAccessDenied && !isNetworkError && (
-              <p className="text-xs text-red-600">Invalid email or password.</p>
+            {isError && !isAccessDenied && isServerConfigError && (
+              <p className="text-xs text-red-600">
+                Server error. Please try again later.
+              </p>
             )}
+            {isError &&
+              !isAccessDenied &&
+              !isNetworkError &&
+              !isServerConfigError && (
+                <p className="text-xs text-red-600">
+                  Invalid email or password.
+                </p>
+              )}
             {isAccessDenied && (
               <p className="text-xs text-red-600">Wrong credentials</p>
             )}{' '}
