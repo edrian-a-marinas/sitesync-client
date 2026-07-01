@@ -2,7 +2,7 @@ import { useLocation } from '@tanstack/react-router'
 import { ROUTES } from '@/constants'
 import { useMyProjects } from '@/hooks/useWorker'
 import WorkerProjectBanner from './__components/WorkerProjectBanner'
-import AttendanceTab from './__components/AttendanceTab'
+import AttendanceTable from './__components/AttendanceTable'
 import DailyLogTab from './__components/DailyLogTab'
 import { Skeleton } from '@/pages/_components/ui/skeleton'
 
@@ -35,7 +35,7 @@ export default function WorkerPage() {
       {path === ROUTES.WORKER_DAILY_LOG ? (
         <DailyLogTab projectId={project.id} />
       ) : (
-        <AttendanceTab projectId={project.id} />
+        <AttendanceTable projectId={project.id} />
       )}
     </div>
   )
