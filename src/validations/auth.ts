@@ -16,6 +16,7 @@ export const UserResponseSchema = z.object({
   role_id: z.number(),
   is_active: z.boolean(),
   has_assignments: z.boolean().default(false), // used in AssignUserDialog.tsx
+  is_demo: z.boolean().default(false), // DEMO FEATURE: delete this line if demo mode is retired
 })
 
 export const TokenResponseSchema = z.object({
