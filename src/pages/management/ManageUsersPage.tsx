@@ -1,29 +1,10 @@
 import { useState, useMemo, useCallback } from 'react'
 import { useSearch, useNavigate } from '@tanstack/react-router'
 import { useAuthStore } from '@/store/auth'
-import { ROLES, ROLE_LABEL, ROUTES } from '@/constants'
+import { ROLES, ROUTES } from '@/constants'
 import { useUsers } from '@/hooks/useUser'
 import type { UserResponse } from '@/validations/auth'
 import type { UsersSearch } from '@/types/user'
-import {
-  useReactTable,
-  getCoreRowModel,
-  getSortedRowModel,
-  flexRender,
-  createColumnHelper,
-  type SortingState,
-} from '@tanstack/react-table'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/pages/_components/ui/table'
-import { Badge } from '@/pages/_components/ui/badge'
-import { Button } from '@/pages/_components/ui/button'
-import { Skeleton } from '@/pages/_components/ui/skeleton'
 import {
   Select,
   SelectContent,
@@ -38,36 +19,18 @@ import {
   DialogTitle,
 } from '@/pages/_components/ui/dialog'
 import { Alert, AlertDescription } from '@/pages/_components/ui/alert'
-import {
-  Plus,
-  Users,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  Search,
-} from 'lucide-react'
+import { Plus, Search } from 'lucide-react'
 import { Input } from '@/pages/_components/ui/input'
+import { Button } from '@/pages/_components/ui/button'
 import OwnerRegisterForm from './__components/users/RegisterForm'
 import EditUserDialog from './__components/users/EditUserDialog'
 import { useProjects, useProjectDetail } from '@/hooks/useProject'
 import StatusConfirmDialog from './__components/users/StatusConfirmDialog'
-import UserActionsDropdown from './__components/users/UserActionsDropdown'
 import UserAssignmentsModal from './__components/users/UserAssignmentsModal'
 import ResetPasswordDialog from './__components/users/ResetPasswordDialog'
-
-const ROLE_BADGE: Record<number, string> = {
-  [ROLES.OWNER]:
-    'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-  [ROLES.PROJECT_MANAGER]:
-    'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  [ROLES.SITE_WORKER]:
-    'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300',
-}
-
+import UsersTable from './__components/users/UsersTable'
 type RoleFilter = 'all' | 'owner' | 'pm' | 'worker'
 type StatusFilter = 'all' | 'active' | 'inactive'
-
-const columnHelper = createColumnHelper<UserResponse>()
 
 export default function ManageUsersPage() {
   const { user } = useAuthStore()
@@ -75,7 +38,6 @@ export default function ManageUsersPage() {
 
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('all')
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('active')
-  const [sorting, setSorting] = useState<SortingState>([])
   const [registerOpen, setRegisterOpen] = useState(false)
   const [editUser, setEditUser] = useState<UserResponse | null>(null)
   const [statusTarget, setStatusTarget] = useState<{
@@ -202,99 +164,6 @@ export default function ManageUsersPage() {
     selectedProjectDetail,
   ])
 
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor((row) => `${row.first_name} ${row.last_name}`, {
-        id: 'name',
-        header: 'Name',
-        cell: (info) => (
-          <span className="font-medium text-zinc-900 dark:text-zinc-100">
-            {info.getValue()}
-          </span>
-        ),
-      }),
-      columnHelper.accessor('email', {
-        header: 'Email',
-        cell: (info) => (
-          <span className="text-zinc-500 dark:text-zinc-400">
-            {info.getValue()}
-          </span>
-        ),
-      }),
-      columnHelper.accessor('role_id', {
-        header: 'Role',
-        cell: (info) => (
-          <Badge
-            className={`text-xs font-medium ${ROLE_BADGE[info.getValue()] ?? 'bg-zinc-100 text-zinc-600'}`}
-            variant="outline"
-          >
-            {ROLE_LABEL[info.getValue()] ?? 'Unknown'}
-          </Badge>
-        ),
-      }),
-      columnHelper.accessor('is_active', {
-        header: 'Status',
-        cell: (info) => (
-          <Badge
-            className={
-              info.getValue()
-                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-            }
-            variant="outline"
-          >
-            {info.getValue() ? 'Active' : 'Inactive'}
-          </Badge>
-        ),
-      }),
-      columnHelper.display({
-        id: 'actions',
-        header: () => null,
-        cell: ({ row }) => (
-          <div onClick={(e) => e.stopPropagation()}>
-            <UserActionsDropdown
-              user={row.original}
-              currentUserId={user?.id}
-              isOwner={isOwner}
-              canChangeStatus={isOwner || workerScope === 'mine'}
-              onEdit={handleEdit}
-              onStatusChange={handleStatusChange}
-              onResetPassword={handleResetPassword}
-            />
-          </div>
-        ),
-      }),
-    ],
-    [
-      isOwner,
-      user?.id,
-      workerScope,
-      handleEdit,
-      handleStatusChange,
-      handleResetPassword,
-    ],
-  )
-
-  const table = useReactTable({
-    data: filteredUsers,
-    columns,
-    state: { sorting },
-    onSortingChange: setSorting,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-  })
-
-  const renderSkeletonRows = () =>
-    Array.from({ length: 5 }).map((_, i) => (
-      <TableRow key={i}>
-        {Array.from({ length: 5 }).map((__, j) => (
-          <TableCell key={j}>
-            <Skeleton className="h-4 w-24" />
-          </TableCell>
-        ))}
-      </TableRow>
-    ))
-
   return (
     <div className="flex flex-col gap-6 px-6 pb-10">
       {/* Header */}
@@ -405,76 +274,17 @@ export default function ManageUsersPage() {
       )}
 
       {/* Table */}
-      <div className="rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className={
-                      header.column.getCanSort()
-                        ? 'cursor-pointer select-none'
-                        : ''
-                    }
-                    onClick={header.column.getToggleSortingHandler()}
-                  >
-                    <span className="flex items-center gap-1">
-                      {flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                      {header.column.getCanSort() &&
-                        (header.column.getIsSorted() === 'asc' ? (
-                          <ArrowUp className="h-3 w-3" />
-                        ) : header.column.getIsSorted() === 'desc' ? (
-                          <ArrowDown className="h-3 w-3" />
-                        ) : (
-                          <ArrowUpDown className="h-3 w-3 opacity-40" />
-                        ))}
-                    </span>
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              renderSkeletonRows()
-            ) : table.getRowModel().rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={5} className="py-16 text-center">
-                  <div className="flex flex-col items-center gap-2 text-zinc-400 dark:text-zinc-500">
-                    <Users className="h-8 w-8" />
-                    <p className="text-sm">No users found.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              table.getRowModel().rows.map((row) => {
-                const isClickable = row.original.role_id !== ROLES.OWNER
-                return (
-                  <TableRow
-                    key={row.id}
-                    className={`transition-colors ${isClickable ? 'cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/30' : ''}`}
-                    onClick={() => handleRowClick(row.original)}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                )
-              })
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <UsersTable
+        users={filteredUsers}
+        isLoading={isLoading}
+        currentUserId={user?.id}
+        isOwner={isOwner}
+        workerScope={workerScope}
+        onEdit={handleEdit}
+        onStatusChange={handleStatusChange}
+        onResetPassword={handleResetPassword}
+        onRowClick={handleRowClick}
+      />
 
       {/* Pagination */}
       {totalPages > 1 && (
