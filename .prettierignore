@@ -3,3 +3,4 @@ build
 .vite
 node_modules
 .pre-commit-config.yaml
+.github
