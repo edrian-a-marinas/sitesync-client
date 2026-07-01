@@ -38,7 +38,6 @@ const NAV: NavItem[] = [
   { label: 'Projects', icon: FolderKanban, path: ROUTES.PROJECTS },
   { label: 'Daily Logs', icon: ClipboardList, path: ROUTES.DAILY_LOGS },
   { label: 'Reports', icon: FileText, path: ROUTES.REPORTS },
-  { label: 'Manage Users', icon: Users, path: ROUTES.MANAGE_USERS },
   {
     label: 'Analytics',
     icon: BarChart3,
@@ -51,6 +50,7 @@ const NAV: NavItem[] = [
     path: ROUTES.AI_ASSISTANT,
     ownerOnly: true,
   },
+  { label: 'Manage Users', icon: Users, path: ROUTES.MANAGE_USERS },
   { label: 'Settings', icon: Settings, path: ROUTES.SETTINGS },
   {
     label: 'My Attendance',
