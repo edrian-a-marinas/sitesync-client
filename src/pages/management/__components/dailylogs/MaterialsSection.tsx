@@ -71,7 +71,6 @@ export default function MaterialsSection({
 
   const { data: materials, isLoading } = useMaterials(projectId, logId, true)
   useEffect(() => {
-    console.log('[MaterialsSection] onCountChange fired:', materials?.length)
     onCountChange?.(materials?.length ?? 0)
   }, [materials?.length, onCountChange])
   const { mutate: createMaterial, isPending: isCreating } = useCreateMaterial(
