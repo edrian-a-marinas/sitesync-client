@@ -4,7 +4,8 @@ import { loginUser, registerUser, logoutUser } from '@/services/auth'
 import { useAuthStore } from '@/store/auth'
 import { useAuthContext } from '@/lib/AuthContext'
 import { ROLES, ROUTES } from '@/constants'
-import type { LoginInput, RegisterInput } from '@/validations/auth'
+import type { LoginInput } from '@/validations/auth'
+import type { RegisterInput } from '@/validations/user'
 
 export const useLogin = () => {
   const { setAuth } = useAuthStore()
