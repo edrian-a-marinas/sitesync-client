@@ -11,7 +11,7 @@ import {
   CalendarCheck,
 } from 'lucide-react'
 import { LogOut } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
+import { Link, useLocation } from '@tanstack/react-router'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import { useLogout } from '@/hooks/useAuth'
@@ -82,6 +82,7 @@ export function Sidebar({
   const { user } = useAuthStore()
   const { sidebarCollapsed: collapsed, toggleSidebar } = useAuthStore()
   const logout = useLogout()
+  const { pathname } = useLocation()
   if (!user) return null
   const isWorker = user.role_id === ROLES.SITE_WORKER
   const isOwner = user.role_id === ROLES.OWNER
@@ -135,12 +136,17 @@ export function Sidebar({
             <ul className="space-y-0.5">
               {items.map((item) => {
                 const Icon = item.icon
+                const isActive =
+                  pathname === item.path ||
+                  (item.path === ROUTES.HOME && pathname === '/')
                 const link = (
                   <Link
                     to={item.path}
-                    className="group flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium transition-colors text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-white [&.active]:bg-sidebar-accent [&.active]:text-white"
+                    className={`group flex items-center gap-3 rounded-md px-2.5 py-2 text-sm font-medium transition-colors text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-white ${isActive ? 'bg-sidebar-accent text-white' : ''}`}
                   >
-                    <Icon className="h-4 w-4 shrink-0 text-sidebar-foreground/50 group-hover:text-sidebar-foreground/80 group-[.active]:text-sidebar-primary" />
+                    <Icon
+                      className={`h-4 w-4 shrink-0 text-sidebar-foreground/50 group-hover:text-sidebar-foreground/80 ${isActive ? 'text-sidebar-primary' : ''}`}
+                    />
                     {!collapsed && <span>{item.label}</span>}
                   </Link>
                 )
