@@ -7,6 +7,7 @@ import { LoginSchema } from '@/validations/auth'
 import type { LoginInput } from '@/validations/auth'
 import { Button } from '@/pages/_components/ui/button'
 import { Input } from '@/pages/_components/ui/input'
+import { DemoLoginButton } from '@/demo/DemoLoginButton' // DEMO FEATURE: remove this import if demo mode is retired
 
 export default function LoginPage() {
   const { mutate: login, isPending, isError, error } = useLogin()
@@ -112,6 +113,8 @@ export default function LoginPage() {
               {isPending ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
+          <DemoLoginButton />{' '}
+          {/* DEMO FEATURE: remove this line if demo mode is retired */}
         </div>
       </div>
     </div>
