@@ -28,3 +28,13 @@ export const deleteSitePhotoRequest = (
   api.delete(
     `/projects/${projectId}/daily-logs/${logId}/site-photos/${photoId}`,
   )
+
+export const downloadSitePhotoRequest = (
+  projectId: number,
+  logId: number,
+  photoId: number,
+) =>
+  api.get(
+    `/projects/${projectId}/daily-logs/${logId}/site-photos/${photoId}/download`,
+    { responseType: 'blob' },
+  )

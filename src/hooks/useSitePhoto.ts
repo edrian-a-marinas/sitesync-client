@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
   deleteSitePhoto,
+  downloadSitePhoto,
   getSitePhotos,
   uploadSitePhoto,
 } from '@/services/sitePhoto'
@@ -38,5 +39,17 @@ export const useDeleteSitePhoto = (projectId: number, logId: number) => {
         queryKey: ['site-photos', projectId, logId],
       })
     },
+  })
+}
+
+export const useDownloadSitePhoto = (projectId: number, logId: number) => {
+  return useMutation({
+    mutationFn: ({
+      photoId,
+      contentType,
+    }: {
+      photoId: number
+      contentType: string
+    }) => downloadSitePhoto(projectId, logId, photoId, contentType),
   })
 }
