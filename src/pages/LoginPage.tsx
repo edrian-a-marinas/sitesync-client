@@ -49,9 +49,7 @@ export default function LoginPage() {
               SiteSync
             </span>
           </div>
-          <h1 className="mb-1 text-2xl font-semibold text-zinc-900">
-            Sign in
-          </h1>
+          <h1 className="mb-1 text-2xl font-semibold text-zinc-900">Sign in</h1>
           <p className="mb-6 text-sm text-zinc-500">
             Enter your credentials to access your account.
           </p>
@@ -74,9 +72,7 @@ export default function LoginPage() {
                 className="bg-white border-zinc-300 text-zinc-900 placeholder:text-zinc-400"
               />
               {errors.email && (
-                <p className="text-xs text-red-600">
-                  {errors.email.message}
-                </p>
+                <p className="text-xs text-red-600">{errors.email.message}</p>
               )}
             </div>
             <div className="flex flex-col gap-1.5">
@@ -101,14 +97,12 @@ export default function LoginPage() {
             </div>
             {isError && !isAccessDenied && isNetworkError && (
               <p className="text-xs text-red-600">
-                Unable to reach the server. Please check your connection or
-                try again later.
+                Unable to reach the server. Please check your connection or try
+                again later.
               </p>
             )}
             {isError && !isAccessDenied && !isNetworkError && (
-              <p className="text-xs text-red-600">
-                Invalid email or password.
-              </p>
+              <p className="text-xs text-red-600">Invalid email or password.</p>
             )}
             {isAccessDenied && (
               <p className="text-xs text-red-600">Wrong credentials</p>
