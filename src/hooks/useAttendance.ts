@@ -43,5 +43,6 @@ export const useMyAttendanceHistory = (
     queryKey: ['attendance', 'me', projectId, page, limit],
     queryFn: () => getMyAttendanceHistory(projectId, page, limit),
     enabled,
+    placeholderData: (prev) => prev,
   })
 }

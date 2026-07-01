@@ -6,7 +6,7 @@ import {
 import type { AttendanceCreate } from '@/validations/attendance'
 import type {
   AttendanceResponse,
-  AttendanceHistoryResponse,
+  AttendanceHistoryListResponse,
 } from '@/types/attendance'
 
 // --- Used in DailyLog Attendance ---
@@ -27,11 +27,12 @@ export const createAttendance = async (
   return response.data
 }
 
+// --- Used in WorkerPage ---
 export const getMyAttendanceHistory = async (
   projectId: number,
   page: number,
   limit: number,
-): Promise<AttendanceHistoryResponse[]> => {
+): Promise<AttendanceHistoryListResponse> => {
   const response = await getMyAttendanceHistoryRequest(projectId, page, limit)
   return response.data
 }

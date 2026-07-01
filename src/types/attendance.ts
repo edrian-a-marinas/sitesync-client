@@ -12,3 +12,11 @@ export interface AttendanceHistoryResponse {
   hours_worked: number
   log_date: string
 }
+
+// --- Used in WorkerPage ---
+export interface AttendanceHistoryListResponse {
+  items: AttendanceHistoryResponse[]
+  total: number
+  page: number
+  limit: number
+}
