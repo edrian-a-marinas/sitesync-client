@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { getToken, clearToken } from '@/lib/token'
+import queryClient from '@/lib/queryClient'
 import { getMe } from '@/services/auth'
 import { useAuthStore } from '@/store/auth'
 
@@ -17,6 +18,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     clearToken()
     clearAuth()
+    queryClient.clear()
   }
 
   useEffect(() => {
