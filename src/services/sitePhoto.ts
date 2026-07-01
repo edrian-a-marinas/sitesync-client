@@ -1,5 +1,6 @@
 import {
   deleteSitePhotoRequest,
+  downloadSitePhotoRequest,
   getSitePhotosRequest,
   uploadSitePhotoRequest,
 } from '@/api/sitePhoto'
@@ -28,4 +29,18 @@ export const deleteSitePhoto = async (
   photoId: number,
 ): Promise<void> => {
   await deleteSitePhotoRequest(projectId, logId, photoId)
+}
+export const downloadSitePhoto = async (
+  projectId: number,
+  logId: number,
+  photoId: number,
+  contentType: string,
+): Promise<void> => {
+  const response = await downloadSitePhotoRequest(projectId, logId, photoId)
+  const url = window.URL.createObjectURL(
+    new Blob([response.data], { type: contentType }),
+  )
+  window.open(url, '_blank')
+  // revoke after a delay to allow the new tab to load the blob
+  setTimeout(() => window.URL.revokeObjectURL(url), 60000)
 }
