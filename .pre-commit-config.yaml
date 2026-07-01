@@ -1,0 +1,14 @@
+repos:
+  - repo: local
+    hooks:
+      - id: eslint-check
+        name: eslint-check
+        entry: bun run lint
+        language: system
+        pass_filenames: false
+        
+      - id: prettier-check
+        name: prettier-check
+        entry: bun run format:check
+        language: system
+        pass_filenames: false
