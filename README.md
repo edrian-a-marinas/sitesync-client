@@ -78,14 +78,14 @@ flowchart TD
 1. Clone the repo and navigate into it
 
 ```bash
-   git clone https://github.com/edrian-a-marinas/sitesync-api.git
-   cd sitesync-api
+git clone https://github.com/edrian-a-marinas/sitesync-api.git
+cd sitesync-api
 ```
 
 2. Copy the environment template and fill in your values
 
 ```bash
-   cp .env.example .env
+cp .env.example .env
 ```
 
 #### Option 1 — Docker (recommended)
@@ -93,7 +93,7 @@ flowchart TD
 Start all services (API, PostgreSQL, Redis, Celery worker, Celery beat)
 
 ```bash
-   docker compose up --build
+docker compose up --build
 ```
 
 Migrations run automatically on container start. API available at `http://localhost:8000/docs`
@@ -103,17 +103,17 @@ Migrations run automatically on container start. API available at `http://localh
 Useful for active development with live reload.
 
 ```bash
-   python -m venv venv && source venv/bin/activate   # venv\Scripts\activate on Windows
-   pip install -r requirements.txt
-   alembic upgrade head
-   uvicorn app.main:app --reload
+python -m venv venv && source venv/bin/activate   # venv\Scripts\activate on Windows
+pip install -r requirements.txt
+alembic upgrade head
+uvicorn app.main:app --reload
 ```
 
 Run Celery worker and beat in separate terminals (same venv):
 
 ```bash
-   celery -A app.core.celery.celery_app worker --loglevel=info
-   celery -A app.core.celery.celery_app beat --loglevel=info
+celery -A app.core.celery.celery_app worker --loglevel=info
+celery -A app.core.celery.celery_app beat --loglevel=info
 ```
 
 ### Frontend
@@ -121,24 +121,60 @@ Run Celery worker and beat in separate terminals (same venv):
 1. Clone the repo and navigate into it
 
 ```bash
-   git clone https://github.com/edrian-a-marinas/sitesync-client.git
-   cd sitesync-client
+git clone https://github.com/edrian-a-marinas/sitesync-client.git
+cd sitesync-client
 ```
 
 2. Install dependencies
 
 ```bash
-   bun install
+bun install
 ```
 
-3. Start the dev server
+3. Copy the environment template and fill in your values
 
 ```bash
-   bun run dev
-``
-4. App available at `http://localhost:5173`
+cp .env.example .env.local
+```
+
+4. Start the dev server
+
+```bash
+bun run dev
+```
+
+5. App available at `http://localhost:5173`
 
 ---
 
-_Built by Edrian Mariñas — 2026_
+## Congrats, App Running! 🎉
+
+Make sure if logging in as PM / Owner, use the link:
+`http://localhost:5173/login/admin`
+
+**Owner:**
+
 ```
+seed.owner@sitesync.com
+test1234
+```
+
+**PM:**
+
+```
+seed.pm2@sitesync.com
+test1234
+```
+
+**Worker:**
+
+```
+seed.worker3@sitesync.com
+test1234
+```
+
+Or you can just use the **Demo Sign In** (read-only).
+
+> **Reference:** Logging in as PM/Owner in `/login/` will fail, and vice versa with Worker.
+
+_Built by Edrian Mariñas — 2026_
