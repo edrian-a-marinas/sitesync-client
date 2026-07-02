@@ -44,12 +44,11 @@ flowchart TD
 
 | Layer       | Technology                                                                                                            |
 | ----------- | --------------------------------------------------------------------------------------------------------------------- |
-| Backend     | Python, FastAPI, PostgreSQL, SQLAlchemy, Alembic, asyncio, SlowAPI                                                    |
+| Backend     | Python, FastAPI, PostgreSQL, SQLAlchemy, Alembic, asyncio, Pytest, SlowAPI                                            |
 | Frontend    | React, TypeScript, TanStack (Router, Table), Zod, Zustand, Axios, Radix UI, TailwindCSS                               |
 | AI / ML     | RAG, GroqAPI, scikit-learn, RandomForest — training, forecasting, and prediction (2 year seeded datas)                |
 | Security    | JWT, Role-based dependencies endpoints, Rate limiting, CORS, secrets credentials management, ORM-protected SQL, HTTPS |
 | Performance | Redis (cache + broker), Celery/Beat, end-to-end pagination, Tanstack Query cache, database indexes                    |
-| Testing     | Pytest — 348 tests, across all core business logic                                                                    |
 | Deployment  | AWS (EC2, RDS, S3), Docker, Vercel, GitHub Actions                                                                    |
 
 ---
@@ -89,13 +88,33 @@ flowchart TD
    cp .env.example .env
 ```
 
-3. Start all services (API, PostgreSQL, Redis, Celery worker, Celery beat)
+#### Option 1 — Docker (recommended)
+
+Start all services (API, PostgreSQL, Redis, Celery worker, Celery beat)
 
 ```bash
    docker compose up --build
 ```
 
-4. Migrations run automatically on container start. API available at `http://localhost:8000/docs`
+Migrations run automatically on container start. API available at `http://localhost:8000/docs`
+
+#### Option 2 — Local Python environment
+
+Useful for active development with live reload.
+
+```bash
+   python -m venv venv && source venv/bin/activate   # venv\Scripts\activate on Windows
+   pip install -r requirements.txt
+   alembic upgrade head
+   uvicorn app.main:app --reload
+```
+
+Run Celery worker and beat in separate terminals (same venv):
+
+```bash
+   celery -A app.core.celery.celery_app worker --loglevel=info
+   celery -A app.core.celery.celery_app beat --loglevel=info
+```
 
 ### Frontend
 
@@ -116,10 +135,10 @@ flowchart TD
 
 ```bash
    bun run dev
-```
-
+``
 4. App available at `http://localhost:5173`
 
 ---
 
 _Built by Edrian Mariñas — 2026_
+```
