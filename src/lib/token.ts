@@ -3,7 +3,10 @@ import Cookies from 'js-cookie'
 const TOKEN_KEY = 'access_token'
 
 export const saveToken = (token: string): void => {
-  Cookies.set(TOKEN_KEY, token, { sameSite: 'strict' })
+  Cookies.set(TOKEN_KEY, token, {
+    sameSite: 'strict',
+    secure: import.meta.env.PROD,
+  })
 }
 
 export const getToken = (): string | null => Cookies.get(TOKEN_KEY) ?? null
