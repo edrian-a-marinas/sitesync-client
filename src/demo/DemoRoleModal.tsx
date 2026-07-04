@@ -1,4 +1,6 @@
 // DEMO FEATURE: delete this entire file if demo mode is retired
+import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 import {
   Dialog,
   DialogContent,
@@ -17,8 +19,10 @@ interface DemoRoleModalProps {
 
 export function DemoRoleModal({ open, onOpenChange }: DemoRoleModalProps) {
   const { mutate: demoLogin, isPending } = useDemoLogin()
+  const [pendingRole, setPendingRole] = useState<DemoRole | null>(null)
 
   const handleSelect = (role: DemoRole) => {
+    setPendingRole(role)
     demoLogin(role)
   }
 
@@ -32,16 +36,23 @@ export function DemoRoleModal({ open, onOpenChange }: DemoRoleModalProps) {
           Any of these accounts are READ / VIEW only for demo purposes.
         </p>
         <div className="flex flex-col gap-2 mt-2">
-          {(Object.keys(DEMO_CREDENTIALS) as DemoRole[]).map((role) => (
-            <Button
-              key={role}
-              variant="outline"
-              disabled={isPending}
-              onClick={() => handleSelect(role)}
-            >
-              {DEMO_CREDENTIALS[role].label}
-            </Button>
-          ))}
+          {(Object.keys(DEMO_CREDENTIALS) as DemoRole[]).map((role) => {
+            const isThisPending = isPending && pendingRole === role
+            return (
+              <Button
+                key={role}
+                variant="outline"
+                disabled={isPending}
+                onClick={() => handleSelect(role)}
+                className={`relative ${isPending ? 'cursor-progress' : ''}`}
+              >
+                {isThisPending && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {DEMO_CREDENTIALS[role].label}
+              </Button>
+            )
+          })}
         </div>
       </DialogContent>
     </Dialog>
