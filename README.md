@@ -49,7 +49,7 @@ flowchart TD
 | AI / ML     | RAG, GroqAPI, scikit-learn, RandomForest — training, forecasting, and prediction (2 year seeded datas)                |
 | Security    | JWT, Role-based dependencies endpoints, Rate limiting, CORS, secrets credentials management, ORM-protected SQL, HTTPS |
 | Performance | Redis (cache + broker), Celery/Beat, end-to-end pagination, Tanstack Query cache, database indexes                    |
-| Deployment  | AWS (EC2, RDS, S3), Docker, Vercel, GitHub Actions                                                                    |
+| Deployment  | AWS (EC2, RDS, S3, ECS), Docker, Caddy (reverse proxy + auto SSL), Vercel, GitHub Actions                             |
 
 ---
 
