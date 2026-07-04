@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import axios from 'axios'
-import { HardHat } from 'lucide-react'
+import { HardHat, Loader2 } from 'lucide-react'
 import { useLogin } from '@/hooks/useAuth'
 import { LoginSchema } from '@/validations/auth'
 import type { LoginInput } from '@/validations/auth'
@@ -124,6 +124,7 @@ export default function LoginPage() {
             )}{' '}
             {/* hides owner/pm from worker-only /login route, wrong creds because its meant to be secret*/}
             <Button type="submit" disabled={isPending} className="mt-2">
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {isPending ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
