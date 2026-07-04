@@ -1,0 +1,69 @@
+# SiteSync — Project Brief
+
+_This is the very first document. Written before any planning, before any tech decisions, before any roadmap. Just enough to decide: is this worth doing at all._
+
+## The Problem
+
+Construction companies running multiple projects at the same time lose track of what's actually happening on their sites day to day.
+
+Right now, that information lives in paper logs, spreadsheets, and group chats. A site engineer writes down who showed up, what materials got used, what equipment was on site, and whether anything went wrong — but that information just sits there. Nobody compiles it unless someone specifically asks for it.
+
+If the owner of the company wants to know how a project is doing, someone has to manually go collect that information from each site and put it together by hand. That takes time, it's easy to get wrong, and by the time the owner sees it, the information is already old.
+
+## Who Has This Problem
+
+Construction company owners and the project managers/site engineers who report to them — specifically firms running more than one active project at once (residential, commercial, roads, bridges, infrastructure).
+
+The bigger the company gets, and the more projects they run at the same time, the worse this problem gets. A company with one project can mostly get away with informal tracking. A company with five projects running at once cannot.
+
+## What They Do Instead, Right Now
+
+- Paper logs that someone has to manually transcribe later, if at all
+- Spreadsheets that get updated inconsistently depending on who remembers
+- Group chats (Viber, WhatsApp, etc.) where updates get buried and lost
+- Verbal updates / phone calls that never get written down anywhere
+
+None of these give the owner a real-time, accurate, company-wide view. All of them rely on someone remembering to manually report something.
+
+## Why This Hasn't Been Solved Already (By Them)
+
+It's not that owners don't care — it's that nobody on their team has the time or the tooling to build something better. Most construction firms aren't software companies. They default to whatever's easiest in the moment (a notebook, a group chat), not because it's good, but because it's familiar and requires no setup.
+
+## What We Want to Build (In One Breath)
+
+A simple system where every project submits one structured "daily site report" at the end of each shift — instead of scattered notes — so the company has one place where real site data lives. From there, the owner can see a live overview of all their projects, get automatic weekly summaries instead of having to ask for them, and eventually ask direct questions about their own data instead of digging through reports.
+
+## Why Now / Why Us
+
+Worth doing because the cost of **not** having this is real — budget overruns get caught late, material shortages aren't seen coming, attendance issues go unnoticed until they're already a problem. This is the kind of thing that, once it exists, owners will wonder how they ran the company without it.
+
+## What Success Looks Like
+
+- A project manager can submit a full day's site activity in a few minutes, not a few hours
+- The owner can open the app and immediately know how every project is doing, without asking anyone
+- Nobody has to manually compile a report by hand ever again
+
+## What This Is Not
+
+_(So we don't scope-creep before we even start.)_
+
+- Not an accounting or payroll system
+- Not a messaging/chat replacement
+- Not trying to manage procurement or vendor contracts
+- Workers don't need company-wide visibility — only their own site
+
+## Open Question Before We Go Further
+
+Is this a tool for one company's internal use, or a product meant to be sold to many construction companies? That changes how much flexibility and configuration needs to be built in from day one — worth deciding before any real planning starts.
+
+## Limitations of This Project
+
+_(As built solo, with no real client.)_
+
+- No actual construction company or site engineer was consulted — the workflow, fields, and pain points are based on reasonable assumptions, not validated user interviews
+- All data (daily logs, materials, attendance, budgets) is seeded/synthetic, not real historical records — this especially limits the ML models, which are trained on generated patterns rather than real-world variance
+- UI/UX decisions were made without user testing or feedback from an actual site manager or owner — real usage would likely surface workflow gaps this brief doesn't anticipate
+
+## Next Step If This Gets a Yes
+
+Move from this brief into an actual plan — what the system needs to do (requirements), how it'll be technically built (design doc), and a rough roadmap of build order.
