@@ -15,12 +15,12 @@ Managing construction sites from a spreadsheet means switching tabs, scrolling t
 - **Role-based routing** — separate views and navigation per role (Owner, PM, Site Worker), enforced at route level.
 - **Validation** — Zod validates all form inputs before any request is sent, preventing unnecessary backend calls.
 - **Live dashboards** — role-aware KPI cards, budget charts, and project health tables.
+- **Machine learning dashboards** — per-project budget overrun risk, delay risk, and material cost forecasts, visualized with charts and risk indicators.
+- **AI Assistant** — ask natural-language questions about budgets, materials, workforce, or incidents, scoped to a specific project or all projects via a dropdown.
 - **Smart data fetching** — TanStack Query for caching, pagination, and auto-invalidation on mutations.
 - **Global auth state** — Zustand store with silent session restore and auto-logout on token expiry.
 - **Accessible UI kit** — Radix UI + Tailwind CSS components (dialogs, dropdowns, tabs, tooltips).
-- **Skeleton loading states** — structured placeholders instead of blank screens or spinners.
 - **Toast notifications** — Sonner-powered feedback for actions and errors.
-- **Demo mode** — one-click role-based login for quick recruiter/reviewer access.
 
 ---
 
