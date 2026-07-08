@@ -103,6 +103,16 @@ export function NotificationDropdown() {
               <span className="text-xs text-muted-foreground">
                 {notification.message}
               </span>
+              {(notification.data.project_name ||
+                notification.data.log_date) && (
+                <span className="text-xs text-muted-foreground">
+                  {notification.data.project_name}
+                  {notification.data.project_name &&
+                    notification.data.log_date &&
+                    ' · '}
+                  {notification.data.log_date}
+                </span>
+              )}
               <span className="text-xs text-muted-foreground">
                 {formatRelativeTime(notification.created_at)}
               </span>
