@@ -6,12 +6,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/pages/_components/ui/dropdown-menu'
-import { ScrollArea } from '@/pages/_components/ui/scroll-area'
 import { Badge } from '@/pages/_components/ui/badge'
 import { Button } from '@/pages/_components/ui/button'
 import { Bell } from 'lucide-react'
 import {
   useGetNotifications,
+  useMarkAllAsRead,
   useMarkAsRead,
   useUnreadCount,
 } from '@/hooks/useNotification'
@@ -29,12 +29,12 @@ function formatRelativeTime(dateString: string): string {
 
 export function NotificationDropdown() {
   const { data: unreadData } = useUnreadCount()
-  const { data, isLoading } = useGetNotifications()
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useGetNotifications()
   const markAsRead = useMarkAsRead()
-
+  const markAllAsRead = useMarkAllAsRead()
   const notifications = data?.pages.flat() ?? []
   const unreadCount = unreadData?.unread_count ?? 0
-
   const handleSelect = (notification: Notification) => {
     if (!notification.is_read) {
       markAsRead.mutate(notification._id)
@@ -62,12 +62,27 @@ export function NotificationDropdown() {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-80 p-0">
-        <DropdownMenuLabel className="px-4 py-3">
-          Notifications
-        </DropdownMenuLabel>
+      <DropdownMenuContent
+        align="end"
+        className="w-80 p-0 max-h-[400px] overflow-y-auto"
+      >
+        <div className="flex items-center justify-between px-4 py-3">
+          <DropdownMenuLabel className="p-0">Notifications</DropdownMenuLabel>
+          {unreadCount > 0 && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                markAllAsRead.mutate()
+              }}
+              className="cursor-pointer text-xs text-primary hover:underline"
+            >
+              Mark all as read
+            </button>
+          )}
+        </div>
         <DropdownMenuSeparator className="mx-0" />
-        <ScrollArea className="h-80">
+        <div>
           {isLoading && (
             <div className="p-4 text-sm text-muted-foreground">Loading...</div>
           )}
@@ -93,7 +108,27 @@ export function NotificationDropdown() {
               </span>
             </DropdownMenuItem>
           ))}
-        </ScrollArea>
+          {isFetchingNextPage &&
+            Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={`skeleton-${i}`}
+                className="flex flex-col gap-2 border-b px-4 py-3"
+              >
+                <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
+                <div className="h-3 w-full animate-pulse rounded bg-muted" />
+                <div className="h-2 w-1/4 animate-pulse rounded bg-muted" />
+              </div>
+            ))}
+          {hasNextPage && !isFetchingNextPage && (
+            <button
+              type="button"
+              onClick={() => fetchNextPage()}
+              className="w-full cursor-pointer border-t px-4 py-3 text-center text-xs text-muted-foreground hover:bg-accent/50"
+            >
+              See previous notifications
+            </button>
+          )}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   )
