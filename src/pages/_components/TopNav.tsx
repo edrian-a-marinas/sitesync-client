@@ -1,7 +1,9 @@
-import { Bell, Menu } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { useAuthStore } from '@/store/auth'
 import { ThemeToggle } from '@/pages/_components/ThemeToggle'
 import { Button } from '@/pages/_components/ui/button'
+import { NotificationDropdown } from '@/pages/_components/notifications/NotificationDropdown'
+import { ROLES } from '@/constants'
 export function TopNav({ onMenuClick }: { onMenuClick: () => void }) {
   const { user } = useAuthStore()
   if (!user) return null
@@ -20,16 +22,8 @@ export function TopNav({ onMenuClick }: { onMenuClick: () => void }) {
       <div className="hidden md:block" />
       <div className="flex items-center gap-3">
         <ThemeToggle />
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          className="relative"
-          aria-label="Notifications"
-        >
-          <Bell className="h-4 w-4" />
-          <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-amber-500" />
-        </Button>
+        {(user.role_id === ROLES.OWNER ||
+          user.role_id === ROLES.PROJECT_MANAGER) && <NotificationDropdown />}
       </div>
     </header>
   )

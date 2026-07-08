@@ -1,0 +1,62 @@
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+import {
+  getNotifications,
+  getUnreadCount,
+  markAsRead,
+} from '@/services/notification'
+import type { Notification, UnreadCountResponse } from '@/types/notification'
+
+const PAGE_SIZE = 20
+
+export const useGetNotifications = () => {
+  return useInfiniteQuery({
+    queryKey: ['notifications'],
+    queryFn: ({ pageParam = 1 }) => getNotifications(pageParam, PAGE_SIZE),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < PAGE_SIZE) return undefined
+      return allPages.length + 1
+    },
+  })
+}
+
+export const useUnreadCount = () => {
+  return useQuery({
+    queryKey: ['notifications-unread-count'],
+    queryFn: getUnreadCount,
+    refetchInterval: 30000,
+  })
+}
+
+export const useMarkAsRead = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (notificationId: string) => markAsRead(notificationId),
+    onSuccess: (_, notificationId) => {
+      queryClient.setQueryData<{
+        pages: Notification[][]
+        pageParams: unknown[]
+      }>(['notifications'], (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          pages: old.pages.map((page) =>
+            page.map((n) =>
+              n._id === notificationId ? { ...n, is_read: true } : n,
+            ),
+          ),
+        }
+      })
+      queryClient.setQueryData<UnreadCountResponse>(
+        ['notifications-unread-count'],
+        (old) =>
+          old ? { unread_count: Math.max(0, old.unread_count - 1) } : old,
+      )
+    },
+  })
+}
