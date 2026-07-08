@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from '@/pages/_components/ui/dialog'
 import { Button } from '@/pages/_components/ui/button'
+import axios from 'axios'
 import { useDemoLogin } from '@/demo/useDemoLogin'
 import { DEMO_CREDENTIALS } from '@/demo/constants'
 import type { DemoRole } from '@/demo/constants'
@@ -18,8 +19,9 @@ interface DemoRoleModalProps {
 }
 
 export function DemoRoleModal({ open, onOpenChange }: DemoRoleModalProps) {
-  const { mutate: demoLogin, isPending } = useDemoLogin()
+  const { mutate: demoLogin, isPending, isError, error } = useDemoLogin()
   const [pendingRole, setPendingRole] = useState<DemoRole | null>(null)
+  const isNetworkError = axios.isAxiosError(error) && !error.response
 
   const handleSelect = (role: DemoRole) => {
     setPendingRole(role)
@@ -54,6 +56,12 @@ export function DemoRoleModal({ open, onOpenChange }: DemoRoleModalProps) {
             )
           })}
         </div>
+        {isError && isNetworkError && (
+          <p className="mt-2 text-xs text-red-600">
+            Unable to reach the server. Please check your connection or try
+            again later.
+          </p>
+        )}
       </DialogContent>
     </Dialog>
   )
