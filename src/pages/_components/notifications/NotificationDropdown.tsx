@@ -15,7 +15,7 @@ import {
   useMarkAsRead,
   useUnreadCount,
 } from '@/hooks/useNotification'
-import type { Notification } from '@/types/notification'
+import type { Notification } from '@/validations/notification'
 
 function formatRelativeTime(dateString: string): string {
   const diffMs = Date.now() - new Date(dateString).getTime()

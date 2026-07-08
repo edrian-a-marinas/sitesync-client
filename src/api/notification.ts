@@ -1,5 +1,8 @@
 import api from '@/lib/axios'
-import type { Notification, UnreadCountResponse } from '@/types/notification'
+import type {
+  Notification,
+  UnreadCountResponse,
+} from '@/validations/notification'
 
 export const getNotificationsRequest = (page = 1, pageSize = 20) =>
   api.get<Notification[]>('/notifications', {

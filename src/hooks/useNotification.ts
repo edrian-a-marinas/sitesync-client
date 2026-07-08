@@ -9,7 +9,10 @@ import {
   getUnreadCount,
   markAsRead,
 } from '@/services/notification'
-import type { Notification, UnreadCountResponse } from '@/types/notification'
+import type {
+  Notification,
+  UnreadCountResponse,
+} from '@/validations/notification'
 
 const PAGE_SIZE = 20
 
