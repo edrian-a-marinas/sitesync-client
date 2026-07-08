@@ -7,6 +7,7 @@ import {
 import {
   getNotifications,
   getUnreadCount,
+  markAllAsRead,
   markAsRead,
 } from '@/services/notification'
 import type {
@@ -14,7 +15,7 @@ import type {
   UnreadCountResponse,
 } from '@/validations/notification'
 
-const PAGE_SIZE = 20
+const PAGE_SIZE = 6
 
 export const useGetNotifications = () => {
   return useInfiniteQuery({
@@ -36,6 +37,30 @@ export const useUnreadCount = () => {
   })
 }
 
+export const useMarkAllAsRead = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => markAllAsRead(),
+    onSuccess: () => {
+      queryClient.setQueryData<{
+        pages: Notification[][]
+        pageParams: unknown[]
+      }>(['notifications'], (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          pages: old.pages.map((page) =>
+            page.map((n) => ({ ...n, is_read: true })),
+          ),
+        }
+      })
+      queryClient.setQueryData<UnreadCountResponse>(
+        ['notifications-unread-count'],
+        () => ({ unread_count: 0 }),
+      )
+    },
+  })
+}
 export const useMarkAsRead = () => {
   const queryClient = useQueryClient()
   return useMutation({

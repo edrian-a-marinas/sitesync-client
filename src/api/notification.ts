@@ -11,6 +11,9 @@ export const getNotificationsRequest = (page = 1, pageSize = 20) =>
 
 export const getUnreadCountRequest = () =>
   api.get<UnreadCountResponse>('/notifications/unread-count')
-
 export const markAsReadRequest = (notificationId: string) =>
   api.patch<{ status: string }>(`/notifications/${notificationId}/read`)
+export const markAllAsReadRequest = () =>
+  api.patch<{ status: string; modified_count: number }>(
+    '/notifications/read-all',
+  )
