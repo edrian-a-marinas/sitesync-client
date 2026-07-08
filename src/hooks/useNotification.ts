@@ -67,6 +67,7 @@ export const useDeleteNotification = () => {
   return useMutation({
     mutationFn: (notificationId: string) => deleteNotification(notificationId),
     onSuccess: (_, notificationId) => {
+      let wasUnread = false
       queryClient.setQueryData<{
         pages: Notification[][]
         pageParams: unknown[]
@@ -75,10 +76,20 @@ export const useDeleteNotification = () => {
         return {
           ...old,
           pages: old.pages.map((page) =>
-            page.filter((n) => n._id !== notificationId),
+            page.filter((n) => {
+              if (n._id === notificationId && !n.is_read) wasUnread = true
+              return n._id !== notificationId
+            }),
           ),
         }
       })
+      if (wasUnread) {
+        queryClient.setQueryData<UnreadCountResponse>(
+          ['notifications-unread-count'],
+          (old) =>
+            old ? { unread_count: Math.max(0, old.unread_count - 1) } : old,
+        )
+      }
     },
   })
 }
