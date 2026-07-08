@@ -1,4 +1,7 @@
-import type { Notification, UnreadCountResponse } from '@/types/notification'
+import type {
+  Notification,
+  UnreadCountResponse,
+} from '@/validations/notification'
 import {
   getNotificationsRequest,
   getUnreadCountRequest,
