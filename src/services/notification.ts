@@ -5,6 +5,7 @@ import type {
 import {
   getNotificationsRequest,
   getUnreadCountRequest,
+  markAllAsReadRequest,
   markAsReadRequest,
 } from '@/api/notification'
 
@@ -23,4 +24,7 @@ export const getUnreadCount = async (): Promise<UnreadCountResponse> => {
 
 export const markAsRead = async (notificationId: string): Promise<void> => {
   await markAsReadRequest(notificationId)
+}
+export const markAllAsRead = async (): Promise<void> => {
+  await markAllAsReadRequest()
 }
