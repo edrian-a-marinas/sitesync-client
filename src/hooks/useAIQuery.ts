@@ -28,7 +28,7 @@ export const useGetQueries = () => {
 }
 
 const PENDING_TIMEOUT_MINUTES = 5
-
+const CLIENT_TIMEOUT_SECONDS = 30
 export const useGetQuery = (queryId: number | null, enabled: boolean) => {
   return useQuery({
     queryKey: ['ai-query', queryId],
@@ -39,8 +39,10 @@ export const useGetQuery = (queryId: number | null, enabled: boolean) => {
       if (!data) return false
       if (data.status !== 'Pending') return false
       if (data.answer) return false
-      // Stop polling if older than timeout — backend will have expired it already
       const ageMs = Date.now() - new Date(data.created_at).getTime()
+      // Stop polling after client-side timeout — don't wait indefinitely on a stuck request
+      if (ageMs > CLIENT_TIMEOUT_SECONDS * 1000) return false
+      // Stop polling if older than backend expiry window too
       if (ageMs > PENDING_TIMEOUT_MINUTES * 60 * 1000) return false
       return 2000
     },
