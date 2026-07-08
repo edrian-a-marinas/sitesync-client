@@ -9,7 +9,7 @@ import {
 import { Badge } from '@/pages/_components/ui/badge'
 import { Button } from '@/pages/_components/ui/button'
 import { Bell } from 'lucide-react'
-import { X } from 'lucide-react'
+import { AlertTriangle, DollarSign, FileText, X } from 'lucide-react'
 import {
   useDeleteNotification,
   useGetNotifications,
@@ -19,6 +19,35 @@ import {
 } from '@/hooks/useNotification'
 import type { Notification } from '@/validations/notification'
 
+function NotificationIcon({ type }: { type: string }) {
+  const config: Record<string, { icon: React.ReactNode; className: string }> = {
+    incident: {
+      icon: <AlertTriangle className="h-4 w-4" />,
+      className:
+        'bg-red-50 text-red-500 dark:bg-red-950/40 dark:text-red-400/80',
+    },
+    report_ready: {
+      icon: <FileText className="h-4 w-4" />,
+      className: 'bg-blue-50 text-blue-500 dark:bg-blue-950 dark:text-blue-400',
+    },
+    budget_overrun: {
+      icon: <DollarSign className="h-4 w-4" />,
+      className:
+        'bg-green-50 text-green-500 dark:bg-green-950 dark:text-green-400',
+    },
+  }
+  const { icon, className } = config[type] ?? {
+    icon: <FileText className="h-4 w-4" />,
+    className: 'bg-zinc-50 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400',
+  }
+  return (
+    <div
+      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md ${className}`}
+    >
+      {icon}
+    </div>
+  )
+}
 function formatRelativeTime(dateString: string): string {
   const diffMs = Date.now() - new Date(dateString).getTime()
   const diffMin = Math.floor(diffMs / 60000)
@@ -116,23 +145,30 @@ export function NotificationDropdown() {
               >
                 <X className="h-3.5 w-3.5" />
               </button>
-              <span className="text-sm font-medium">{notification.title}</span>
-              <span className="text-xs text-muted-foreground">
-                {notification.message}
-              </span>
-              {(notification.data.project_name ||
-                notification.data.log_date) && (
-                <span className="text-xs text-muted-foreground">
-                  {notification.data.project_name}
-                  {notification.data.project_name &&
-                    notification.data.log_date &&
-                    ' · '}
-                  {notification.data.log_date}
-                </span>
-              )}
-              <span className="text-xs text-muted-foreground">
-                {formatRelativeTime(notification.created_at)}
-              </span>
+              <div className="flex w-full gap-3">
+                <NotificationIcon type={notification.type} />
+                <div className="flex flex-1 flex-col gap-0.5">
+                  <span className="text-sm font-medium">
+                    {notification.title}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {notification.message}
+                  </span>
+                  {(notification.data.project_name ||
+                    notification.data.log_date) && (
+                    <span className="text-xs text-muted-foreground">
+                      {notification.data.project_name}
+                      {notification.data.project_name &&
+                        notification.data.log_date &&
+                        ' · '}
+                      {notification.data.log_date}
+                    </span>
+                  )}
+                  <span className="text-xs text-muted-foreground">
+                    {formatRelativeTime(notification.created_at)}
+                  </span>
+                </div>
+              </div>
             </DropdownMenuItem>
           ))}
           {isFetchingNextPage &&
