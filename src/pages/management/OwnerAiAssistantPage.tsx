@@ -55,8 +55,16 @@ export default function OwnerAiAssistantPage() {
     return allPages.flatMap((page) => [...page].reverse())
   }, [queriesData])
 
+  const CLIENT_TIMEOUT_SECONDS = 30
+  const lastQuery = sortedQueries[sortedQueries.length - 1]
+  /* eslint-disable react-hooks/purity -- intentional: gates polling based on current time vs message age */
+  const lastQueryAgeSeconds = lastQuery
+    ? (Date.now() - new Date(lastQuery.created_at).getTime()) / 1000
+    : 0
+  /* eslint-enable react-hooks/purity */
   const isWaitingForResponse =
-    sortedQueries[sortedQueries.length - 1]?.status === 'Pending'
+    lastQuery?.status === 'Pending' &&
+    lastQueryAgeSeconds <= CLIENT_TIMEOUT_SECONDS
 
   const handleRateLimit = (retryAfter: number) => {
     const until = Date.now() + retryAfter * 1000
