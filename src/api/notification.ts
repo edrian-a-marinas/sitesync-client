@@ -17,3 +17,5 @@ export const markAllAsReadRequest = () =>
   api.patch<{ status: string; modified_count: number }>(
     '/notifications/read-all',
   )
+export const deleteNotificationRequest = (notificationId: string) =>
+  api.delete<{ status: string }>(`/notifications/${notificationId}`)

@@ -5,6 +5,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 import {
+  deleteNotification,
   getNotifications,
   getUnreadCount,
   markAllAsRead,
@@ -58,6 +59,26 @@ export const useMarkAllAsRead = () => {
         ['notifications-unread-count'],
         () => ({ unread_count: 0 }),
       )
+    },
+  })
+}
+export const useDeleteNotification = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (notificationId: string) => deleteNotification(notificationId),
+    onSuccess: (_, notificationId) => {
+      queryClient.setQueryData<{
+        pages: Notification[][]
+        pageParams: unknown[]
+      }>(['notifications'], (old) => {
+        if (!old) return old
+        return {
+          ...old,
+          pages: old.pages.map((page) =>
+            page.filter((n) => n._id !== notificationId),
+          ),
+        }
+      })
     },
   })
 }

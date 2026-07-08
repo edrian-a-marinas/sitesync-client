@@ -9,7 +9,9 @@ import {
 import { Badge } from '@/pages/_components/ui/badge'
 import { Button } from '@/pages/_components/ui/button'
 import { Bell } from 'lucide-react'
+import { X } from 'lucide-react'
 import {
+  useDeleteNotification,
   useGetNotifications,
   useMarkAllAsRead,
   useMarkAsRead,
@@ -33,6 +35,7 @@ export function NotificationDropdown() {
     useGetNotifications()
   const markAsRead = useMarkAsRead()
   const markAllAsRead = useMarkAllAsRead()
+  const deleteNotification = useDeleteNotification()
   const notifications = data?.pages.flat() ?? []
   const unreadCount = unreadData?.unread_count ?? 0
   const handleSelect = (notification: Notification) => {
@@ -95,10 +98,24 @@ export function NotificationDropdown() {
             <DropdownMenuItem
               key={notification._id}
               onSelect={() => handleSelect(notification)}
-              className={`flex cursor-pointer flex-col items-start gap-0.5 whitespace-normal rounded-none border-b px-4 py-3 ${
-                notification.is_read ? '' : 'bg-accent/50'
+              className={`group relative flex cursor-pointer flex-col items-start gap-0.5 whitespace-normal rounded-none border-b px-4 py-3 pr-8 ${
+                notification.is_read
+                  ? ''
+                  : 'bg-accent/50 border-l-2 border-l-primary'
               }`}
             >
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  deleteNotification.mutate(notification._id)
+                }}
+                aria-label="Delete notification"
+                className="absolute right-2 top-2 cursor-pointer rounded p-0.5 text-muted-foreground opacity-0 hover:bg-accent group-hover:opacity-100"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
               <span className="text-sm font-medium">{notification.title}</span>
               <span className="text-xs text-muted-foreground">
                 {notification.message}

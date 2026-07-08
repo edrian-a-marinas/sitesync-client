@@ -3,6 +3,7 @@ import type {
   UnreadCountResponse,
 } from '@/validations/notification'
 import {
+  deleteNotificationRequest,
   getNotificationsRequest,
   getUnreadCountRequest,
   markAllAsReadRequest,
@@ -27,4 +28,9 @@ export const markAsRead = async (notificationId: string): Promise<void> => {
 }
 export const markAllAsRead = async (): Promise<void> => {
   await markAllAsReadRequest()
+}
+export const deleteNotification = async (
+  notificationId: string,
+): Promise<void> => {
+  await deleteNotificationRequest(notificationId)
 }
