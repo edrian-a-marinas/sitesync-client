@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetQuery } from '@/hooks/useAIQuery'
 import { Badge } from '@/pages/_components/ui/badge'
@@ -16,18 +16,32 @@ interface Props {
 export function ChatMessage({ query, onRateLimit }: Props) {
   const queryClient = useQueryClient()
   const isPending = query.status === 'Pending'
+  const [, forceTick] = useState(0)
+  useEffect(() => {
+    if (!isPending) return
+    const interval = setInterval(() => forceTick((n) => n + 1), 1000)
+    return () => clearInterval(interval)
+  }, [isPending])
   /* eslint-disable react-hooks/purity -- intentional: gates polling based on current time vs message age */
   const isRecent =
     Date.now() - new Date(query.created_at).getTime() < 5 * 60 * 1000
   /* eslint-enable react-hooks/purity */
   const shouldPoll = isPending && isRecent
-
   const { data: liveQuery } = useGetQuery(
     shouldPoll ? query.id : null,
     shouldPoll,
   )
   const display = liveQuery ?? query
   const parsed = parseAnswer(display.answer)
+  const CLIENT_TIMEOUT_SECONDS = 30
+  /* eslint-disable react-hooks/purity -- intentional: gates polling based on current time vs message age */
+  const ageSeconds =
+    (Date.now() - new Date(display.created_at).getTime()) / 1000
+  /* eslint-enable react-hooks/purity */
+  const clientTimedOut =
+    display.status === 'Pending' &&
+    !display.answer &&
+    ageSeconds > CLIENT_TIMEOUT_SECONDS
 
   // Patch the queries list cache when live data resolves so chat panel updates
   useEffect(() => {
@@ -64,6 +78,13 @@ export function ChatMessage({ query, onRateLimit }: Props) {
   }, [didJustFail])
 
   const renderAnswer = () => {
+    if (clientTimedOut) {
+      return (
+        <p className="text-sm text-red-500">
+          This is taking longer than expected. Please try again later.
+        </p>
+      )
+    }
     if (display.status === 'Pending') {
       return (
         <div className="flex flex-col gap-1.5">
@@ -126,7 +147,7 @@ export function ChatMessage({ query, onRateLimit }: Props) {
         </div>
         <div className="max-w-[75%] rounded-2xl rounded-tl-sm border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2.5">
           {renderAnswer()}
-          {display.status === 'Pending' && (
+          {display.status === 'Pending' && !clientTimedOut && (
             <Badge
               variant="outline"
               className="mt-1.5 bg-amber-50 text-xs text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
