@@ -1,5 +1,6 @@
 import {
   getBudgetOverrunRequest,
+  getCeleryHealthRequest,
   getDelayRiskRequest,
   getMaterialForecastRequest,
   getMLStatusRequest,
@@ -39,4 +40,12 @@ export const triggerRetrain = async (): Promise<{
 }> => {
   const response = await triggerRetrainRequest()
   return response.data
+}
+export const checkCeleryHealth = async (): Promise<boolean> => {
+  try {
+    await getCeleryHealthRequest()
+    return true
+  } catch {
+    return false
+  }
 }

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import {
+  checkCeleryHealth,
   getBudgetOverrun,
   getDelayRisk,
   getMaterialForecast,
@@ -37,6 +38,8 @@ export const useMaterialForecast = () => {
     placeholderData: (prev) => prev,
   })
 }
+
+export const useCeleryHealthCheck = () => checkCeleryHealth
 
 export const useRetrainML = () => {
   const queryClient = useQueryClient()
