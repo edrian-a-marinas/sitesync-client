@@ -93,15 +93,8 @@ export default function OwnerAnalyticsPage() {
       const newTimestamp = result.data?.budget_overrun.last_trained
       if (newTimestamp && newTimestamp !== preRetrainTimestampRef.current) {
         setIsPollingStatus(false)
-        // Wait 2 extra seconds before notifying and refreshing predictions
-        setTimeout(async () => {
-          await Promise.all([
-            refetchBudget(),
-            refetchDelay(),
-            refetchForecast(),
-          ])
-          toast.success('Models updated — predictions refreshed.')
-        }, 2000)
+        await Promise.all([refetchBudget(), refetchDelay(), refetchForecast()])
+        toast.success('Models updated — predictions refreshed.')
       }
     }, STATUS_POLL_INTERVAL)
     return () => clearInterval(interval)
