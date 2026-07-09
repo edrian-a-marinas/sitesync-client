@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/auth'
 import { ROLES } from '@/constants'
 import {
   useBudgetOverrun,
+  useCeleryHealthCheck,
   useDelayRisk,
   useMaterialForecast,
   useMLStatus,
@@ -24,7 +25,8 @@ import MaterialForecastCard from './__components/analytics/MaterialForecastCard'
 import MLStatusBar from './__components/analytics/MLStatusBar'
 
 const COOLDOWN_MS = 15 * 60 * 1000 // 15 minutes
-const STATUS_POLL_INTERVAL = 2000 // poll every 2s while retraining
+const STATUS_POLL_INTERVAL = 3000 // poll every 3s while retraining
+const MAX_POLL_ATTEMPTS = 30
 
 function AnalyticsSkeleton() {
   return (
@@ -55,6 +57,7 @@ export default function OwnerAnalyticsPage() {
   })
   const [isPollingStatus, setIsPollingStatus] = useState(false)
   const preRetrainTimestampRef = useRef<string | null>(null)
+  const pollAttemptsRef = useRef(0)
 
   const { data: status, refetch: refetchStatus } = useMLStatus()
   const {
@@ -76,6 +79,7 @@ export default function OwnerAnalyticsPage() {
     refetch: refetchForecast,
   } = useMaterialForecast()
   const { mutate: retrain, isPending: isRetraining } = useRetrainML()
+  const checkCeleryHealth = useCeleryHealthCheck()
 
   const isLoading = budgetLoading || delayLoading || forecastLoading
   const isError = budgetError || delayError || forecastError
@@ -88,19 +92,30 @@ export default function OwnerAnalyticsPage() {
   // Poll status while retraining — stop when last_trained changes
   useEffect(() => {
     if (!isPollingStatus) return
+    pollAttemptsRef.current = 0
     const interval = setInterval(async () => {
+      pollAttemptsRef.current += 1
       const result = await refetchStatus()
       const newTimestamp = result.data?.budget_overrun.last_trained
       if (newTimestamp && newTimestamp !== preRetrainTimestampRef.current) {
         setIsPollingStatus(false)
         await Promise.all([refetchBudget(), refetchDelay(), refetchForecast()])
         toast.success('Models updated — predictions refreshed.')
+        return
+      }
+      if (pollAttemptsRef.current >= MAX_POLL_ATTEMPTS) {
+        setIsPollingStatus(false)
+        toast.error('Training is taking longer than expected.')
       }
     }, STATUS_POLL_INTERVAL)
     return () => clearInterval(interval)
   }, [isPollingStatus])
-
-  const handleRetrain = () => {
+  const handleRetrain = async () => {
+    const isHealthy = await checkCeleryHealth()
+    if (!isHealthy) {
+      toast.error('ML service unavailable. Please try again later.')
+      return
+    }
     // Snapshot current last_trained before retraining
     preRetrainTimestampRef.current = status?.budget_overrun.last_trained ?? null
     retrain(undefined, {
