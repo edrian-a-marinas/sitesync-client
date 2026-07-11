@@ -6,15 +6,14 @@ Agile flow:
 Plan -> Design (architecture, data flow, API design) -> Develop -> Test -> Review -> Deploy -> Repeat
 
 Legend:
-!! finished and tested -> move on
-@@ currently working
 
-## bug
-
-[$$] working, but not yet finished, depends on future changes
-%% not yet started
-[^^] working, but not yet tested / lacking data to test
-&& finished but untested
+- `!!` finished and tested -> move on
+- `@@` currently working
+- `##` bug
+- `[$$]` working, but not yet finished, depends on future changes
+- `%%` not yet started
+- `[^^]` working, but not yet tested / lacking data to test
+- `&&` finished but untested
 
 ## Database
 
@@ -215,7 +214,11 @@ Legend:
       - Enabled HTTPS !!
 121.  Seeded realistic data for better demo viewing across Site Worker, PM (5+), and a single Owner, all interconnected, spanning a historical window through the current month (e.g. July–December) — since ML/RAG should only reference past and current data, never future data, this also future-proofs the demo login experience !!
 
+---
+
 ## Finish Line — Improvements, Optimization, Performance, Security, Benchmarks
+
+## Coverage, Hardening & Deployment Migration=
 
 122. Closed backend gaps discovered during frontend integration — added missing endpoints, fixed mismatched schemas, added new features the frontend revealed were needed, added indexing driven by frontend requirements, overall polish !!
 123. Ran pytest --cov=app --cov-report=term-missing — raised total coverage from 58% to 92%, and to 100% on core business logic !!
@@ -226,3 +229,76 @@ Legend:
 128. Reverse proxy + free SSL cert — already handled via Caddy (automatic HTTPS with a Let's Encrypt certificate, reverse proxying :8000 -> 443) !!
 129. Migrate deployment from manual SSH + Docker on EC2 to AWS ECS, so containers are managed and orchestrated automatically instead of SSH-ing in to run docker-compose by hand !!
 130. Implement end-to-end notifications, if time allows %%
+
+---
+
+## New Feature Expansion — LangChain, Vector Search, NoSQL, Webhooks, WebSocket, Notifications
+
+## LangChain and Vector Search
+
+131. Add pgvector extension to PostgreSQL, embed existing business data (materials, budgets, logs) for semantic search !!
+132. Create embedding service using sentence-transformers (all-MiniLM-L6-v2) created an embedding tasks celery too. !!
+133. Refactor existing Groq-based RAG service using LangChain — prompt templates, chains (LCEL), and pgvector retriever !!
+134. Replace current keyword/intent-based retrieval (classify_intent, _retrieve_*) with LangChain + pgvector similarity search !!
+     - seeded daily_log_embeddings using alembic !!
+     - deleted dead code and unused code after migrating to pgvector and LangChain utilization !!
+135. Test full LangChain + pgvector pipeline manually via Postman. !!
+     - Dockerized it, updated the docker compose and Dockerfile if needed. !!
+     - created a Pytest / test file for it, also updated test_ai_query and test_tasks !!
+     - tested prompts in dev local and in prod for langchain and pgvector utilization !!
+
+## Webhooks and Slacks (Incidents)
+
+136. Design webhook payload structure — incident logged (severity=High only) !!
+     - updated the models + schemas to strictly accept Low, Medium, or High only !!
+137. Build webhook dispatch service — fires HTTP POST to a configurable URL (e.g. Slack incoming webhook) on trigger events !!
+138. Add retry/error handling for failed webhook deliveries, log failures for visibility !!
+139. Set up Slack workspace (free tier) + Incoming Webhook app on a #sitesync-alerts channel !!
+     - wired Slack workspace to my backend webhooks !!
+     - confirmed payload renders correctly in Slack when posted !!
+140. Test all manually in Postman, then created testing files for this to see if it goes to Slack !!
+141. Logging and main.py also have logging. If connected or not. No need for DEV or PROD !!
+
+## WebSocket
+
+142. Build ConnectionManager (app/core/ws_manager.py) — track active connections per user_id, connect/disconnect/send_to_user !!
+143. Add WebSocket endpoint /ws/notifications in a new router (app/routers/ws.py) — auth via token query param, register/unregister connection !!
+
+## Notifications (MongoDB / NoSQL)
+
+144. Design MongoDB schema for notifications — flexible document structure, per-type fields !!
+     - incident (any incident), weekly report auto-generated Monday, budget overrun !!
+145. Do all the notifications across files, services, and routers. !!
+     Connect MongoDB locally via Motor (app/core/mongo.py) !!
+     Build service layer (app/services/notification.py) !!
+     Build notifications router (app/routers/notification.py) !!
+146. Wire notification creation into existing triggers (incident create/update, budget overrun, report ready) — insert into Mongo, then push via ConnectionManager.send_to_user !!
+147. Test MongoDB logic locally end-to-end !!
+148. Test manually via Postman, then create new test file with notification.py and make it 100% coverage, add /health/mongo endpoint !!
+149. Delete all dead code in notification from Postgres, models, etc. !!
+150. Add MongoDB as a Docker service in docker-compose, update .env !!
+151. Fix pytest GitHub issue if any !!
+
+## Wiring Backend New Features to Frontend
+
+152. Update AI Assistant page — reflect improved RAG answer quality from LangChain + pgvector !!
+     - if thinking takes more than 30 secs, stop it and say it's taking longer than expected, please try again later, something standard/common !!
+153. Build NotificationsPage.tsx + bell icon/dropdown in top nav, unread count badge !!
+     - notifications.ts across all folders !!
+154. Wire notification read/unread state to backend, real-time via WebSocket !!
+155. Add reconnect handling on frontend side, log dropped connections server-side !!
+156. If clicked, it should now mark as read in backend, and have UI differences between unread and read. Also the icon in top nav should only show the unread count, and have an icon based on the notification type — incident, report, or budget overrun? !!
+157. Have better pagination end to end and a mark-all-as-read endpoint !!
+158. Frontend — add dismiss (X) button per notification row, wired to delete endpoint, optimistic removal from list + cache !!
+159. Backend — add DELETE /notifications/{id} endpoint, deletes only the requesting user's own notification !!
+160. Update the demo to allow the Owner demo to use AI Assistant chat and retrain model, aside from that the rest is read-only as is !!
+     - update the toast notification only if possible; put all demo-related handling where, if the demo tries to click something, bypass the real error with "Demo accounts are read-only. Owner demo can use AI Assistant, Analytics, and generate reports only." Bypass the toasts if the logged-in user is a demo account, instead of sending the real one !!
+161. Error handling in demo — if no server is running, it only outputs to console logs but nothing else. The main login page already has it; just the demo doesn't have error handling for server errors !!
+162. Backend caching optimizations — final touches and centralized cache TTL config !!
+
+## Production — Last Step
+
+163. Open PR from dev to main, confirm CI passes, merge to trigger prod deploy !!
+164. Push to prod — update EC2 Docker setup, verify MongoDB container and all new features run cleanly with no issues !!
+165. Add seed data for notifications to support demo/testing !!
+166. Test all manually in prod website — notifications to real accounts and to demo accounts. !!

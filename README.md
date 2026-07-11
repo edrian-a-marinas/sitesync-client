@@ -14,11 +14,11 @@ Managing construction sites from a spreadsheet means switching tabs, scrolling t
 
 - **Role-based routing** — separate views and navigation per role (Owner, PM, Site Worker), enforced at route level.
 - **Validation** — Zod validates all form inputs before any request is sent, preventing unnecessary backend calls.
-- **Live dashboards** — role-aware KPI cards, budget charts, and project health tables.
+- **Live dashboards** — role-aware KPI cards, budget charts, and a project health table.
+- **Real-time notifications** — bell icon with unread badge, live push via WebSocket for incidents, budget overruns, and weekly reports.
 - **Machine learning dashboards** — per-project budget overrun risk, delay risk, and material cost forecasts, visualized with charts and risk indicators.
-- **AI Assistant** — ask natural-language questions about budgets, materials, workforce, or incidents, scoped to a specific project or all projects via a dropdown.
+- **AI Assistant** — ask natural-language questions about budgets, materials, workforce, or incidents, scoped to a specific project or all projects via a dropdown (backed by a LangChain + pgvector RAG pipeline).
 - **Smart data fetching** — TanStack Query for caching, pagination, and auto-invalidation on mutations.
-- **Global auth state** — Zustand store with silent session restore and auto-logout on token expiry.
 - **Accessible UI kit** — Radix UI + Tailwind CSS components (dialogs, dropdowns, tabs, tooltips).
 - **Toast notifications** — Sonner-powered feedback for actions and errors.
 
@@ -36,20 +36,23 @@ flowchart TD
     Api -->|HTTP request/response| Backend[(FastAPI Backend)]
     Api --> Cache[(Query Cache)]
     Cache -->|GET requests cached on first load| Page
+    Backend -->|WebSocket push| Notif[Notification Store]
+    Notif --> Page
 ```
 
 ---
 
 ## Tech Stack
 
-| Layer       | Technology                                                                                                            |
-| ----------- | --------------------------------------------------------------------------------------------------------------------- |
-| Backend     | Python, FastAPI, PostgreSQL, SQLAlchemy, Alembic, asyncio, Pytest, SlowAPI                                            |
-| Frontend    | React, TypeScript, TanStack (Router, Table), Zod, Zustand, Axios, Radix UI, TailwindCSS                               |
-| AI / ML     | RAG, GroqAPI, scikit-learn, RandomForest — training, forecasting, and prediction (2 year seeded datas)                |
-| Security    | JWT, Role-based dependencies endpoints, Rate limiting, CORS, secrets credentials management, ORM-protected SQL, HTTPS |
-| Performance | Redis (cache + broker), Celery/Beat, end-to-end pagination, Tanstack Query cache, database indexes                    |
-| Deployment  | AWS (EC2, RDS, S3, ECS), Docker, Caddy (reverse proxy + auto SSL), Vercel, GitHub Actions                             |
+| Layer       | Technology                                                                                                                            |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| Backend     | Python, FastAPI, SQLAlchemy, Alembic, asyncio, SlowAPI, Webhooks, WebSocket, Pytest                                                   |
+| Frontend    | React, TypeScript, TanStack (Router, Table), Zod, Zustand, Axios, Radix UI, TailwindCSS                                               |
+| AI / ML     | RAG pipeline — LangChain, pgvector, GroqAPI, scikit-learn, RandomForest - training, forecasting, and prediction (2 year seeded datas) |
+| Database    | PostgreSQL (RDBMS), MongoDB(NoSQL), Redis(NoSQL cache)                                                                                |
+| Security    | JWT, Role-based dependencies endpoints, Rate limiting, CORS, secrets credentials management, ORM-protected SQL, HTTPS                 |
+| Performance | Redis (cache + broker), Celery/Beat, end-to-end pagination, Tanstack Query cache, database indexes                                    |
+| Deployment  | AWS (EC2, RDS, S3), Docker, Caddy (reverse proxy + auto SSL), Vercel, GitHub Actions                                                  |
 
 ---
 
@@ -61,8 +64,19 @@ flowchart TD
 - **Data fetching**: TanStack Query per-domain hooks (e.g. `useDailyLog`) manage caching, loading, and error state
 - **API layer**: Centralized Axios instance with request/response interceptors (auth token injection, 401 auto-logout)
 - **State management**: Zustand for global auth state, persisted across route changes
+- **Real-time layer**: WebSocket connection managed client-side with auto-reconnect, pushing live notification updates into the UI
 - **Type safety**: Shared TypeScript types per domain, inferred from Zod schemas where possible
 - **Code quality**: Enforced via ESLint + Prettier
+
+---
+
+---
+
+## Deployment & DevOps
+
+- **CI**: GitHub Actions runs on every PR to `main` — lints with ESLint, checks formatting with Prettier, and builds the app
+- **Hosting**: Vercel auto-deploys from the `main` branch via its Git integration, with SPA rewrites (all routes fall back to `index.html`)
+- **Security headers**: Content-Security-Policy restricting scripts, styles, and connections to trusted origins only
 
 ---
 
