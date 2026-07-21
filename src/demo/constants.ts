@@ -1,4 +1,6 @@
 // DEMO FEATURE: delete this entire file if demo mode is retired
+export const DEMO_DEFAULT_PROJECT_ID = 20 // Cavite Residential Complex
+
 export const DEMO_CREDENTIALS = {
   owner: {
     email: 'demo.owner@sitesync.com',
