@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useSearch, useNavigate } from '@tanstack/react-router'
 import { useAuthStore } from '@/store/auth'
 import { ROLES, ROUTES } from '@/constants'
@@ -13,6 +13,7 @@ import DailyLogTable from './__components/dailylogs/DailyLogTable'
 import CreateLogDialog from './__components/dailylogs/CreateLogDialog'
 import EditLogDialog from './__components/dailylogs/EditLogDialog'
 import LogDetailSheet from './__components/dailylogs/LogDetailSheet'
+import { DEMO_DEFAULT_PROJECT_ID } from '@/demo/constants' // DEMO FEATURE: remove this import if demo mode is retired
 
 export default function DailyLogsPage() {
   const { user } = useAuthStore()
@@ -24,10 +25,25 @@ export default function DailyLogsPage() {
     page?: number
     search?: string
   }
-  const selectedProjectId = searchParams.project ?? null
+  const LAST_PROJECT_KEY = 'dailyLogs:lastProjectId'
+  const resolvedDefaultId = (() => {
+    if (searchParams.project !== undefined) return null
+    const saved = localStorage.getItem(LAST_PROJECT_KEY)
+    if (saved) return Number(saved)
+    if (isDemo) return DEMO_DEFAULT_PROJECT_ID // DEMO FEATURE: remove this fallback if demo mode is retired
+    return null
+  })()
+  const selectedProjectId = searchParams.project ?? resolvedDefaultId
   const page = searchParams.page ?? 1
   const search = searchParams.search ?? ''
   const [selectedLog, setSelectedLog] = useState<DailyLogResponse | null>(null)
+
+  useEffect(() => {
+    if (window.location.pathname !== ROUTES.DAILY_LOGS) return
+    if (selectedProjectId !== null) {
+      localStorage.setItem(LAST_PROJECT_KEY, String(selectedProjectId))
+    }
+  }, [selectedProjectId])
   const [createOpen, setCreateOpen] = useState(false)
   const [editLog, setEditLog] = useState<DailyLogResponse | null>(null)
   const PAGE_SIZE = 10
@@ -95,8 +111,8 @@ export default function DailyLogsPage() {
           {/*  DEMO FEATURE: remove this line if demo mode is retired */}
           {isDemo && (
             <p className="mt-1 text-xs font-medium text-amber-600 dark:text-amber-400">
-              Note: demo data includes future-dated logs for ongoing demo
-              purposes.
+              Note: demo data includes future-dated logs and auto selected
+              cavite for demo purposes.
             </p>
           )}
         </div>
