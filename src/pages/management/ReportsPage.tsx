@@ -13,7 +13,7 @@ import ReportDetailSheet from './__components/reports/ReportDetailSheet'
 import GenerateReportDialog from './__components/reports/GenerateReportDialog'
 import { toast } from 'sonner'
 import { downloadReport } from '@/services/report'
-import { DEMO_DEFAULT_PROJECT_ID } from '@/demo/constants' // DEMO FEATURE: remove this import if demo mode is retired
+import { DEMO_DEFAULT_PROJECT_NAME } from '@/demo/constants' // DEMO FEATURE: remove this import if demo mode is retired
 
 export default function ReportsPage() {
   const { user } = useAuthStore()
@@ -25,11 +25,18 @@ export default function ReportsPage() {
     page?: number
   }
   const LAST_PROJECT_KEY = 'reports:lastProjectId'
+  const { data: projects, isLoading: projectsLoading } = useProjects('Active')
   const resolvedDefaultId = (() => {
     if (searchParams.project !== undefined) return null
     const saved = localStorage.getItem(LAST_PROJECT_KEY)
     if (saved) return Number(saved)
-    if (isDemo) return DEMO_DEFAULT_PROJECT_ID // DEMO FEATURE: remove this fallback if demo mode is retired
+    if (isDemo) {
+      // DEMO FEATURE: remove this fallback if demo mode is retired
+      const demoProject = projects?.find(
+        (p) => p.name === DEMO_DEFAULT_PROJECT_NAME,
+      )
+      return demoProject?.id ?? null
+    }
     return null
   })()
   const selectedProjectId = searchParams.project ?? resolvedDefaultId
@@ -53,7 +60,6 @@ export default function ReportsPage() {
   const [cooldownUntil, setCooldownUntil] = useState<number | null>(null)
   const POLL_TIMEOUT_MS = 30000 // 30s real wall-clock budget, not tied to refetch count
   const COOLDOWN_MS = 30000 // 30s lockout after failure, no background requests
-  const { data: projects, isLoading: projectsLoading } = useProjects('Active')
   const {
     data: reports,
     isLoading: reportsLoading,

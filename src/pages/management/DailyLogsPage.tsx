@@ -13,7 +13,7 @@ import DailyLogTable from './__components/dailylogs/DailyLogTable'
 import CreateLogDialog from './__components/dailylogs/CreateLogDialog'
 import EditLogDialog from './__components/dailylogs/EditLogDialog'
 import LogDetailSheet from './__components/dailylogs/LogDetailSheet'
-import { DEMO_DEFAULT_PROJECT_ID } from '@/demo/constants' // DEMO FEATURE: remove this import if demo mode is retired
+import { DEMO_DEFAULT_PROJECT_NAME } from '@/demo/constants' // DEMO FEATURE: remove this import if demo mode is retired
 
 export default function DailyLogsPage() {
   const { user } = useAuthStore()
@@ -26,11 +26,18 @@ export default function DailyLogsPage() {
     search?: string
   }
   const LAST_PROJECT_KEY = 'dailyLogs:lastProjectId'
+  const { data: projects, isLoading: projectsLoading } = useProjects('Active')
   const resolvedDefaultId = (() => {
     if (searchParams.project !== undefined) return null
     const saved = localStorage.getItem(LAST_PROJECT_KEY)
     if (saved) return Number(saved)
-    if (isDemo) return DEMO_DEFAULT_PROJECT_ID // DEMO FEATURE: remove this fallback if demo mode is retired
+    if (isDemo) {
+      // DEMO FEATURE: remove this fallback if demo mode is retired
+      const demoProject = projects?.find(
+        (p) => p.name === DEMO_DEFAULT_PROJECT_NAME,
+      )
+      return demoProject?.id ?? null
+    }
     return null
   })()
   const selectedProjectId = searchParams.project ?? resolvedDefaultId
@@ -47,7 +54,6 @@ export default function DailyLogsPage() {
   const [createOpen, setCreateOpen] = useState(false)
   const [editLog, setEditLog] = useState<DailyLogResponse | null>(null)
   const PAGE_SIZE = 10
-  const { data: projects, isLoading: projectsLoading } = useProjects('Active')
   const {
     data: logs,
     isLoading: logsLoading,
