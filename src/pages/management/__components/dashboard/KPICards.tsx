@@ -145,11 +145,6 @@ export function OwnerKPICards({
       label: 'Total Active Projects',
       value: String(totalActiveProjects),
       icon: Briefcase,
-      delta:
-        showDeltas && !isSingleProject
-          ? data.total_active_projects_delta
-          : null,
-      deltaLabel: 'vs last month',
       route: ROUTES.PROJECTS,
     },
     {
