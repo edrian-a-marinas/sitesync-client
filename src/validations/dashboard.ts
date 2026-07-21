@@ -28,7 +28,6 @@ export const OwnerDashboardSchema = z.object({
   total_material_cost: z.number(),
   incidents_this_week: z.number(),
   total_incidents: z.number(),
-  total_active_projects_delta: z.number().nullable().optional(),
   total_spending_delta_percent: z.number().nullable().optional(),
   total_workers_active_delta: z.number().nullable().optional(),
   incidents_this_week_delta: z.number().nullable().optional(),
