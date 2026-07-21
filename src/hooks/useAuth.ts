@@ -32,8 +32,9 @@ export const useLogin = () => {
 export const useLogout = () => {
   const { logout } = useAuthContext()
   const navigate = useNavigate()
-
   return () => {
+    localStorage.removeItem('dailyLogs:lastProjectId')
+    localStorage.removeItem('reports:lastProjectId')
     logout()
     navigate({ to: ROUTES.LOGIN })
   }

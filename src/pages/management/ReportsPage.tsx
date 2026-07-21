@@ -13,19 +13,35 @@ import ReportDetailSheet from './__components/reports/ReportDetailSheet'
 import GenerateReportDialog from './__components/reports/GenerateReportDialog'
 import { toast } from 'sonner'
 import { downloadReport } from '@/services/report'
+import { DEMO_DEFAULT_PROJECT_ID } from '@/demo/constants' // DEMO FEATURE: remove this import if demo mode is retired
 
 export default function ReportsPage() {
   const { user } = useAuthStore()
   const isOwner = user?.role_id === ROLES.OWNER
-
+  const isDemo = user?.is_demo ?? false // DEMO FEATURE: remove this line if demo mode is retired
   const navigate = useNavigate()
   const searchParams = useSearch({ strict: false }) as {
     project?: number
     page?: number
   }
-  const selectedProjectId = searchParams.project ?? null
+  const LAST_PROJECT_KEY = 'reports:lastProjectId'
+  const resolvedDefaultId = (() => {
+    if (searchParams.project !== undefined) return null
+    const saved = localStorage.getItem(LAST_PROJECT_KEY)
+    if (saved) return Number(saved)
+    if (isDemo) return DEMO_DEFAULT_PROJECT_ID // DEMO FEATURE: remove this fallback if demo mode is retired
+    return null
+  })()
+  const selectedProjectId = searchParams.project ?? resolvedDefaultId
   const page = searchParams.page ?? 1
   const PAGE_SIZE = 10
+
+  useEffect(() => {
+    if (window.location.pathname !== ROUTES.REPORTS) return
+    if (selectedProjectId !== null) {
+      localStorage.setItem(LAST_PROJECT_KEY, String(selectedProjectId))
+    }
+  }, [selectedProjectId])
 
   const [generateOpen, setGenerateOpen] = useState(false)
   const [selectedReport, setSelectedReport] = useState<ReportResponse | null>(
